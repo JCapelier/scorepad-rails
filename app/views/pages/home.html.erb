@@ -1,16 +1,14 @@
-<div class="w-full max-w-full px-4">
-  <h1 class="mb-4 text-3xl font-bold text-center">Let's start a game, shall we ?</h1>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-    <% @games.each do |game| %>
-      <div class="card w-full bg-base-100 card-sm shadow-sm">
-        <div class="card-body">
-          <h2 class="card-title"><%= game.title%></h2>
-          <p><%= @game.description %></p>
-          <div class="justify-end card-actions">
-            <%= link_to "Start game", game_path(game) %>
-          </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+  <% @games.each do |game| %>
+    <div class="card w-full bg-yellow-50 border-yellow-100 border border-purple-100 shadow-sm hover:shadow-md transition">
+      <div class="card-body">
+        <h2 class="card-title text-xl font-semibold text-purple-800"><%= game.title %></h2>
+        <p class="text-gray-700"><%= game.description %></p>
+        <div class="justify-end card-actions">
+          <%= link_to "Start game", game_path(game),
+            class: "btn bg-yellow-300 hover:bg-yellow-400 text-purple-900 font-semibold" %>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>
