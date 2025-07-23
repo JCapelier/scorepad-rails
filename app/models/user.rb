@@ -7,5 +7,5 @@ class User < ApplicationRecord
   has_many :session_players, dependent: :destroy
   has_one :user_stat, dependent: :destroy
 
-  has_one_attached :profile_pic
+  has_one_attached :avatar
 end
