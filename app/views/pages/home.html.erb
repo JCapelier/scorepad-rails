@@ -1,4 +1,16 @@
-<div>
-  <h1 class="font-bold text-4xl">Pages#home</h1>
-  <p>Find me in app/views/pages/home.html.erb</p>
+<div class="w-full max-w-full px-4">
+  <h1 class="mb-4 text-3xl font-bold text-center">Let's start a game, shall we ?</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <% @games.each do |game| %>
+      <div class="card w-full bg-base-100 card-sm shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title"><%= game.title%></h2>
+          <p><%= @game.description %></p>
+          <div class="justify-end card-actions">
+            <%= link_to "Start game", game_path(game) %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>

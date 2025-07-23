@@ -5,7 +5,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :session_players, dependent: :destroy
-  has_one :user_stat, dependent: :destroy
 
   has_one_attached :avatar
 end

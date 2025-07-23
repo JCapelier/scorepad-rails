@@ -1,8 +1,7 @@
 puts "Deleting DB"
-UserStat.destroy_all
 Move.destroy_all
 Round.destroy_all
-ScoreSheet.destroy_all
+Scoresheet.destroy_all
 SessionPlayer.destroy_all
 GameSession.destroy_all
 Game.destroy_all
@@ -10,16 +9,16 @@ User.destroy_all
 puts "DB deleted"
 
 puts "Creating games"
-Game.create!(title: "Generic score counter")
-Game.create!(title: "Generic bet manager")
-Game.create!(title: "Skyjo")
-Game.create!(title: "Five Crowns")
-Game.create!(title: "Koi Koi")
-Game.create!(title: "Oh Hell (Escalier)")
-Game.create!(title: "Killer")
-Game.create!(title: "Azul")
-Game.create!(title: "Poker")
-Game.create!(title: "Scopa")
+Game.create!(title: "Generic score counter", description:"Set your own rules!")
+Game.create!(title: "Generic bet manager", description:"Set your own rules!")
+Game.create!(title: "Skyjo", description:"Don't be the first to reach 100!")
+Game.create!(title: "Five Crowns", description:"11 rounds of combinations!")
+Game.create!(title: "Koi Koi", description:"You filthy weeb!")
+Game.create!(title: "Oh Hell (Escalier)", description:"The power of my hand is over 9000 and I'll prove it!")
+Game.create!(title: "Killer", description:"TODO")
+Game.create!(title: "Azul", description:"The prettiest game!")
+Game.create!(title: "Poker", description:"Gimme your money!")
+Game.create!(title: "Scopa", description:"Because sometimes, you wanna feel like a Godfather!")
 puts "Created #{Game.count} games"
 
 puts "Creating users"
