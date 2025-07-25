@@ -1,7 +1,7 @@
 class Game < ApplicationRecord
   has_many :game_sessions, dependent: :destroy
 
-  def service_class
+  def game_engine
     case title.downcase
     when "five crowns"
       Games::FiveCrowns
@@ -11,10 +11,10 @@ class Game < ApplicationRecord
   end
 
   def max_players
-    service_class.max_players
+    game_engine.max_players
   end
 
   def min_players
-    service_class.min_players
+    game_engine.min_players
   end
 end
