@@ -6,7 +6,26 @@ class GameSessionsController < ApplicationController
 
 
     if session.save
-      redirect_to seating_game_session_path
+      redirect_to seating_game_session_path(session)
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def new
+    @game = Game.find(params[:game_id])
+    @session = GameSession.new
+    @users = User.all
+  end
+
+
+  def create
+    game = Game.find(params[:game_session][:game_id])
+    session = GameSession.new(session_params)
+    session.starts_at = Time.current
+    session.save!
+    if session.save
+      redirect_to scoresheet_path
     else
       render :new, status: :unprocessable_entity
     end
@@ -15,6 +34,6 @@ class GameSessionsController < ApplicationController
   private
 
   def session_params
-    params.require(:game_session).permit(:number_of_players, :location)
+    params.require(:game_session).permit(:location, :game_id, session_players_attributes: [:user_id, :position])
   end
 end
