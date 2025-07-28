@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   devise_for :users
+  get 'users/autocomplete', to: 'users#autocomplete'
   root to: "pages#home"
 
   resources :users, only: [:show]
@@ -12,5 +13,5 @@ Rails.application.routes.draw do
   end
 
   resources :games, only: [:show]
-  resources :game_sessions, only: [:update]
+  resources :game_sessions, only: [:new, :create, :update]
 end

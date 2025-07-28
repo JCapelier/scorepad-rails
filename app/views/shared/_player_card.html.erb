@@ -1,0 +1,7 @@
+<div class="relative flex flex-col items-center bg-gray-100 rounded-lg p-3 m-2 shadow-sm w-24">
+  <button type="button" class="absolute top-1 right-1 text-gray-400 hover:text-red-500 font-bold" title="Remove">
+    &times;
+  </button>
+  <img src="<%= user.avatar_url || 'https://placehold.co/64x64' %>" alt="avatar" class="w-12 h-12 rounded-full mb-2">
+  <span class="text-xs font-medium text-gray-800 text-center truncate w-full"><%= user.username %></span>
+</div>
