@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_26_102810) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_30_091945) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -79,6 +79,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_26_102810) do
     t.jsonb "data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "round_number"
+    t.string "status"
     t.index ["scoresheet_id"], name: "index_rounds_on_scoresheet_id"
   end
 

@@ -11,7 +11,7 @@ export default class extends Controller {
 
   search(event) {
     const input = event.currentTarget.value
-    if (input.length < 3) return
+    if (input.length < 2) return
 
     fetch(`/users/autocomplete?input=${encodeURIComponent(input)}`)
       .then(response => response.json())

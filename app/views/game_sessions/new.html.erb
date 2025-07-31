@@ -15,6 +15,27 @@
             class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500" %>
       </div>
 
+      <% if @custom_rules %>
+        <div class="mb-6 p-4 bg-purple-50 rounded">
+          <h3 class="font-bold text-lg mb-3 text-purple-700">Custom Rules</h3>
+          <% @custom_rules.each do |key, rule| %>
+            <div class="mb-3">
+              <% if rule["type"] == "checkbox" %>
+                <%= check_box_tag "custom_rules[#{key}]", true, false, id: "custom_rule_#{key}" %>
+                <%= label_tag "custom_rule_#{key}", rule["label"], class: "ml-2" %>
+              <% elsif rule["type"] == "number" %>
+                <%= label_tag "custom_rule_#{key}", rule["label"], class: "block mb-1" %>
+                <%= number_field_tag "custom_rules[#{key}]", nil, min: 0, class: "w-full px-3 py-2 border rounded-md" %>
+              <% elsif rule["type"] == "input" %>
+                <%= label_tag "custom_rule_#{key}", rule["label"], class: "block mb-1" %>
+                <%= text_field_tag "custom_rules[#{key}]", nil, class: "w-full px-3 py-2 border rounded-md" %>
+              <% end %>
+              <%# For future: handle "group" type with nested fields %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
       <div>
         <%= label_tag :player_search, "Add player by username", class: "block text-sm font-medium text-gray-800 mb-1" %>
         <%= text_field_tag :player_search, "", class: "w-full px-3 py-2 border rounded-md", data: { autocomplete_target: "input", action: "keyup->autocomplete#search" } %>
