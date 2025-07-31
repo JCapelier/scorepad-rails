@@ -83,4 +83,25 @@ export default class extends Controller {
       this.saveButtonTarget.disabled = true;
     }
   }
+
+  confirmEndGame() {
+    Swal.fire({
+      title: "Go the the results page ?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Finish the game!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById("finish-game-form").submit();
+        Swal.fire({
+          title: "Finished!",
+          text: "GG everyone !",
+          icon: "success"
+        });
+      }
+    });
+  }
 }

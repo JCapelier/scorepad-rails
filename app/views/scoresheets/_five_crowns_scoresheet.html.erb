@@ -102,4 +102,11 @@
       <% end %>
     </div>
   </dialog>
+
+  <%= form_with url: scoresheet_path(@scoresheet), method: :patch, html: { id: "finish-game-form", style: "display:none;" } do %>
+  <% end %>
+
+  <% if @rounds.all? { |round| round.status == "completed" } %>
+    <button data-action="click->confirmEndGame">Finish game</button>
+  <% end %>
 </div>
