@@ -1,0 +1,105 @@
+<div data-controller="five-crowns">
+  <% if flash[:alert] %>
+    <div class="alert alert-error"><%= flash[:alert] %></div>
+  <% end %>
+
+  <table style="width:100%; border-collapse:collapse; margin-bottom:24px;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid #ccc; padding:8px; width:40px; text-align:center;">Round</th>
+        <% @scoresheet.game_session.session_players.each do |session_player| %>
+          <th style="border-bottom:1px solid #ccc; padding:8px; text-align:center;">
+            <%= session_player.user.username %>
+          </th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @scoresheet.rounds.order(:round_number).each do |round| %>
+        <% editable = round.status == "completed" %>
+        <tr>
+          <td style="border-right:1px solid #eee; padding:8px; width:40px; text-align:center; font-weight:bold;">
+            <%= round.round_number %>
+          </td>
+          <% first_finisher = round.data["first_finisher"] %>
+          <% @scoresheet.game_session.session_players.each do |session_player| %>
+            <% score = round.data.dig("scores", session_player.user.username) %>
+            <% is_first = session_player.user.username == first_finisher %>
+            <td style="padding:8px; text-align:center; cursor:pointer; background:#fafafa;<%= is_first ? ' color: purple; font-weight: bold;' : '' %>"
+                data-round="<%= round.round_number %>"
+                data-first-finisher="<%= round.data["first_finisher"] %>"
+                data-player="<%= session_player.user.username %>"
+                <% if editable %>
+                  data-action="click->five-crowns#editRound"
+                  data-round-id="<%= round.id %>"
+                <% end %>
+              >
+              <%= score.present? ? score : "-" %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+      <!-- Totals row -->
+      <tr>
+        <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">Total</td>
+        <% @scoresheet.game_session.session_players.each do |session_player| %>
+          <% total = 0 %>
+          <% @scoresheet.rounds.order(:round_number).each do |round| %>
+            <% score = round.data.dig("scores", session_player.user.username) %>
+            <% total += score.to_i if score.present? %>
+          <% end %>
+          <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">
+            <%= total %>
+          </td>
+        <% end %>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- End Round Button -->
+  <div style="text-align:right; margin-bottom:16px;">
+    <button id="end-round-btn" class="btn" onclick="my_modal_3.showModal()">End Round</button>
+  </div>
+
+  <!-- DaisyUI Modal -->
+  <dialog id="my_modal_3" class="modal" >
+    <div class="modal-box">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
+      <h3 class="text-lg font-bold">Enter Scores for Round <%= round.round_number %><span id="modal-round-number"></span></h3>
+      <%= form_with url: round_path(@current_round), method: :patch, html: {
+        id: "score-form",
+        data: {
+          turbo: "false",
+          action: "ajax:success->five-crowns#closeModalAfterSuccess",
+        }
+      } do %>
+        <%= label_tag :first_finisher, "First player to finish" %>
+        <%= select_tag :first_finisher,
+          options_for_select([
+            ['Choose a player', '']
+          ] + @scoresheet.game_session.session_players.map { |sp| [sp.user.username, sp.user.username] }),
+          class: "select select-bordered w-full mb-3",
+          data: { five_crowns_target: "firstFinisher", action: "change->five-crowns#prefillForm", early_finish: @scoresheet.data["early_finish"] }
+        %>
+        <%= hidden_field_tag "early_finish", @scoresheet.data["early_finish"].to_s, id: "early-finish" %>
+        <% @scoresheet.game_session.session_players.each do |session_player| %>
+          <div class="form-control mb-2">
+            <%= label_tag(
+              "scores[#{session_player.user.username}]",
+              session_player.user.username,
+              class: "label"
+            ) %>
+            <%= number_field_tag(
+              "scores[#{session_player.user.username}]",
+              nil,
+              class: "input input-bordered w-20",
+              data: { five_crowns_target: "score", player: session_player.user.username }
+            ) %>
+          </div>
+        <% end %>
+        <%= submit_tag "Save", class: "btn btn-primary mt-3", data: { five_crowns_target: "saveButton" } %>
+        <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+      <% end %>
+    </div>
+  </dialog>
+</div>

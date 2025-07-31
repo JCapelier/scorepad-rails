@@ -1,0 +1,7 @@
+five_crowns:
+  long_game:
+    label: "Long game - From 3 to King, and then back."
+    type: "checkbox"
+  early_finish:
+    label: "Early finish - Don't wait for your hand to be completed before finishing."
+    type: "checkbox"
