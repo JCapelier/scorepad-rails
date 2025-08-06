@@ -2,15 +2,17 @@ class ScoresheetsController < ApplicationController
   def show
     @scoresheet = Scoresheet.find(params[:id])
     @rounds = @scoresheet.rounds.order(:round_number)
-    @current_round = @rounds.find_by(status: "active") || @rounds.first
-    @current_round.update(status: "active") if @current_round.status != "active"
+    @current_round = @rounds.find_by(status: "active") || @rounds.find_by(status: "pending") || @rounds.last
+
     @rounds_json = @rounds.map { |round| round.data.merge("round_number" => round.round_number) }.to_json
   end
 
-  def update
-    scoresheet = Scoresheet.find(params[:id])
-    scoresheet.update(status: "completed")
-
-    redirect_to results_scoresheet_path(scoresheet)
+  def results
+    @scoresheet = Scoresheet.find(params[:id])
+    @scoresheet.game_session.update(status: "completed", ends_at: Time.current)
+    game = @scoresheet.game_session.game
+    engine = game.game_engine
+    @trophies = game.game_engine.trophies(@scoresheet)
+    @leaderboard = game.game_engine.leaderboard(@scoresheet)
   end
 end

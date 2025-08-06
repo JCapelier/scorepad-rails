@@ -5,3 +5,7 @@ five_crowns:
   early_finish:
     label: "Early finish - Don't wait for your hand to be completed before finishing."
     type: "checkbox"
+    subrules:
+      double_if_not_lowest:
+        label: "If you finish first without the lowest score, double it!"
+        type: "checkbox"

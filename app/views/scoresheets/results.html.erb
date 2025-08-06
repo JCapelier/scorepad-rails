@@ -1,0 +1,3 @@
+<% if @scoresheet.game_session.game.title.downcase == "five crowns" %>
+    <%= render "scoresheets/five_crowns_results", scoresheet: @scoresheet %>
+<% end %>

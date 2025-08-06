@@ -7,7 +7,7 @@
 </div>
 
   <% if @scoresheet.game_session.game.title.downcase == "five crowns" %>
-      <%= render "scoresheets/five_crowns_round_info", round: @current_round %>
+      <%= render "scoresheets/five_crowns_round_info", round: @current_round, scoresheet: @scoresheet %>
       <%= render "scoresheets/five_crowns_scoresheet", round: @current_round %>
     </div>
   <% end %>

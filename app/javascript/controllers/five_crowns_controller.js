@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["firstFinisher", "score", "saveButton"]
+  static targets = ["firstFinisher", "score", "saveButton", "scoreCell"]
   connect() {
     this.checkButton()
 
@@ -19,7 +19,18 @@ export default class extends Controller {
   }
 
   prefillForm() {
-    if (document.getElementById("early-finish")?.value === "true") return;
+    if (document.getElementById("early-finish")?.value === "true") {
+      this.scoreTargets.forEach((target) => {
+        if (target.dataset.player === this.firstFinisherTarget.value) {
+          target.style.color = "purple";
+          target.style.fontWeight = "bold";
+        } else {
+          target.style.color = "";
+          target.style.fontWeight = "";
+        }
+      });
+      return;
+    }
 
     this.scoreTargets.forEach((target) => {
       if (target.dataset.player === this.firstFinisherTarget.value) {
@@ -37,14 +48,26 @@ export default class extends Controller {
   }
 
   editRound(event) {
-    this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher
-    const row = event.currentTarget.closest('tr');
+    this.resetScoreForm();
+    this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || "";
+    const roundNumber = event.currentTarget.dataset.round;
+    const roundId = event.currentTarget.dataset.roundId;
+
+    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.round === roundNumber);
 
     this.scoreTargets.forEach(input => {
       const player = input.dataset.player;
-      const cell = row.querySelector(`td[data-player='${player}']`);
+      const cell = scoreCells.find(cell => cell.dataset.player === player);
+
       if (cell) {
-        input.value = cell.textContent.trim();
+        let scoreText = cell.textContent.trim();
+        if (scoreText === "-") {
+          input.value = "";
+        } else if (cell.dataset.riskyFinish === "failure" && cell.dataset.player === this.firstFinisherTarget.value) {
+          input.value = parseInt(scoreText, 10) / 2;
+        } else {
+          input.value = scoreText;
+        }
       } else {
         input.value = "";
       }
@@ -52,7 +75,8 @@ export default class extends Controller {
       if (player === this.firstFinisherTarget.value) {
         input.style.color = "purple";
         input.style.fontWeight = "bold";
-        input.readOnly = true;
+        if (document.getElementById("early-finish")?.value === "false") {
+          input.readOnly = true;}
       } else {
         input.style.color = "";
         input.style.fontWeight = "";
@@ -60,17 +84,34 @@ export default class extends Controller {
       }
     });
 
-    const roundId = event.currentTarget.dataset.roundId;
     const form = document.getElementById("score-form");
-    form.action = `/rounds/${roundId}`;
+    const endButton = document.getElementById("end-round-btn")
+    if (roundId) {
+      form.action = `/rounds/${roundId}`;
+      console.log(form.action)
+    }
 
     const modalTitle = document.querySelector("#my_modal_3 .modal-box h3");
-    const roundNumber = event.currentTarget.dataset.round;
-    if (modalTitle) {
+    if (event.currentTarget === endButton) {
+      modalTitle.textContent = `Enter scores for round ${endButton.dataset.roundNumber}`;
+    } else {
       modalTitle.textContent = `Edit scores for round ${roundNumber}`;
     }
 
-    my_modal_3.showModal()
+    my_modal_3.showModal();
+  }
+
+  resetScoreForm() {
+    // Reset all score inputs and styles
+    this.scoreTargets.forEach(input => {
+      input.value = "";
+      input.style.color = "";
+      input.style.fontWeight = "";
+      input.readOnly = false;
+    });
+    if (this.hasFirstFinisherTarget) {
+      this.firstFinisherTarget.value = "";
+    }
   }
 
   checkButton() {
