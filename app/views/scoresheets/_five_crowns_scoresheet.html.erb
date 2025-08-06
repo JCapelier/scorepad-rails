@@ -17,6 +17,8 @@
     <tbody>
       <% @scoresheet.rounds.order(:round_number).each do |round| %>
         <% editable = round.status == "completed" %>
+        <% risky_finish = round.move_for_first_finisher&.data&.dig("risky_finish") %>
+        <% round_rules = round.scoresheet.data["early_finish"] %>
         <tr>
           <td style="border-right:1px solid #eee; padding:8px; width:40px; text-align:center; font-weight:bold;">
             <%= round.round_number %>
@@ -25,10 +27,19 @@
           <% @scoresheet.game_session.session_players.each do |session_player| %>
             <% score = round.data.dig("scores", session_player.user.username) %>
             <% is_first = session_player.user.username == first_finisher %>
-            <td style="padding:8px; text-align:center; cursor:pointer; background:#fafafa;<%= is_first ? ' color: purple; font-weight: bold;' : '' %>"
+            <% cell_style = "padding:8px; text-align:center; cursor:pointer; background:#fafafa;" %>
+            <% if is_first && risky_finish == "failure" %>
+              <% cell_style += " color: red; font-weight: bold;" %>
+            <% elsif is_first %>
+              <% cell_style += " color: purple; font-weight: bold;" %>
+            <% end %>
+            <td style="<%= cell_style %>"
                 data-round="<%= round.round_number %>"
                 data-first-finisher="<%= round.data["first_finisher"] %>"
                 data-player="<%= session_player.user.username %>"
+                data-risky-finish="<%= risky_finish %>"
+                data-early-finish='<%= round_rules["value"] %>'
+                data-five-crowns-target="scoreCell"
                 <% if editable %>
                   data-action="click->five-crowns#editRound"
                   data-round-id="<%= round.id %>"
@@ -56,16 +67,27 @@
     </tbody>
   </table>
 
+  <% in_progress = @scoresheet.rounds.any? { |round| round.status == "pending" || round.status == "active" } %>
+
   <!-- End Round Button -->
-  <div style="text-align:right; margin-bottom:16px;">
-    <button id="end-round-btn" class="btn" onclick="my_modal_3.showModal()">End Round</button>
-  </div>
+  <% if in_progress %>
+    <div style="text-align:right; margin-bottom:16px;">
+      <button id="end-round-btn" class="btn" data-action="click->five-crowns#editRound" data-round-number="<%= @current_round.round_number || round.round_number %>" data-round-id="<%= @current_round.id || round.id %>">End Round</button>
+    </div>
+  <% end %>
+
+  <!-- Finish Game Button -->
+  <% if @scoresheet.rounds.all? { |round| round.status == "completed" } %>
+    <div style="text-align:right; margin-bottom:16px;">
+      <%= link_to "Finish game", results_scoresheet_path(@scoresheet), class: "btn btn-primary" %>
+    </div>
+  <% end %>
 
   <!-- DaisyUI Modal -->
   <dialog id="my_modal_3" class="modal" >
     <div class="modal-box">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
-      <h3 class="text-lg font-bold">Enter Scores for Round <%= round.round_number %><span id="modal-round-number"></span></h3>
+      <h3 class="text-lg font-bold" id="modal-title"></h3>
       <%= form_with url: round_path(@current_round), method: :patch, html: {
         id: "score-form",
         data: {
@@ -73,15 +95,17 @@
           action: "ajax:success->five-crowns#closeModalAfterSuccess",
         }
       } do %>
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <%= label_tag :first_finisher, "First player to finish" %>
         <%= select_tag :first_finisher,
           options_for_select([
             ['Choose a player', '']
-          ] + @scoresheet.game_session.session_players.map { |sp| [sp.user.username, sp.user.username] }),
+          ] + @scoresheet.game_session.session_players.map { |sp| [sp.user.username, sp.user.username] }, ''),
           class: "select select-bordered w-full mb-3",
           data: { five_crowns_target: "firstFinisher", action: "change->five-crowns#prefillForm", early_finish: @scoresheet.data["early_finish"] }
         %>
-        <%= hidden_field_tag "early_finish", @scoresheet.data["early_finish"].to_s, id: "early-finish" %>
+        <%= hidden_field_tag "early_finish", @scoresheet.data["early_finish"]["value"].to_s, id: "early-finish" %>
+        <%= hidden_field_tag "double_if_not_lowest", @scoresheet.data["early_finish"]["subrules"]["double_if_not_lowest"].to_s, id: "double_if_not_lowest" %>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <div class="form-control mb-2">
             <%= label_tag(

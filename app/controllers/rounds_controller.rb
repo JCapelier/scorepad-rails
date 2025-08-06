@@ -10,10 +10,18 @@ class RoundsController < ApplicationController
       return
     end
 
-    round.update(status: "completed")
+    unless round.status == "completed"
+      round.update(status: "completed")
+      unless round.scoresheet.rounds.all? { |round| round.status == "completed"}
+        new_round = round.scoresheet.rounds.where(status: "pending").order(:round_number).first
+        new_round.update(status: "active") if new_round
+      end
+    end
+
     round.data ||= {}
     round.data.merge!(result[:round_data_updates])
     round.save
+    Move.where(round_id: round.id).destroy_all
     Move.create(result[:move_data]) if result[:move_data].present?
     if result[:move_data_list].present?
       result[:move_data_list].each { |move_attrs| Move.create(move_attrs) }
@@ -23,14 +31,16 @@ class RoundsController < ApplicationController
     rounds = Round.where(scoresheet: scoresheet, status: 'completed')
     game_engine.calculate_total_scores(rounds)
 
-    new_round = round.scoresheet.rounds.where(status: "pending").order(:round_number).first
-    new_round.update(status: "active") if new_round
 
     respond_to do |format|
       format.json {
         render json: {
           success: true,
-          round_html: render_to_string(partial: "scoresheets/five_crowns_round_info", formats: [:html], locals: { round: new_round }),
+          round_html: render_to_string(
+            partial: "scoresheets/five_crowns_round_info",
+            formats: [:html],
+            locals: { round: new_round || round }
+          ),
           scoresheet_html: render_to_string(partial: "scoresheets/five_crowns_scoresheet", formats: [:html], locals: { scoresheet: scoresheet })
         }
       }

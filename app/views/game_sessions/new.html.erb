@@ -16,21 +16,38 @@
       </div>
 
       <% if @custom_rules %>
-        <div class="mb-6 p-4 bg-purple-50 rounded">
+        <div class="mb-6 p-4 bg-purple-50 rounded" data-controller="rules">
           <h3 class="font-bold text-lg mb-3 text-purple-700">Custom Rules</h3>
           <% @custom_rules.each do |key, rule| %>
-            <div class="mb-3">
+            <div class="mb-3 flex flex-col gap-2">
               <% if rule["type"] == "checkbox" %>
-                <%= check_box_tag "custom_rules[#{key}]", true, false, id: "custom_rule_#{key}" %>
-                <%= label_tag "custom_rule_#{key}", rule["label"], class: "ml-2" %>
+                <div class="flex items-center">
+                  <%= check_box_tag "custom_rules[#{key}][value]", true, false, id: "custom_rule_#{key}", data: { rules_target: "parent" } %>
+                  <%= label_tag "custom_rule_#{key}", rule["label"], class: "ml-2" %>
+                </div>
+                <% if rule["subrules"] %>
+                  <% rule["subrules"].each do |subkey, subrule| %>
+                    <% if subrule["type"] == "checkbox" %>
+                      <div class="flex items-center ml-6">
+                        <%= check_box_tag "custom_rules[#{key}][subrules][#{subkey}]", true, false, id: "custom_rule_#{key}_#{subkey}", data: { rules_target: "subrule", parent_id: "custom_rule_#{key}" } %>
+                        <%= label_tag "custom_rule_#{key}_#{subkey}", subrule["label"], class: "ml-2" %>
+                      </div>
+                    <% elsif subrule["type"] == "number" %>
+                      <%= label_tag "custom_rules[#{key}_#{subkey}]", subrule["label"], class: "block mb-1 ml-6" %>
+                      <%= number_field_tag "custom_rules[#{key}][subrules][#{subkey}]", nil, min: 0, class: "w-full px-3 py-2 border rounded-md ml-6" %>
+                    <% elsif subrule["type"] == "input" %>
+                      <%= label_tag "custom_rules[#{key}_#{subkey}]", subrule["label"], class: "block mb-1 ml-6" %>
+                      <%= text_field_tag "custom_rules[#{key}][subrules][#{subkey}]", nil, class: "w-full px-3 py-2 border rounded-md ml-6" %>
+                    <% end %>
+                  <% end %>
+                <% end %>
               <% elsif rule["type"] == "number" %>
-                <%= label_tag "custom_rule_#{key}", rule["label"], class: "block mb-1" %>
+                <%= label_tag "custom_rules[#{key}][value]", rule["label"], class: "block mb-1" %>
                 <%= number_field_tag "custom_rules[#{key}]", nil, min: 0, class: "w-full px-3 py-2 border rounded-md" %>
               <% elsif rule["type"] == "input" %>
-                <%= label_tag "custom_rule_#{key}", rule["label"], class: "block mb-1" %>
+                <%= label_tag "custom_rules[#{key}][value]", rule["label"], class: "block mb-1" %>
                 <%= text_field_tag "custom_rules[#{key}]", nil, class: "w-full px-3 py-2 border rounded-md" %>
               <% end %>
-              <%# For future: handle "group" type with nested fields %>
             </div>
           <% end %>
         </div>
