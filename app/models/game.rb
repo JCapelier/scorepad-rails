@@ -17,4 +17,13 @@ class Game < ApplicationRecord
   def min_players
     game_engine.min_players
   end
+
+  def stats_service
+    case title.downcase
+    when "five crowns"
+      Games::FiveCrownsStatsService
+    else
+      raise "Unknown game: #{title}"
+    end
+  end
 end

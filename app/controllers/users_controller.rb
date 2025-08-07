@@ -1,4 +1,8 @@
 class UsersController < ApplicationController
+  def show
+    @user = current_user
+  end
+
   def autocomplete
     input = params[:input].to_s.strip
     if input.length < 2
