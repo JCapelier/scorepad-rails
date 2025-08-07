@@ -15,4 +15,5 @@ class ScoresheetsController < ApplicationController
     @trophies = game.game_engine.trophies(@scoresheet)
     @leaderboard = game.game_engine.leaderboard(@scoresheet)
   end
+
 end

@@ -7,9 +7,7 @@ Rails.application.routes.draw do
   resources :games, only: [:show]
   resources :game_sessions, only: [:new, :create, :update]
   resources :scoresheets, only: [:show, :update] do
-    member do
-      get :results
-    end
+      get :results, on: :member
   end
   resources :rounds, only: [:update]
 end

@@ -4,22 +4,27 @@
   <div>First Player: <%= round.data["first_player"] %></div>
   <div>Cards: <%= round.data["cards_per_round"] %></div>
   <div>Wild Card: <%= round.data["wild_cards"] %></div>
-  <div>Rules:</div>
-  <ul>
+  <div>Rules:
     <% rules = round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true } %>
-    <% rules.each do |key, rule| %>
-      <li>
-        <%= key.humanize %>
-        <% if rule["subrules"] %>
-          <ul>
-            <% rule["subrules"].each do |subkey, subvalue| %>
-              <% if subvalue == true %>
-                <li><%= subkey.humanize %></li>
-              <% end %>
+    <% if rules.empty? %>
+      <span>Standard</span>
+    <% else %>
+      <ul>
+        <% rules.each do |key, rule| %>
+          <li>
+            <%= key.humanize %>
+            <% if rule["subrules"] %>
+              <ul>
+                <% rule["subrules"].each do |subkey, subvalue| %>
+                  <% if subvalue == true %>
+                    <li><%= subkey.humanize %></li>
+                  <% end %>
+                <% end %>
+              </ul>
             <% end %>
-          </ul>
+          </li>
         <% end %>
-      </li>
+      </ul>
     <% end %>
-  </ul>
+  </div>
 </div>

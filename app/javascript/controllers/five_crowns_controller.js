@@ -125,7 +125,8 @@ export default class extends Controller {
     }
   }
 
-  confirmEndGame() {
+  confirmEndGame(event) {
+    event.preventDefault()
     Swal.fire({
       title: "Go the the results page ?",
       text: "You won't be able to revert this!",
@@ -137,11 +138,6 @@ export default class extends Controller {
     }).then((result) => {
       if (result.isConfirmed) {
         document.getElementById("finish-game-form").submit();
-        Swal.fire({
-          title: "Finished!",
-          text: "GG everyone !",
-          icon: "success"
-        });
       }
     });
   }
