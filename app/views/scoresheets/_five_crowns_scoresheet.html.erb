@@ -71,15 +71,30 @@
 
   <!-- End Round Button -->
   <% if in_progress %>
-    <div style="text-align:right; margin-bottom:16px;">
-      <button id="end-round-btn" class="btn" data-action="click->five-crowns#editRound" data-round-number="<%= @current_round.round_number || round.round_number %>" data-round-id="<%= @current_round.id || round.id %>">End Round</button>
+    <div class="flex flex-col items-center justify-center mb-6">
+      <button id="end-round-btn"
+        class="btn btn-lg btn-primary w-64 mb-2 text-xl"
+        data-action="click->five-crowns#editRound"
+        data-round-number="<%= @current_round.round_number || round.round_number %>"
+        data-round-id="<%= @current_round.id || round.id %>">
+        End Round
+      </button>
     </div>
   <% end %>
 
   <!-- Finish Game Button -->
   <% if @scoresheet.rounds.all? { |round| round.status == "completed" } %>
-    <div style="text-align:right; margin-bottom:16px;">
-      <%= link_to "Finish game", results_scoresheet_path(@scoresheet), class: "btn btn-primary" %>
+    <div class="flex flex-col items-center justify-center mb-6">
+      <%= form_with url: results_scoresheet_path(@scoresheet), method: :get, html: { id: "finish-game-form", class: "flex flex-col items-center justify-center mb-6" } do %>
+        <%= button_tag "Finish game", type: "submit", class: "btn btn-lg btn-primary w-64 mb-2 text-xl", data: { action: "click->five-crowns#confirmEndGame" } %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Suspend Game Button -->
+  <% unless @scoresheet.rounds.all? { |round| round.status == "completed" } %>
+    <div class="flex flex-col items-center justify-center mt-8 mb-4">
+      <%= link_to "Suspend game", root_path, class: "btn btn-warning w-48 text-base" %>
     </div>
   <% end %>
 

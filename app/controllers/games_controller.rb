@@ -3,5 +3,6 @@ class GamesController < ApplicationController
     @game = Game.find(params[:id])
     @game_session = GameSession.new
     @game.min_players.times {SessionPlayer.new}
+    @active_sessions = @game.game_sessions.joins(:session_players).where(status: "active", session_players: { user_id: current_user.id })
   end
 end
