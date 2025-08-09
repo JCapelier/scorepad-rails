@@ -90,12 +90,14 @@ module Games
       move_data = { round: round, session_player: session_player, move_type: "first_finisher", data: {} }
       move_data[:data][:risky_finish] = risky_finish if risky_finish
       {
+        instruction: "go_to_next_round",
         round_data_updates: { "scores" => scores, "first_finisher" => first_finisher },
         move_data: move_data
       }
     end
 
-    def self.calculate_total_scores(rounds)
+    def self.calculate_total_scores(scoresheet)
+      rounds = scoresheet.rounds.order(:round_number)
       totals = Hash.new(0)
       rounds.each do |round|
         scores = round.data["scores"] || {}

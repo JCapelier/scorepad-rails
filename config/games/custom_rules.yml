@@ -9,3 +9,10 @@ five_crowns:
       double_if_not_lowest:
         label: "If you finish first without the lowest score, double it!"
         type: "checkbox"
+skyjo:
+  child_mode:
+    label: "You never double your score, no matter what happens"
+    type: "checkbox"
+  custom_score_limit:
+    label: "Custom score limit"
+    type: "number"

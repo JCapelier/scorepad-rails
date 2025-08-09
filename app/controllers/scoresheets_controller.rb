@@ -5,6 +5,9 @@ class ScoresheetsController < ApplicationController
     @current_round = @rounds.find_by(status: "active") || @rounds.find_by(status: "pending") || @rounds.last
 
     @rounds_json = @rounds.map { |round| round.data.merge("round_number" => round.round_number) }.to_json
+
+    @totals = @scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet)
+    @score_limit = @scoresheet.data["score_limit"] if @scoresheet.data["score_limit"]
   end
 
   def results
