@@ -90,12 +90,14 @@ module Games
       move_data = { round: round, session_player: session_player, move_type: "first_finisher", data: {} }
       move_data[:data][:risky_finish] = risky_finish if risky_finish
       {
+        instruction: "go_to_next_round",
         round_data_updates: { "scores" => scores, "first_finisher" => first_finisher },
         move_data: move_data
       }
     end
 
-    def self.calculate_total_scores(rounds)
+    def self.calculate_total_scores(scoresheet)
+      rounds = scoresheet.rounds.order(:round_number)
       totals = Hash.new(0)
       rounds.each do |round|
         scores = round.data["scores"] || {}
@@ -115,7 +117,22 @@ module Games
           total_scores[player] += score.to_i
         end
       end
-      total_scores.sort_by { |_, score| score.to_i }
+      # Sort by score ascending (lowest is best)
+      sorted = total_scores.sort_by { |_, score| score.to_i }
+      leaderboard = []
+      last_score = nil
+      last_rank = 0
+      sorted.each_with_index do |(player, score), i|
+        if score == last_score
+          rank = last_rank
+        else
+          rank = i + 1
+          last_rank = rank
+          last_score = score
+        end
+        leaderboard << { player: player, score: score, rank: rank }
+      end
+      leaderboard
     end
 
     # Trophy/stat calculations for results view
@@ -126,20 +143,22 @@ module Games
       early_finish = rules["early_finish"]&.[]("value") == true
       double_if_not_lowest = rules["early_finish"]&.dig("subrules", "double_if_not_lowest") == true
 
-      # Efficiency Trophy
+      # Efficiency Trophy (ex aequo)
       first_finish_counts = Hash.new(0)
       rounds.each { |r| first_finish_counts[r.data["first_finisher"]] += 1 if r.data["first_finisher"].present? }
-      eff_player, eff_count = first_finish_counts.max_by { |_, v| v } || [nil, 0]
+      eff_max = first_finish_counts.values.max || 0
+      eff_players = first_finish_counts.select { |_, v| v == eff_max }.keys
 
-      # Consistency Trophy
+      # Consistency Trophy (ex aequo)
       zero_counts = Hash.new(0)
       rounds.each do |r|
         r.data["scores"]&.each { |player, score| zero_counts[player] += 1 if score.to_i == 0 }
       end
-      cons_player, cons_count = zero_counts.max_by { |_, v| v } || [nil, 0]
-      show_consistency = zero_counts.values.any? { |v| v > 0 }
+      cons_max = zero_counts.values.max || 0
+      cons_players = zero_counts.select { |_, v| v == cons_max }.keys
+      show_consistency = cons_max > 0
 
-      # Winning Streak Trophy
+      # Winning Streak Trophy (ex aequo)
       streaks = Hash.new(0)
       players.each do |player|
         max_streak = 0; current = 0
@@ -153,17 +172,19 @@ module Games
         end
         streaks[player] = max_streak
       end
-      streak_player, streak_count = streaks.max_by { |_, v| v } || [nil, 0]
-      show_streak = streaks.values.any? { |v| v > 0 }
+      streak_max = streaks.values.max || 0
+      streak_players = streaks.select { |_, v| v == streak_max }.keys
+      show_streak = streak_max > 0
 
-      # Fail Trophy
+      # Fail Trophy (ex aequo)
       fail_scores = []
       rounds.each do |r|
         r.data["scores"]&.each { |player, score| fail_scores << [player, score.to_i] }
       end
-      fail_player, fail_score = fail_scores.max_by { |_, v| v } || [nil, 0]
+      fail_max = fail_scores.map { |_, v| v }.max || 0
+      fail_players = fail_scores.select { |_, v| v == fail_max }.map(&:first).uniq
 
-      # Martyr Trophy
+      # Martyr Trophy (ex aequo)
       martyr_counts = Hash.new(0)
       rounds.each do |r|
         r.data["scores"]&.each do |player, score|
@@ -172,13 +193,13 @@ module Games
           end
         end
       end
-      martyr_player, martyr_count = martyr_counts.max_by { |_, v| v } || [nil, 0]
+      martyr_max = martyr_counts.values.max || 0
+      martyr_players = martyr_counts.select { |_, v| v == martyr_max }.keys
 
-      # Risk & Reward and Greed Trophies
-      risk_player, risk_count, greed_player, greed_count = nil, 0, nil, 0
+      # Risk & Reward and Greed Trophies (ex aequo)
+      risk_counts = Hash.new(0); greed_counts = Hash.new(0)
       show_risk, show_greed = false, false
       if early_finish && double_if_not_lowest
-        risk_counts = Hash.new(0); greed_counts = Hash.new(0)
         rounds.each do |r|
           move = r.move_for_first_finisher rescue nil
           next unless move && move.data && move.data["risky_finish"].present?
@@ -191,20 +212,24 @@ module Games
             greed_counts[player] += 1
           end
         end
-        risk_player, risk_count = risk_counts.max_by { |_, v| v } || [nil, 0]
-        greed_player, greed_count = greed_counts.max_by { |_, v| v } || [nil, 0]
-        show_risk = risk_count > 0
-        show_greed = greed_count > 0
+        risk_max = risk_counts.values.max || 0
+        risk_players = risk_counts.select { |_, v| v == risk_max }.keys
+        show_risk = risk_max > 0
+        greed_max = greed_counts.values.max || 0
+        greed_players = greed_counts.select { |_, v| v == greed_max }.keys
+        show_greed = greed_max > 0
+      else
+        risk_players, risk_max, greed_players, greed_max = [], 0, [], 0
       end
 
       {
-        efficiency: { player: eff_player, count: eff_count },
-        consistency: show_consistency ? { player: cons_player, count: cons_count } : nil,
-        winning_streak: show_streak ? { player: streak_player, count: streak_count } : nil,
-        fail: { player: fail_player, count: fail_score },
-        martyr: { player: martyr_player, count: martyr_count },
-        risk_reward: show_risk ? { player: risk_player, count: risk_count } : nil,
-        greed: show_greed ? { player: greed_player, count: greed_count } : nil
+        efficiency: { players: eff_players, count: eff_max },
+        consistency: show_consistency ? { players: cons_players, count: cons_max } : nil,
+        winning_streak: show_streak ? { players: streak_players, count: streak_max } : nil,
+        fail: { players: fail_players, count: fail_max },
+        martyr: { players: martyr_players, count: martyr_max },
+        risk_reward: show_risk ? { players: risk_players, count: risk_max } : nil,
+        greed: show_greed ? { players: greed_players, count: greed_max } : nil
       }
     end
   end

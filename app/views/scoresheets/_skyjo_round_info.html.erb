@@ -1,0 +1,25 @@
+<div style="background: #f8f8f8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+  <div>Round <%= round.round_number %></div>
+  <div>Dealer: <%= round.data["dealer"] %></div>
+  <div>First Player: <%= round.data["first_player"] %></div>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <% rules = round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true } %>
+    <% if rules.empty? %>
+      <span class="badge badge-outline">Standard</span>
+    <% else %>
+      <% rules.each do |key, rule| %>
+        <span class="badge badge-outline"><%= key.humanize %></span>
+        <% if rule["subrules"] %>
+          <% rule["subrules"].each do |subkey, subvalue| %>
+            <% if subvalue == true %>
+              <span class="badge badge-outline"><%= subkey.humanize %></span>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <% if round.scoresheet.data["custom_score_limit"] %>
+      <span class="badge badge-warning">Score Limit: <%= round.scoresheet.data["score_limit"] %></span>
+    <% end %>
+  </div>
+</div>

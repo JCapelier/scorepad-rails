@@ -160,7 +160,7 @@
         <div class="trophy bg-yellow-100 p-4 rounded shadow">
           <span class="text-2xl">⚡</span>
           <span class="font-bold">Efficiency Trophy:</span>
-          <span><%= @trophies[:efficiency][:players].join(', ') %> (<%= @trophies[:efficiency][:count] %> first finishes)</span>
+          <span><%= Array(@trophies[:efficiency][:players]).join(', ') %> (<%= @trophies[:efficiency][:count] %> first finishes)</span>
         </div>
       <% end %>
       <% if @trophies[:consistency] %>
@@ -170,25 +170,11 @@
           <span><%= @trophies[:consistency][:players].join(', ') %> (<%= @trophies[:consistency][:count] %> rounds at 0)</span>
         </div>
       <% end %>
-      <% if @trophies[:winning_streak] %>
-        <div class="trophy bg-blue-100 p-4 rounded shadow">
-          <span class="text-2xl">💪</span>
-          <span class="font-bold">Winning Streak Trophy:</span>
-          <span><%= @trophies[:winning_streak][:players].join(', ') %> (<%= @trophies[:winning_streak][:count] %> rounds at 0 in succession)</span>
-        </div>
-      <% end %>
       <% if @trophies[:fail] %>
         <div class="trophy bg-red-100 p-4 rounded shadow">
           <span class="text-2xl">💥</span>
           <span class="font-bold">Fail Trophy:</span>
           <span><%= @trophies[:fail][:players].join(', ') %> (<%= @trophies[:fail][:count] %> points in a round)</span>
-        </div>
-      <% end %>
-      <% if @trophies[:martyr] %>
-        <div class="trophy bg-gray-100 p-4 rounded shadow">
-          <span class="text-2xl">💀</span>
-          <span class="font-bold">Martyr Trophy:</span>
-          <span><%= @trophies[:martyr][:players].join(', ') %> (<%= @trophies[:martyr][:count] %> rounds)</span>
         </div>
       <% end %>
       <% if @trophies[:risk_reward] %>

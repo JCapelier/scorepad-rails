@@ -1,0 +1,5 @@
+child_mode: false
+custom_score_limit: false
+score_limit: 100
+min_players: 2
+max_players: 8

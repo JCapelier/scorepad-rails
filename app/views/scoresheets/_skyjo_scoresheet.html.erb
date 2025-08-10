@@ -1,4 +1,4 @@
-<div data-controller="five-crowns">
+<div id="controller-div" data-controller="skyjo">
   <% if flash[:alert] %>
     <div class="alert alert-error"><%= flash[:alert] %></div>
   <% end %>
@@ -17,18 +17,19 @@
     <tbody>
       <% @scoresheet.rounds.order(:round_number).each do |round| %>
         <% editable = round.status == "completed" %>
-        <% risky_finish = round.move_for_first_finisher&.data&.dig("risky_finish") %>
-        <% round_rules = round.scoresheet.data["early_finish"] %>
+        <% finish_status = round.move_for_first_finisher&.data&.dig("finish_status") %>
+        <% round_rules = round.scoresheet.data["child_mode"] %>
         <tr>
           <td style="border-right:1px solid #eee; padding:8px; width:40px; text-align:center; font-weight:bold;">
             <%= round.round_number %>
           </td>
           <% first_finisher = round.data["first_finisher"] %>
+          <% dealer = round.data["dealer"] %>
           <% @scoresheet.game_session.session_players.each do |session_player| %>
             <% score = round.data.dig("scores", session_player.user.username) %>
             <% is_first = session_player.user.username == first_finisher %>
             <% cell_style = "padding:8px; text-align:center; cursor:pointer; background:#fafafa;" %>
-            <% if is_first && risky_finish == "failure" %>
+            <% if is_first && finish_status == "failure" %>
               <% cell_style += " color: red; font-weight: bold;" %>
             <% elsif is_first %>
               <% cell_style += " color: purple; font-weight: bold;" %>
@@ -36,12 +37,13 @@
             <td style="<%= cell_style %>"
                 data-round="<%= round.round_number %>"
                 data-first-finisher="<%= round.data["first_finisher"] %>"
+                data-dealer="<%= dealer %>"
                 data-player="<%= session_player.user.username %>"
-                data-risky-finish="<%= risky_finish %>"
-                data-early-finish='<%= round_rules["value"] %>'
-                data-five-crowns-target="scoreCell"
+                data-finish-status="<%= finish_status %>"
+                data-child-mode="<%= round.scoresheet.data["child_mode"] %>"
+                data-skyjo-target="scoreCell"
                 <% if editable %>
-                  data-action="click->five-crowns#editRound"
+                  data-action="click->skyjo#editRound"
                   data-round-id="<%= round.id %>"
                 <% end %>
               >
@@ -52,40 +54,43 @@
       <% end %>
       <!-- Totals row -->
       <tr>
-        <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">Grand Total</td>
-        <% totals = @scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet) %>
+        <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">Total</td>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
+          <% total = 0 %>
+          <% @scoresheet.rounds.order(:round_number).each do |round| %>
+            <% score = round.data.dig("scores", session_player.user.username) %>
+            <% total += score.to_i if score.present? %>
+          <% end %>
           <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">
-            <%= totals[session_player.user.username] %>
+            <%= total %>
           </td>
         <% end %>
       </tr>
     </tbody>
   </table>
 
-  <% in_progress = @scoresheet.rounds.any? { |round| round.status == "pending" || round.status == "active" } %>
+<% in_progress = @totals.values.all? { |score| score < @score_limit } %>
 
   <!-- End Round Button -->
   <% if in_progress %>
     <div class="flex flex-col items-center justify-center mb-6">
       <button id="end-round-btn"
         class="btn btn-lg btn-primary w-64 mb-2 text-xl"
-        data-action="click->five-crowns#editRound"
+        data-action="click->skyjo#editRound"
         data-round-number="<%= @current_round.round_number || round.round_number %>"
         data-round-id="<%= @current_round.id || round.id %>">
         End Round
       </button>
     </div>
+    <!-- Finish Game Button -->
+    <% else %>
+      <div class="flex flex-col items-center justify-center mb-6">
+        <%= form_with url: results_scoresheet_path(@scoresheet), method: :get, html: { id: "finish-game-form", class: "flex flex-col items-center justify-center mb-6" } do %>
+          <%= button_tag "Finish game", type: "submit", class: "btn btn-lg btn-primary w-64 mb-2 text-xl", data: { action: "click->skyjo#confirmEndGame" } %>
+        <% end %>
+      </div>
   <% end %>
 
-  <!-- Finish Game Button -->
-  <% if @scoresheet.rounds.all? { |round| round.status == "completed" } %>
-    <div class="flex flex-col items-center justify-center mb-6">
-      <%= form_with url: results_scoresheet_path(@scoresheet), method: :get, html: { id: "finish-game-form", class: "flex flex-col items-center justify-center mb-6" }, data: {turbo: false} do %>
-        <%= button_tag "Finish game", type: "submit", class: "btn btn-lg btn-primary w-64 mb-2 text-xl", data: { action: "click->five-crowns#confirmEndGame" } %>
-      <% end %>
-    </div>
-  <% end %>
 
   <!-- Suspend Game Button -->
   <% unless @scoresheet.rounds.all? { |round| round.status == "completed" } %>
@@ -103,7 +108,7 @@
         id: "score-form",
         data: {
           turbo: "false",
-          action: "ajax:success->five-crowns#closeModalAfterSuccess",
+          action: "ajax:success->skyjo#closeModalAfterSuccess",
         }
       } do %>
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
@@ -113,10 +118,9 @@
             ['Choose a player', '']
           ] + @scoresheet.game_session.session_players.map { |sp| [sp.user.username, sp.user.username] }, ''),
           class: "select select-bordered w-full mb-3",
-          data: { five_crowns_target: "firstFinisher", action: "change->five-crowns#prefillForm", early_finish: @scoresheet.data["early_finish"] }
+          data: { skyjo_target: "firstFinisher", action: "change->skyjo#prefillForm" }
         %>
-        <%= hidden_field_tag "early_finish", @scoresheet.data["early_finish"]["value"].to_s, id: "early-finish" %>
-        <%= hidden_field_tag "double_if_not_lowest", @scoresheet.data["early_finish"]["subrules"]["double_if_not_lowest"].to_s, id: "double_if_not_lowest" %>
+        <%= hidden_field_tag "child-mode", @scoresheet.data["child_mode"].to_s, id: "child-mode" %>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <div class="form-control mb-2">
             <%= label_tag(
@@ -128,11 +132,11 @@
               "scores[#{session_player.user.username}]",
               nil,
               class: "input input-bordered w-20",
-              data: { five_crowns_target: "score", player: session_player.user.username }
+              data: { skyjo_target: "score", player: session_player.user.username }
             ) %>
           </div>
         <% end %>
-        <%= submit_tag "Save", class: "btn btn-primary mt-3", data: { five_crowns_target: "saveButton" } %>
+        <%= submit_tag "Save", class: "btn btn-primary mt-3", data: { skyjo_target: "saveButton" } %>
         <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
       <% end %>
     </div>
