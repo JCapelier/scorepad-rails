@@ -1,5 +1,5 @@
 module Games
-  class FiveCrownsStatsService
+  class SkyjoStatsService
     def initialize(user, game)
       @user = user
       @game = game
@@ -12,7 +12,8 @@ module Games
         leaderboard = @game.game_engine.leaderboard(s.scoresheet)
         next false unless leaderboard.present?
         min_score = leaderboard.map { |entry| entry[:score] }.min
-        leaderboard.select { |entry| entry[:score] == min_score }.map { |entry| entry[:player] }.include?(@user.username)
+        winners = leaderboard.select { |entry| entry[:score] == min_score }.map { |entry| entry[:player] }
+        winners.include?(@user.username)
       end
       win_count = won_games.size
       win_percent = total_games > 0 ? (win_count * 100 / total_games) : 0
@@ -20,10 +21,11 @@ module Games
       total_score = 0
       total_rounds = 0
       total_first_finisher = 0
-      risky_success = 0; risky_fail = 0; risky_total = 0
       highest_score = 0
       longest_streak = 0
       trophy_counts = Hash.new(0)
+
+      risky_success = 0; risky_fail = 0; risky_total = 0
 
       sessions.each do |session|
         scoresheet = session.scoresheet
@@ -43,11 +45,11 @@ module Games
           end
           total_first_finisher += 1 if round.data["first_finisher"] == @user.username
           move = round.move_for_first_finisher rescue nil
-          if move && move.data && move.data["risky_finish"].present? && move.session_player.user.username == @user.username
+          if move && move.data && move.data["finish_status"].present? && move.session_player.user.username == @user.username
             risky_total += 1
-            if move.data["risky_finish"] == "success"
+            if move.data["finish_status"] == "success"
               risky_success += 1
-            elsif move.data["risky_finish"] == "failure"
+            elsif move.data["finish_status"] == "failure"
               risky_fail += 1
             end
           end

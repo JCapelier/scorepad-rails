@@ -10,13 +10,24 @@
 
   <div class="bg-white shadow rounded-lg p-6 mb-8 flex flex-col items-center">
     <h2 class="text-xl font-bold mb-4 text-center">General Stats</h2>
+    <% all_games = Game.all %>
+    <% total_games = 0 %>
+    <% total_wins = 0 %>
+    <% all_games.each do |game| %>
+      <% stats = game.stats_service.new(@user, game).stats rescue nil %>
+      <% if stats %>
+        <% total_games += stats[:total_games].to_i %>
+        <% total_wins += stats[:win_count].to_i %>
+      <% end %>
+    <% end %>
+    <% victory_percent = total_games > 0 ? (total_wins * 100 / total_games) : 0 %>
     <div class="flex flex-row gap-8 items-center justify-center">
       <div class="flex flex-col items-center">
-        <span class="text-2xl font-bold text-purple-700"><%= @user.completed_games_count %></span>
+        <span class="text-2xl font-bold text-purple-700"><%= total_games %></span>
         <span class="text-gray-600">Games Completed</span>
       </div>
       <div class="flex flex-col items-center">
-        <span class="text-2xl font-bold text-green-700"><%= @user.games_won_count %></span>
+        <span class="text-2xl font-bold text-green-700"><%= total_wins %></span>
         <span class="text-gray-600">Games Won</span>
       </div>
       <div class="flex flex-col items-center">
@@ -25,9 +36,9 @@
             <path class="circle-bg" stroke="#eee" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
             <path class="circle" stroke="#4ade80" stroke-width="4" stroke-linecap="round" fill="none"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              stroke-dasharray="<%= @user.victory_percent %>, 100" />
+              stroke-dasharray="<%= victory_percent %>, 100" />
           </svg>
-          <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-green-700"><%= @user.victory_percent %>%</span>
+          <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-green-700"><%= victory_percent %>%</span>
         </div>
         <span class="text-gray-600">Victory Rate</span>
       </div>
@@ -54,6 +65,8 @@
         <div class="collapse-content bg-white text-purple-900 peer-checked:bg-yellow-50 peer-checked:text-purple-900">
           <% if game.title == "Five Crowns" %>
             <%= render partial: "users/five_crowns_stats", locals: { stats: game.stats_service.new(@user, game).stats } %>
+          <% elsif game.title == "Skyjo" %>
+            <%= render partial: "users/skyjo_stats", locals: { skyjo_stats: game.stats_service.new(@user, game).stats } %>
           <% else %>
             <div class="mb-2">
               <span class="font-semibold">Games Played:</span> <%= completed.count %>

@@ -14,7 +14,6 @@ class ScoresheetsController < ApplicationController
     @scoresheet = Scoresheet.find(params[:id])
     @scoresheet.game_session.update(status: "completed", ends_at: Time.current)
     game = @scoresheet.game_session.game
-    engine = game.game_engine
     @trophies = game.game_engine.trophies(@scoresheet)
     @leaderboard = game.game_engine.leaderboard(@scoresheet)
   end

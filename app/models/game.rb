@@ -24,6 +24,8 @@ class Game < ApplicationRecord
     case title.downcase
     when "five crowns"
       Games::FiveCrownsStatsService
+    when "skyjo"
+      Games::SkyjoStatsService
     else
       raise "Unknown game: #{title}"
     end
