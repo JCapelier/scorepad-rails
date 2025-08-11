@@ -7,5 +7,7 @@
     <%= link_to "New session", new_game_session_path(game_id: @game.id), class: "btn btn-lg btn-primary w-64 mb-4 text-xl" %>
   </div>
 
-  <%= render 'games/active_sessions', active_sessions: @game.game_sessions.where(status: 'active') %>
+  <turbo-frame id="active_sessions_frame">
+    <%= render partial: "games/active_sessions", locals: { active_sessions: @active_sessions } %>
+  </turbo-frame>
 </div>

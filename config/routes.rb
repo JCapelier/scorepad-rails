@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
   resources :users, only: [:show]
   resources :games, only: [:show]
-  resources :game_sessions, only: [:new, :create, :update]
+  resources :game_sessions, only: [:new, :create, :update, :destroy]
   resources :scoresheets, only: [:show, :update] do
       get :results, on: :member
   end

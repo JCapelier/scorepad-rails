@@ -49,6 +49,10 @@
           <% if session.scoresheet %>
             <%= link_to "Resume", scoresheet_path(session.scoresheet), class: "btn btn-primary w-32" %>
           <% end %>
+          <%= link_to "Delete",
+              game_session_path(session),
+              class: "btn btn-primary w-32",
+              data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %>
         </div>
       </div>
     <% end %>
