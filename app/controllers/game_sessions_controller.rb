@@ -28,6 +28,21 @@ class GameSessionsController < ApplicationController
     end
   end
 
+  def destroy
+    session = GameSession.find(params[:id])
+    game = session.game
+    session.destroy
+    @active_sessions = game.game_sessions.where(status: 'active').joins(:session_players).where(session_players: { user_id: current_user.id }).distinct
+
+    respond_to do |format|
+      format.turbo_stream {
+        render turbo_stream: turbo_stream.replace('active_sessions_frame', partial: 'games/active_sessions', locals: { active_sessions: @active_sessions })
+      }
+      format.html { redirect_to game_path(game), notice: "Game session deleted." }
+    end
+  end
+
+
   private
 
   def session_params
