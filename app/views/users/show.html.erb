@@ -57,25 +57,13 @@
       <% sessions = games_played[game] %>
       <% completed = sessions.select { |s| s.status == "completed" } %>
       <% won = completed.select { |s| s.scoresheet && game.game_engine.leaderboard(s.scoresheet).present? && game.game_engine.leaderboard(s.scoresheet).first[0] == @user.username } %>
-      <div class="bg-base-100 border-base-300 collapse border mb-4">
+      <div class="bg-base-100 border-base-300 collapse border mb-4 mt-4">
         <input type="checkbox" class="peer" />
         <div class="collapse-title bg-yellow-200 text-purple-700 peer-checked:bg-yellow-300 peer-checked:text-purple-900">
           <span class="font-bold text-lg"><%= game.title %></span>
         </div>
         <div class="collapse-content bg-white text-purple-900 peer-checked:bg-yellow-50 peer-checked:text-purple-900">
-          <% if game.title == "Five Crowns" %>
-            <%= render partial: "users/five_crowns_stats", locals: { stats: game.stats_service.new(@user, game).stats } %>
-          <% elsif game.title == "Skyjo" %>
-            <%= render partial: "users/skyjo_stats", locals: { skyjo_stats: game.stats_service.new(@user, game).stats } %>
-          <% else %>
-            <div class="mb-2">
-              <span class="font-semibold">Games Played:</span> <%= completed.count %>
-            </div>
-            <div class="mb-2">
-              <span class="font-semibold">Games Won:</span> <%= won.count %>
-            </div>
-            <!-- Add other game partials here as you implement them -->
-          <% end %>
+          <%= render partial: "users/#{game.title.parameterize.underscore}_stats", locals: { stats: game.stats_service.new(@user, game).stats } %>
         </div>
       </div>
     <% end %>

@@ -1,5 +1,8 @@
-<% if @scoresheet.game_session.game.title.downcase == "five crowns" %>
-    <%= render "scoresheets/five_crowns_results", scoresheet: @scoresheet %>
-<% elsif @scoresheet.game_session.game.title.downcase == "skyjo" %>
+<% case @scoresheet.game_session.game.title.downcase %>
+  <% when "five crowns" %>
+      <%= render "scoresheets/five_crowns_results", scoresheet: @scoresheet %>
+  <% when "skyjo" %>
     <%= render "scoresheets/skyjo_results", scoresheet: @scoresheet %>
+  <% when "mexican train" %>
+    <%= render "scoresheets/mexican_train_results", scoresheet: @scoresheet %>
 <% end %>
