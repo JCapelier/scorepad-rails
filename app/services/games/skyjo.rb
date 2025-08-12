@@ -40,7 +40,6 @@ module Games
 
 
       [{
-        "first_player" => first_player.user.username,
         "dealer" => dealer.user.username
       }]
     end
@@ -85,19 +84,13 @@ module Games
 
     def self.next_round_data(round)
       players = round.scoresheet.game_session.session_players.order(:position)
-      current_first_player = round.data["first_player"]
       current_dealer = round.data["dealer"]
       ordered_players = players.sort_by { |player| player.position }
       usernames = ordered_players.map { |p| p.user.username }
-
-      first_index = usernames.index(current_first_player)
       dealer_index = usernames.index(current_dealer)
-
-      next_first_player = usernames[(first_index + 1) % usernames.size]
       next_dealer = usernames[(dealer_index + 1) % usernames.size]
 
       {
-        "first_player" => next_first_player,
         "dealer" => next_dealer
       }
     end

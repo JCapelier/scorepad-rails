@@ -1,7 +1,6 @@
 <div style="background: #f8f8f8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
   <div>Round <%= round.round_number %></div>
   <div>Dealer: <%= round.data["dealer"] %></div>
-  <div>First Player: <%= round.data["first_player"] %></div>
   <div class="flex flex-wrap gap-2 mt-2">
     <% rules = round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true } %>
     <% if rules.empty? %>
