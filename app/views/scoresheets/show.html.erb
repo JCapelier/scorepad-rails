@@ -6,11 +6,15 @@
   <span style="font-size: 0.9em; color: #888;">00:00</span>
 </div>
 
-  <% if @scoresheet.game_session.game.title.downcase == "five crowns" %>
-    <%= render "scoresheets/five_crowns_round_info", round: @current_round, scoresheet: @scoresheet %>
-    <%= render "scoresheets/five_crowns_scoresheet", round: @current_round %>
-  <% elsif @scoresheet.game_session.game.title.downcase == "skyjo" %>
-    <%= render "scoresheets/skyjo_round_info", round: @current_round, scoresheet: @scoresheet %>
-    <%= render "scoresheets/skyjo_scoresheet", round: @current_round %>
+  <% case @scoresheet.game_session.game.title.downcase %>
+    <% when "five crowns" %>
+      <%= render "scoresheets/five_crowns_round_info", round: @current_round, scoresheet: @scoresheet %>
+      <%= render "scoresheets/five_crowns_scoresheet", round: @current_round %>
+    <% when "skyjo" %>
+      <%= render "scoresheets/skyjo_round_info", round: @current_round, scoresheet: @scoresheet %>
+      <%= render "scoresheets/skyjo_scoresheet", round: @current_round %>
+    <% when "mexican train" %>
+      <%= render "scoresheets/mexican_train_round_info", round: @current_round, scoresheet: @scoresheet %>
+      <%= render "scoresheets/mexican_train_scoresheet", round: @current_round %>
   <% end %>
 </div>

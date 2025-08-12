@@ -16,3 +16,7 @@ skyjo:
   custom_score_limit:
     label: "Custom score limit"
     type: "number"
+mexican_train:
+  long_game:
+    label: "Long game - Don't you have a life ?!"
+    type: "checkbox"

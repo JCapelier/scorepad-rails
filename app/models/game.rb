@@ -7,6 +7,8 @@ class Game < ApplicationRecord
       Games::FiveCrowns
     when "skyjo"
       Games::Skyjo
+    when "mexican train"
+      Games::MexicanTrain
     else
       raise "Unknown game: #{title}"
     end
@@ -26,6 +28,8 @@ class Game < ApplicationRecord
       Games::FiveCrownsStatsService
     when "skyjo"
       Games::SkyjoStatsService
+    when "mexican train"
+      Games::MexicanTrainStatsService
     else
       raise "Unknown game: #{title}"
     end
