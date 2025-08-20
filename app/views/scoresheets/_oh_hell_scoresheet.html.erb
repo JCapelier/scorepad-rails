@@ -93,72 +93,88 @@
     </div>
   <% end %>
 
-    <!-- DaisyUI Modal -->
-    <dialog id="my_modal_3" class="modal">
-      <div class="modal-box">
-        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
-        <h3 class="text-lg font-bold" id="modal-title"></h3>
-
-        <% cards_this_round = @current_round&.data&.dig("cards_per_round") || 0 %>
-        <div id="bidding-form" style="display: none;">
-          <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
-            id: "bidding-score-form",
-            data: {
-              turbo: "false",
-              action: "ajax:success->oh-hell#closeModalAfterSuccess",
-              number_of_cards: cards_this_round,
-              phase: "bidding"
-            }
-          } do %>
-            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-            <%= hidden_field_tag :phase, "bidding" %>
-            <% @scoresheet.game_session.session_players.each do |session_player| %>
-              <div class="form-control mb-2">
-                <%= label_tag(
-                  "bids[#{session_player.user.username}]",
-                  "Bid for #{session_player.user.username}",
-                  class: "label"
-                ) %>
-                <%= select_tag(
-                  "bids[#{session_player.user.username}]",
-                  options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("bids", session_player.user.username)),
-                  class: "select select-bordered w-24",
-                  data: { oh_hell_target: "bid", player: session_player.user.username }
-                ) %>
-              </div>
-            <% end %>
-            <%= submit_tag "Save Bids", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveButton" } %>
-            <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
-          <% end %>
-        </div>
-        <div id="scoring-form" style="display: none;">
-          <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
-            id: "scoring-score-form",
-            data: {
-              turbo: "false",
-              action: "ajax:success->oh-hell#closeModalAfterSuccess",
-              number_of_cards: cards_this_round,
-              phase: "scoring"
-            }
-          } do %>
-            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-            <% @scoresheet.game_session.session_players.each do |session_player| %>
-              <div class="form-control mb-2 flex flex-row items-center gap-4">
-                <span class="font-bold w-24"><%= session_player.user.username %></span>
-                <span class="w-20">Bid: <%= @current_round&.data&.dig("bids", session_player.user.username) %></span>
-                <%= select_tag(
-                  "tricks[#{session_player.user.username}]",
-                  options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("scores", session_player.user.username)),
-                  class: "select select-bordered w-24",
-                  data: { oh_hell_target: "tricks", player: session_player.user.username }
-                ) %>
-              </div>
-            <% end %>
-            <%= submit_tag "Save Scores", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveButton" }  %>
-            <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
-          <% end %>
-        </div>
-        <div id="oh-hell-modal-fields"></div>
-      </div>
-    </dialog>
+  <!-- Finish Game Button -->
+  <% if @scoresheet.rounds.all? { |round| round.status == "completed" } %>
+    <div class="flex flex-col items-center justify-center mb-6">
+      <%= form_with url: results_scoresheet_path(@scoresheet), method: :get, html: { id: "finish-game-form", class: "flex flex-col items-center justify-center mb-6" }, data: {turbo: false} do %>
+        <%= button_tag "Finish game", type: "submit", class: "btn btn-lg btn-primary w-64 mb-2 text-xl", data: { action: "click->five-crowns#confirmEndGame" } %>
+      <% end %>
     </div>
+  <% end %>
+
+  <!-- Suspend Game Button -->
+  <% unless @scoresheet.rounds.all? { |round| round.status == "completed" } %>
+    <div class="flex flex-col items-center justify-center mt-8 mb-4">
+      <%= link_to "Suspend game", root_path, class: "btn btn-warning w-48 text-base" %>
+    </div>
+  <% end %>
+
+  <!-- DaisyUI Modal -->
+  <dialog id="my_modal_3" class="modal">
+    <div class="modal-box">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
+      <h3 class="text-lg font-bold" id="modal-title"></h3>
+
+      <% cards_this_round = @current_round&.data&.dig("cards_per_round") || 0 %>
+      <div id="bidding-form" style="display: none;">
+        <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
+          id: "bidding-score-form",
+          data: {
+            turbo: "false",
+            action: "ajax:success->oh-hell#closeModalAfterSuccess",
+            number_of_cards: cards_this_round,
+            phase: "bidding"
+          }
+        } do %>
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <%= hidden_field_tag :phase, "bidding" %>
+          <% @scoresheet.game_session.session_players.each do |session_player| %>
+            <div class="form-control mb-2">
+              <%= label_tag(
+                "bids[#{session_player.user.username}]",
+                "Bid for #{session_player.user.username}",
+                class: "label"
+              ) %>
+              <%= select_tag(
+                "bids[#{session_player.user.username}]",
+                options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("bids", session_player.user.username)),
+                class: "select select-bordered w-24",
+                data: { oh_hell_target: "bid", player: session_player.user.username }
+              ) %>
+            </div>
+          <% end %>
+          <%= submit_tag "Save Bids", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveButton" } %>
+          <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+        <% end %>
+      </div>
+      <div id="scoring-form" style="display: none;">
+        <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
+          id: "scoring-score-form",
+          data: {
+            turbo: "false",
+            action: "ajax:success->oh-hell#closeModalAfterSuccess",
+            number_of_cards: cards_this_round,
+            phase: "scoring"
+          }
+        } do %>
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <% @scoresheet.game_session.session_players.each do |session_player| %>
+            <div class="form-control mb-2 flex flex-row items-center gap-4">
+              <span class="font-bold w-24"><%= session_player.user.username %></span>
+              <span class="w-20">Bid: <%= @current_round&.data&.dig("bids", session_player.user.username) %></span>
+              <%= select_tag(
+                "tricks[#{session_player.user.username}]",
+                options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("scores", session_player.user.username)),
+                class: "select select-bordered w-24",
+                data: { oh_hell_target: "tricks", player: session_player.user.username }
+              ) %>
+            </div>
+          <% end %>
+          <%= submit_tag "Save Scores", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveButton" }  %>
+          <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+        <% end %>
+      </div>
+      <div id="oh-hell-modal-fields"></div>
+    </div>
+  </dialog>
+</div>

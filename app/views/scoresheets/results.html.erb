@@ -1,8 +1,2 @@
-<% case @scoresheet.game_session.game.title.downcase %>
-  <% when "five crowns" %>
-      <%= render "scoresheets/five_crowns_results", scoresheet: @scoresheet %>
-  <% when "skyjo" %>
-    <%= render "scoresheets/skyjo_results", scoresheet: @scoresheet %>
-  <% when "mexican train" %>
-    <%= render "scoresheets/mexican_train_results", scoresheet: @scoresheet %>
-<% end %>
+<% game_formated = @scoresheet.game_session.game.title.parameterize.underscore %>
+<%= render "scoresheets/#{game_formated}_results", scoresheet: @scoresheet %>

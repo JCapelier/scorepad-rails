@@ -174,4 +174,21 @@ export default class extends Controller {
 
     my_modal_3.showModal();
   }
+
+  confirmEndGame(event) {
+    event.preventDefault()
+    Swal.fire({
+      title: "Go the the results page ?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Finish the game!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById("finish-game-form").submit();
+      }
+    });
+  }
 }
