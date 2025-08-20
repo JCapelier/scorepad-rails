@@ -38,7 +38,6 @@ module Games
       first_player = ordered_players.first
       dealer = ordered_players.last
 
-
       [{
         "dealer" => dealer.user.username
       }]

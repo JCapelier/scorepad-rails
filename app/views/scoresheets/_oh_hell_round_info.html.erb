@@ -1,0 +1,29 @@
+<div style="background: #f8f8f8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+  <div>Round <%= round.round_number %></div>
+  <div>Dealer: <%= round.data["dealer"] %></div>
+  <div>First Player: <%= round.data["first_player"] %></div>
+  <div>Cards: <%= round.data["cards_per_round"] %></div>
+  <div>Rules:
+    <% rules = round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true } %>
+    <% if rules.empty? %>
+      <span>Standard</span>
+    <% else %>
+      <ul>
+        <% rules.each do |key, rule| %>
+          <li>
+            <%= key.humanize %>
+            <% if rule["subrules"] %>
+              <ul>
+                <% rule["subrules"].each do |subkey, subvalue| %>
+                  <% if subvalue == true %>
+                    <li><%= subkey.humanize %></li>
+                  <% end %>
+                <% end %>
+              </ul>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</div>

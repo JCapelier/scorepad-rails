@@ -2,19 +2,25 @@ class RoundsController < ApplicationController
   def update
     round = Round.find(params[:id])
     scoresheet = round.scoresheet
-    rounds = scoresheet.rounds.order(:round_number)
     game_engine = round.scoresheet.game_session.game.game_engine
-    results = game_engine.handle_round_completion(round, params)
+    round.data ||= {}
 
-    if results[:error]
-      flash[:alert] = results[:error]
-      redirect_to scoresheet_path(round.scoresheet)
-      return
+    if params[:phase] && params[:phase] == "bidding"
+      results = game_engine.handle_bidding_phase(round, params)
+
+    else
+      results = game_engine.handle_round_completion(round, params)
+          if results[:error]
+            flash[:alert] = results[:error]
+            redirect_to scoresheet_path(round.scoresheet)
+            return
+          else
+            unless round.status == "completed"
+              round.update(status: "completed")
+            end
+          end
     end
 
-    unless round.status == "completed"
-      round.update(status: "completed")
-    end
 
     case results[:instruction]
       when "go_to_next_round"
@@ -29,9 +35,9 @@ class RoundsController < ApplicationController
     end
 
 
-    round.data ||= {}
     round.data.merge!(results[:round_data_updates])
     round.save
+
     Move.where(round_id: round.id).destroy_all
     Move.create(results[:move_data]) if results[:move_data].present?
     if results[:move_data_list].present?

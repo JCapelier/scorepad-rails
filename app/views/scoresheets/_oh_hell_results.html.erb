@@ -1,0 +1,162 @@
+<div class="w-full max-w-2xl mx-auto p-6">
+  <!-- Game Title -->
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-bold text-purple-700 mb-2"><%= @scoresheet.game_session.game.title %></h1>
+    <div class="text-gray-600">
+      <span class="badge badge-outline badge-lg mx-1 italic">Standard rules</span>
+    </div>
+  </div>
+
+  <!-- Leaderboard & Trophies Shared Width -->
+  <div class="mb-8 flex flex-col items-center w-full">
+    <div class="w-full max-w-2xl">
+      <h2 class="text-xl font-bold mb-4 text-center">Leaderboard</h2>
+      <% session_players = @scoresheet.game_session.session_players.includes(:user) %>
+      <div class="flex justify-center w-full">
+        <table class="table text-center mx-4 w-full" style="max-width: 600px;">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% user_map = {} %>
+            <% session_players.each do |sp| %>
+              <% user_map[sp.user.username] = sp.user %>
+              <% user_map[sp.user.id] = sp.user %>
+              <% user_map[sp] = sp.user %>
+              <% user_map[sp.to_s] = sp.user %>
+            <% end %>
+            <% @leaderboard.each do |entry| %>
+              <tr>
+                <td>
+                  <% if entry[:rank] == 1 %>
+                    <span class="text-2xl">🥇</span>
+                  <% elsif entry[:rank] == 2 %>
+                    <span class="text-2xl">🥈</span>
+                  <% elsif entry[:rank] == 3 %>
+                    <span class="text-2xl">🥉</span>
+                  <% else %>
+                    <%= entry[:rank] %>
+                  <% end %>
+                </td>
+                <td>
+                  <% user = user_map[entry[:player]] || user_map[entry[:player].to_s] %>
+                  <% if user %>
+                    <span class="inline-flex items-center gap-2">
+                      <% if user.avatar_url.present? %>
+                        <img src="<%= user.avatar_url %>" alt="avatar" class="w-6 h-6 rounded-full border inline-block" />
+                      <% end %>
+                      <span class="text-xl"><%= user.username %></span>
+                    </span>
+                  <% else %>
+                    <span class="text-xl"><%= entry[:player] %></span>
+                  <% end %>
+                </td>
+                <td><span class="text-xl"><%= entry[:score] %></span></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trophies / Stats -->
+  <div class="mb-8 flex flex-col items-center w-full">
+    <div class="w-full max-w-2xl relative">
+      <div class="flex items-center justify-center mb-4">
+        <div class="flex flex-col flex-1 items-center">
+          <h2 class="text-xl font-bold text-center">Trophies</h2>
+          <button type="button" class="text-xs text-gray-500 underline mt-1" style="background:none;border:none;padding:0;cursor:pointer;" onclick="document.getElementById('trophy-info-modal').showModal()">(check trophies description)</button>
+        </div>
+      </div>
+      <dialog id="trophy-info-modal" class="modal">
+        <div class="modal-box">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="document.getElementById('trophy-info-modal').close()">✕</button>
+          <h3 class="text-lg font-bold mb-4 text-center">Trophy Descriptions</h3>
+          <div class="space-y-4 text-center">
+            <div class="border-b pb-2">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-2xl">🟢</span>
+                <span class="font-bold">Consistency Trophy</span>
+                <span class="text-gray-500 text-sm mt-1">Most bids accomplished over the game</span>
+              </div>
+            </div>
+            <div class="border-b pb-2">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-2xl">💪</span>
+                <span class="font-bold">Winning Streak Trophy</span>
+                <span class="text-gray-500 text-sm mt-1">Longest streak of consecutive accomplished bids</span>
+              </div>
+            </div>
+            <div class="border-b pb-2">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-2xl">💥</span>
+                <span class="font-bold">Fail Trophy</span>
+                <span class="text-gray-500 text-sm mt-1">Lowest score in a single round</span>
+              </div>
+            </div>
+            <div class="border-b pb-2">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-2xl">💀</span>
+                <span class="font-bold">Martyr Trophy</span>
+                <span class="text-gray-500 text-sm mt-1">Most bids failed in the game</span>
+              </div>
+            </div>
+            <div class="border-b pb-2">
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-2xl">🎲</span>
+                <span class="font-bold">Risk & Reward Trophy</span>
+                <span class="text-gray-500 text-sm mt-1">Highest score in a round</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% if @trophies[:consistency] %>
+        <div class="trophy bg-green-100 p-4 rounded shadow">
+          <span class="text-2xl">🟢</span>
+          <span class="font-bold">Consistency Trophy:</span>
+          <span><%= @trophies[:consistency][:players].join(', ') %> (<%= @trophies[:consistency][:count] %> accomplished bids)</span>
+        </div>
+      <% end %>
+      <% if @trophies[:winning_streak] %>
+        <div class="trophy bg-blue-100 p-4 rounded shadow">
+          <span class="text-2xl">💪</span>
+          <span class="font-bold">Winning Streak Trophy:</span>
+          <span><%= @trophies[:winning_streak][:players].join(', ') %> (<%= @trophies[:winning_streak][:count] %> consecutive accomplished bids)</span>
+        </div>
+      <% end %>
+      <% if @trophies[:fail] %>
+        <div class="trophy bg-red-100 p-4 rounded shadow">
+          <span class="text-2xl">💥</span>
+          <span class="font-bold">Fail Trophy:</span>
+          <span><%= @trophies[:fail][:players].join(', ') %> (Lowest round score: <%= @trophies[:fail][:count] %>)</span>
+        </div>
+      <% end %>
+      <% if @trophies[:martyr] %>
+        <div class="trophy bg-gray-100 p-4 rounded shadow">
+          <span class="text-2xl">💀</span>
+          <span class="font-bold">Martyr Trophy:</span>
+          <span><%= @trophies[:martyr][:players].join(', ') %> (<%= @trophies[:martyr][:count] %> failed bids)</span>
+        </div>
+      <% end %>
+      <% if @trophies[:risk_reward] %>
+        <div class="trophy bg-orange-100 p-4 rounded shadow">
+          <span class="text-2xl">🎲</span>
+          <span class="font-bold">Risk & Reward Trophy:</span>
+          <span><%= @trophies[:risk_reward][:players].join(', ') %> (Highest round score: <%= @trophies[:risk_reward][:count] %>)</span>
+        </div>
+      <% end %>
+        </div>
+
+    <div class="flex justify-center gap-4 mt-8">
+      <a href="<%= new_game_session_path(game_id: @scoresheet.game_session.game.id) %>" class="btn btn-primary">Play again</a>
+      <a href="<%= root_path %>" class="btn btn-outline">Back to home</a>
+    </div>
+  </div>
+</div>

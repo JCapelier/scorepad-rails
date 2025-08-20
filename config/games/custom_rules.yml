@@ -20,3 +20,7 @@ mexican_train:
   long_game:
     label: "Long game - Don't you have a life ?!"
     type: "checkbox"
+oh_hell:
+  long_game:
+    label: "Long game - From the minimum to the maximum number of cards, and then back."
+    type: "checkbox"
