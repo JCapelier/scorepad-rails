@@ -2,19 +2,9 @@
 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
   <h2 style="margin: 0;"><%= @scoresheet.game_session.game.title %></h2>
   <span style="font-size: 0.9em; color: #888;"><%= @scoresheet.created_at.strftime("%b %d, %Y") %></span>
-  <!-- Timer placeholder -->
-  <span style="font-size: 0.9em; color: #888;">00:00</span>
 </div>
 
-  <% case @scoresheet.game_session.game.title.downcase %>
-    <% when "five crowns" %>
-      <%= render "scoresheets/five_crowns_round_info", round: @current_round, scoresheet: @scoresheet %>
-      <%= render "scoresheets/five_crowns_scoresheet", round: @current_round %>
-    <% when "skyjo" %>
-      <%= render "scoresheets/skyjo_round_info", round: @current_round, scoresheet: @scoresheet %>
-      <%= render "scoresheets/skyjo_scoresheet", round: @current_round %>
-    <% when "mexican train" %>
-      <%= render "scoresheets/mexican_train_round_info", round: @current_round, scoresheet: @scoresheet %>
-      <%= render "scoresheets/mexican_train_scoresheet", round: @current_round %>
-  <% end %>
+  <% game_formated = @scoresheet.game_session.game.title.parameterize.underscore %>
+  <%= render "scoresheets/#{game_formated}_round_info", round: @current_round, scoresheet: @scoresheet %>
+  <%= render "scoresheets/#{game_formated}_scoresheet", round: @current_round %>
 </div>

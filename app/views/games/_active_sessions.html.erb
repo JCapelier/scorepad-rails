@@ -47,7 +47,7 @@
         </div>
         <div class="mt-3 text-center">
           <% if session.scoresheet %>
-            <%= link_to "Resume", scoresheet_path(session.scoresheet), class: "btn btn-primary w-32" %>
+            <%= link_to "Resume", scoresheet_path(session.scoresheet), class: "btn btn-primary w-32", data: { turbo: "false" } %>
           <% end %>
           <%= link_to "Delete",
               game_session_path(session),

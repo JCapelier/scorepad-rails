@@ -1,0 +1,164 @@
+<div data-controller="oh-hell">
+  <% if flash[:alert] %>
+    <div class="alert alert-error"><%= flash[:alert] %></div>
+  <% end %>
+
+  <table style="width:100%; border-collapse:collapse; margin-bottom:24px;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid #ccc; padding:8px; width:40px; text-align:center;">Round</th>
+        <% @scoresheet.game_session.session_players.each do |session_player| %>
+          <th style="border-bottom:1px solid #ccc; padding:8px; text-align:center;" colspan="2">
+            <%= session_player.user.username %>
+          </th>
+        <% end %>
+      </tr>
+      <tr>
+        <th></th>
+        <% @scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
+          <th style="border-bottom:1px solid #eee; border-right:1px solid #ddd; padding:4px; text-align:center; font-size:12px; color:#888; width:40px;">Bet</th>
+          <th style="border-bottom:1px solid #eee; padding:4px; text-align:center; font-size:12px; color:#888; width:60px;<% if idx < @scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">Score</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @scoresheet.rounds.order(:round_number).each do |round| %>
+        <% phase = round.data["phase"] %>
+        <% is_completed = round.status == "completed" %>
+        <tr
+          <% if is_completed %>
+            data-action="click->oh-hell#editRound"
+            class="hover:bg-blue-100 transition cursor-pointer"
+            data-round-id="<%= round.id %>"
+            data-round-phase="<%= phase %>"
+            data-round-status="<%= round.status %>"
+            data-round-number="<%= round.round_number %>"
+            data-cards-per-round="<%= round.data['cards_per_round'] %>"
+            <% @scoresheet.game_session.session_players.each do |session_player| %>
+              data-bid-<%= session_player.user.username %>="<%= round.data.dig('bids', session_player.user.username) %>"
+              data-score-<%= round.data.dig('scores', session_player.user.username) %>="<%= round.data.dig('scores', session_player.user.username) %>"
+            <% end %>
+          <% end %>
+        >
+          <td style="border-right:1px solid #eee; padding:8px; width:40px; text-align:center; font-weight:bold;">
+            <%= round.round_number %>
+          </td>
+          <% @scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
+            <td data-oh-hell-target="bid-cell" data-round-number="<%= round.round_number %>" data-player="<%= session_player.user.username %>" data-bid="<%= round.data.dig('bids', session_player.user.username) %>" style="padding:8px; text-align:center; font-size:13px; color:#555; background:#fafafa; border-right:1px solid #ddd;">
+              <%= round.data.dig("bids", session_player.user.username) %>
+            </td>
+            <% score = round.data.dig("scores", session_player.user.username) %>
+            <td data-oh-hell-target="score-cell" data-round-number="<%= round.round_number %>" data-player="<%= session_player.user.username %>" data-score="<%= score %>" style="padding:8px; text-align:center; font-size:15px; font-weight:bold; background:#fafafa;<% if score.to_i < 0 %> color:red;<% else %> color:purple;<% end %><% if idx < @scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
+              <%= score %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td style="font-weight:bold;">Grand Total</td>
+        <% @scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
+          <td></td>
+          <td style="font-weight:bold; font-size:18px; color:goldenrod;<% if idx < @scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
+            <%= @scoresheet.rounds.sum { |round| round.data.dig("scores", session_player.user.username).to_i } %>
+          </td>
+        <% end %>
+      </tr>
+    </tfoot>
+  </table>
+
+  <% in_progress = @scoresheet.rounds.any? { |round| round.status == "pending" || round.status == "active" } %>
+
+  <% if in_progress  %>
+    <div class="flex flex-col items-center justify-center mb-6">
+      <button id="end-round-btn"
+        class="btn btn-lg btn-primary w-64 mb-2 text-xl"
+        data-action="click->oh-hell#editBidding"
+        data-round-number="<%= @current_round.round_number || round.round_number %>"
+        data-round-id="<%= @current_round.id || round.id %>">
+        Bidding
+      </button>
+    </div>
+  <% end %>
+  <% if in_progress && round.data["phase"] != "bidding"%>
+    <div class="flex flex-col items-center justify-center mb-6">
+        <button id="end-round-btn"
+        class="btn btn-lg btn-primary w-64 mb-2 text-xl"
+        data-action="click->oh-hell#editScoring"
+        data-round-number="<%= @current_round.round_number || round.round_number %>"
+        data-round-id="<%= @current_round.id || round.id %>">
+        Scoring
+      </button>
+    </div>
+  <% end %>
+
+    <!-- DaisyUI Modal -->
+    <dialog id="my_modal_3" class="modal">
+      <div class="modal-box">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
+        <h3 class="text-lg font-bold" id="modal-title"></h3>
+
+        <% cards_this_round = @current_round&.data&.dig("cards_per_round") || 0 %>
+        <div id="bidding-form" style="display: none;">
+          <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
+            id: "bidding-score-form",
+            data: {
+              turbo: "false",
+              action: "ajax:success->oh-hell#closeModalAfterSuccess",
+              number_of_cards: cards_this_round,
+              phase: "bidding"
+            }
+          } do %>
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <%= hidden_field_tag :phase, "bidding" %>
+            <% @scoresheet.game_session.session_players.each do |session_player| %>
+              <div class="form-control mb-2">
+                <%= label_tag(
+                  "bids[#{session_player.user.username}]",
+                  "Bid for #{session_player.user.username}",
+                  class: "label"
+                ) %>
+                <%= select_tag(
+                  "bids[#{session_player.user.username}]",
+                  options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("bids", session_player.user.username)),
+                  class: "select select-bordered w-24",
+                  data: { oh_hell_target: "bid", player: session_player.user.username }
+                ) %>
+              </div>
+            <% end %>
+            <%= submit_tag "Save Bids", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveButton" } %>
+            <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+          <% end %>
+        </div>
+        <div id="scoring-form" style="display: none;">
+          <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
+            id: "scoring-score-form",
+            data: {
+              turbo: "false",
+              action: "ajax:success->oh-hell#closeModalAfterSuccess",
+              number_of_cards: cards_this_round,
+              phase: "scoring"
+            }
+          } do %>
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <% @scoresheet.game_session.session_players.each do |session_player| %>
+              <div class="form-control mb-2 flex flex-row items-center gap-4">
+                <span class="font-bold w-24"><%= session_player.user.username %></span>
+                <span class="w-20">Bid: <%= @current_round&.data&.dig("bids", session_player.user.username) %></span>
+                <%= select_tag(
+                  "tricks[#{session_player.user.username}]",
+                  options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("scores", session_player.user.username)),
+                  class: "select select-bordered w-24",
+                  data: { oh_hell_target: "tricks", player: session_player.user.username }
+                ) %>
+              </div>
+            <% end %>
+            <%= submit_tag "Save Scores", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveButton" }  %>
+            <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+          <% end %>
+        </div>
+        <div id="oh-hell-modal-fields"></div>
+      </div>
+    </dialog>
+    </div>
