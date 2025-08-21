@@ -1,32 +1,22 @@
-<div class="navbar shadow-sm border-b-2 border-indigo-500 bg-yellow-300">
+<div class="navbar navbar-yellow">
   <div class="flex-1">
-    <a class="btn btn-ghost text-xl">Scorebook</a>
+    <span class="navbar-title">Scorebook</span>
   </div>
-
   <div class="flex-none">
     <% if current_user %>
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-          <% if current_user.avatar.attached? %>
-            <%= image_tag current_user.avatar.variant(resize_to_fill: [128, 128]).processed,
-                          class: "rounded-full w-10 h-10 object-cover" %>
-          <% else %>
-            <%= image_tag "default-avatar.jpg", class: "rounded-full w-10 h-10 object-cover" %>
-          <% end %>
-        </div>
-
-        <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-          <li><a>Profile</a></li>
-          <li><a>Settings</a></li>
-          <li>
-            <%= link_to "Logout", destroy_user_session_path, method: :delete %>
-          </li>
-        </ul>
+      <div class="flex items-center gap-2">
+        <% if current_user.avatar.attached? %>
+          <%= image_tag current_user.avatar.variant(resize_to_fill: [128, 128]).processed,
+                        class: "rounded-full w-10 h-10 object-cover" %>
+        <% else %>
+          <%= image_tag "default-avatar.jpg", class: "rounded-full w-10 h-10 object-cover" %>
+        <% end %>
+        <span class="navbar-username"><%= current_user.username.presence || current_user.email %></span>
       </div>
     <% else %>
-      <div class="flex gap-2">
+      <div class="flex items-center gap-2">
         <%= link_to "Log in", new_user_session_path, class: "btn btn-sm btn-outline" %>
-        <%= link_to "Sign up", new_user_registration_path, class: "btn btn-sm btn-primary" %>
+        <%= link_to "Sign up", new_user_registration_path, class: "text-sm underline navbar-username" %>
       </div>
     <% end %>
   </div>

@@ -1,0 +1,40 @@
+/*
+ * Navbar custom styles for yellow background, purple text, and cozy font
+ */
+
+.navbar-yellow {
+  background-color: #ffe600 !important;
+  color: #800080 !important;
+  box-shadow: 0 2px 8px 0 rgba(128,0,128,0.08);
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.navbar-yellow .navbar-title {
+  font-family: 'Caveat', 'Segoe Script', 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+  color: #800080 !important;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+.navbar-yellow .navbar-username {
+  color: #800080 !important;
+  font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
+  font-size: 1.05em;
+  font-weight: 500;
+}
+
+.navbar-yellow .btn,
+.navbar-yellow a {
+  color: #800080 !important;
+}
+
+.navbar-yellow .btn.btn-outline {
+  border-color: #800080 !important;
+}
+
+.navbar-yellow .btn.btn-outline:hover {
+  background: #800080 !important;
+  color: #ffe600 !important;
+}

@@ -1,0 +1,12 @@
+/*
+ * Dock custom styles for yellow background and purple icons/text
+ */
+.dock-yellow {
+  background-color: #ffe600 !important; /* bright yellow */
+  color: #800080 !important; /* purple */
+}
+.dock-yellow .dock-label,
+.dock-yellow svg {
+  color: #800080 !important;
+  fill: #800080 !important;
+}

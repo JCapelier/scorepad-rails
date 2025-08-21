@@ -1,0 +1,14 @@
+<!-- Log Out Modal -->
+<dialog id="modal-logout" class="modal">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg mb-4">Log Out</h3>
+    <p class="mb-4">Are you sure you want to log out?</p>
+    <div class="flex justify-end gap-2">
+      <button type="button" class="btn btn-sm" onclick="document.getElementById('modal-logout').close()">Cancel</button>
+      <%= button_to 'Log Out', destroy_user_session_path, method: :delete, class: 'btn btn-sm btn-error' %>
+    </div>
+  </div>
+</dialog>

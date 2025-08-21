@@ -13,3 +13,7 @@
  *= require_tree .
  *= require_self
  */
+
+@import "dock_custom.css";
+
+@import "navbar_custom.css";
