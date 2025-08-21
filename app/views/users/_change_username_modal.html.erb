@@ -1,0 +1,18 @@
+<!-- Change Username Modal -->
+<dialog id="modal-username" class="modal">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg mb-4">Change Username</h3>
+    <%= simple_form_for(current_user, url: user_path(current_user), html: { id: "username_form_#{current_user.id}" }, method: :patch) do |f| %>
+      <div class="mb-4">
+        <%= f.input :username, input_html: { class: 'input input-bordered w-full', placeholder: 'New username' }, label: false %>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn btn-sm" onclick="document.getElementById('modal-username').close()">Cancel</button>
+        <%= f.button :submit, 'Save', class: 'btn btn-sm btn-primary' %>
+      </div>
+    <% end %>
+  </div>
+</dialog>

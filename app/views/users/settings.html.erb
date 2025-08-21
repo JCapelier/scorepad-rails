@@ -1,0 +1,26 @@
+
+<!-- User Settings Layout with DaisyUI modal triggers -->
+<div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-xl shadow-md flex flex-col gap-6">
+  <h2 class="text-2xl font-bold text-center text-purple-800 mb-2">Account Settings</h2>
+
+  <button class="btn btn-block btn-outline btn-warning" onclick="document.getElementById('modal-avatar').showModal()">
+    <i class="fa-solid fa-image mr-2"></i> Change Avatar
+  </button>
+
+  <button class="btn btn-block btn-outline btn-primary" onclick="document.getElementById('modal-username').showModal()">
+    <i class="fa-solid fa-user-pen mr-2"></i> Change Username
+  </button>
+
+  <button class="btn btn-block btn-outline btn-secondary" onclick="document.getElementById('modal-password').showModal()">
+    <i class="fa-solid fa-key mr-2"></i> Change Password
+  </button>
+
+  <button class="btn btn-block btn-outline btn-error" onclick="document.getElementById('modal-logout').showModal()">
+    <i class="fa-solid fa-right-from-bracket mr-2"></i> Log Out
+  </button>
+</div>
+
+<%= render 'change_avatar_modal' %>
+<%= render 'change_username_modal' %>
+<%= render 'change_password_modal' %>
+<%= render 'logout_modal' %>
