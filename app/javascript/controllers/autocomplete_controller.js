@@ -150,9 +150,12 @@ export default class extends Controller {
       const li = document.createElement("li")
       li.className = `flex items-center ${cardBg} rounded-lg px-3 py-2 m-1 shadow-sm mb-2 ${textColor}`
       let name = player.username || player.guest_name
-      let avatar = player.avatar_url || "/default-avatar.jpg"
+      // For guests, show the guest circle; for users, show avatar
+      let avatarHtml = isGuest
+        ? `<div class="w-12 h-12 rounded-full border mb-2 bg-yellow-200 flex items-center justify-center text-purple-800 text-xs"><span>Guest</span></div>`
+        : `<img src="${player.avatar_url || "/default-avatar.jpg"}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">`
       li.innerHTML = `
-        <img src="${avatar}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">
+        ${avatarHtml}
         <span class="font-medium text-base truncate flex-1">${name}</span>
       `
       ol.appendChild(li)
