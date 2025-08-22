@@ -29,7 +29,11 @@ class RoundsController < ApplicationController
           new_round.update(status: "active") if new_round
         end
       when "create_next_round"
-        new_round = Round.create(scoresheet: scoresheet, round_number: round.round_number + 1, status: "active", data: results[:next_round_data])
+        next_round_number = round.round_number + 1
+        new_round = round.scoresheet.rounds.find_by(round_number: next_round_number)
+        unless new_round
+          new_round = Round.create(scoresheet: scoresheet, round_number: next_round_number, status: "active", data: results[:next_round_data])
+        end
       when "end_game"
         round
     end
