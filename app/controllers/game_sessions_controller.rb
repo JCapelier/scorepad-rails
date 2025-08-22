@@ -10,20 +10,22 @@ class GameSessionsController < ApplicationController
   end
 
   def create
-    game = Game.find(params[:game_session][:game_id])
-    session = GameSession.new(session_params)
-    session.starts_at = Time.current
-    session.status = "active"
-    if session.save
+    @game = Game.find(params[:game_session][:game_id])
+    @session = GameSession.new(session_params)
+    @session.starts_at = Time.current
+    @session.status = "active"
+    if @session.save
+      Rails.logger.debug @session.errors.full_messages.inspect
       custom_rules = params[:custom_rules] || {}
-      init_data = game.game_engine.initial_data(session.session_players, custom_rules)
-      scoresheet = Scoresheet.create(game_session: session, data: init_data.except("config"))
-      rounds_info = game.game_engine.round_data(session.session_players, init_data["config"] )
+      init_data = @game.game_engine.initial_data(@session.session_players, custom_rules)
+      scoresheet = Scoresheet.create(game_session: @session, data: init_data.except("config"))
+      rounds_info = @game.game_engine.round_data(@session.session_players, init_data["config"] )
       rounds_info.each_with_index do |round_hash, i|
         Round.create(scoresheet: scoresheet, round_number: i + 1, data: round_hash, status: "pending")
       end
       redirect_to scoresheet_path(scoresheet)
     else
+      Rails.logger.debug @session.errors.full_messages.inspect
       render :new, status: :unprocessable_entity
     end
   end
@@ -46,6 +48,6 @@ class GameSessionsController < ApplicationController
   private
 
   def session_params
-    params.require(:game_session).permit(:location, :game_id, session_players_attributes: [:user_id, :position])
+    params.require(:game_session).permit(:location, :game_id, session_players_attributes: [:user_id, :guest_id, :guest_name, :position])
   end
 end

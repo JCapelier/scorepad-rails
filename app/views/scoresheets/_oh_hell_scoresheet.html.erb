@@ -9,7 +9,7 @@
         <th style="border-bottom:1px solid #ccc; padding:8px; width:40px; text-align:center;">Round</th>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <th style="border-bottom:1px solid #ccc; padding:8px; text-align:center;" colspan="2">
-            <%= session_player.user.username %>
+            <%= session_player.display_name %>
           </th>
         <% end %>
       </tr>
@@ -35,8 +35,8 @@
             data-round-number="<%= round.round_number %>"
             data-cards-per-round="<%= round.data['cards_per_round'] %>"
             <% @scoresheet.game_session.session_players.each do |session_player| %>
-              data-bid-<%= session_player.user.username %>="<%= round.data.dig('bids', session_player.user.username) %>"
-              data-score-<%= round.data.dig('scores', session_player.user.username) %>="<%= round.data.dig('scores', session_player.user.username) %>"
+              data-bid-<%= session_player.display_name %>="<%= round.data.dig('bids', session_player.display_name) %>"
+              data-score-<%= round.data.dig('scores', session_player.display_name) %>="<%= round.data.dig('scores', session_player.display_name) %>"
             <% end %>
           <% end %>
         >
@@ -44,11 +44,11 @@
             <%= round.round_number %>
           </td>
           <% @scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
-            <td data-oh-hell-target="bid-cell" data-round-number="<%= round.round_number %>" data-player="<%= session_player.user.username %>" data-bid="<%= round.data.dig('bids', session_player.user.username) %>" style="padding:8px; text-align:center; font-size:13px; color:#555; background:#fafafa; border-right:1px solid #ddd;">
-              <%= round.data.dig("bids", session_player.user.username) %>
+            <td data-oh-hell-target="bid-cell" data-round-number="<%= round.round_number %>" data-player="<%= session_player.display_name %>" data-bid="<%= round.data.dig('bids', session_player.display_name) %>" style="padding:8px; text-align:center; font-size:13px; color:#555; background:#fafafa; border-right:1px solid #ddd;">
+              <%= round.data.dig("bids", session_player.display_name) %>
             </td>
-            <% score = round.data.dig("scores", session_player.user.username) %>
-            <td data-oh-hell-target="score-cell" data-round-number="<%= round.round_number %>" data-player="<%= session_player.user.username %>" data-score="<%= score %>" style="padding:8px; text-align:center; font-size:15px; font-weight:bold; background:#fafafa;<% if score.to_i < 0 %> color:red;<% else %> color:purple;<% end %><% if idx < @scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
+            <% score = round.data.dig("scores", session_player.display_name) %>
+            <td data-oh-hell-target="score-cell" data-round-number="<%= round.round_number %>" data-player="<%= session_player.display_name %>" data-score="<%= score %>" style="padding:8px; text-align:center; font-size:15px; font-weight:bold; background:#fafafa;<% if score.to_i < 0 %> color:red;<% else %> color:purple;<% end %><% if idx < @scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
               <%= score %>
             </td>
           <% end %>
@@ -61,7 +61,7 @@
         <% @scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
           <td></td>
           <td style="font-weight:bold; font-size:18px; color:goldenrod;<% if idx < @scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
-            <%= @scoresheet.rounds.sum { |round| round.data.dig("scores", session_player.user.username).to_i } %>
+            <%= @scoresheet.rounds.sum { |round| round.data.dig("scores", session_player.display_name).to_i } %>
           </td>
         <% end %>
       </tr>
@@ -131,15 +131,15 @@
           <% @scoresheet.game_session.session_players.each do |session_player| %>
             <div class="form-control mb-2">
               <%= label_tag(
-                "bids[#{session_player.user.username}]",
-                "Bid for #{session_player.user.username}",
+                "bids[#{session_player.display_name}]",
+                "Bid for #{session_player.display_name}",
                 class: "label"
               ) %>
               <%= select_tag(
-                "bids[#{session_player.user.username}]",
-                options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("bids", session_player.user.username)),
+                "bids[#{session_player.display_name}]",
+                options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("bids", session_player.display_name)),
                 class: "select select-bordered w-24",
-                data: { oh_hell_target: "bid", player: session_player.user.username }
+                data: { oh_hell_target: "bid", player: session_player.display_name }
               ) %>
             </div>
           <% end %>
@@ -160,13 +160,13 @@
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
           <% @scoresheet.game_session.session_players.each do |session_player| %>
             <div class="form-control mb-2 flex flex-row items-center gap-4">
-              <span class="font-bold w-24"><%= session_player.user.username %></span>
-              <span class="w-20">Bid: <%= @current_round&.data&.dig("bids", session_player.user.username) %></span>
+              <span class="font-bold w-24"><%= session_player.display_name %></span>
+              <span class="w-20">Bid: <%= @current_round&.data&.dig("bids", session_player.display_name) %></span>
               <%= select_tag(
-                "tricks[#{session_player.user.username}]",
-                options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("scores", session_player.user.username)),
+                "tricks[#{session_player.display_name}]",
+                options_for_select((0..cards_this_round).to_a, @current_round&.data&.dig("scores", session_player.display_name)),
                 class: "select select-bordered w-24",
-                data: { oh_hell_target: "tricks", player: session_player.user.username }
+                data: { oh_hell_target: "tricks", player: session_player.display_name }
               ) %>
             </div>
           <% end %>

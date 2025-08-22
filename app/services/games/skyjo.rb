@@ -39,7 +39,7 @@ module Games
       dealer = ordered_players.last
 
       [{
-        "dealer" => dealer.user.username
+        "dealer" => dealer.display_name
       }]
     end
 
@@ -85,7 +85,7 @@ module Games
       players = round.scoresheet.game_session.session_players.order(:position)
       current_dealer = round.data["dealer"]
       ordered_players = players.sort_by { |player| player.position }
-      usernames = ordered_players.map { |p| p.user.username }
+      usernames = ordered_players.map { |p| p.display_name }
       dealer_index = usernames.index(current_dealer)
       next_dealer = usernames[(dealer_index + 1) % usernames.size]
 
@@ -147,7 +147,7 @@ module Games
 
     def self.trophies(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
-      players = scoresheet.game_session.session_players.map { |sp| sp.user.username }
+      players = scoresheet.game_session.session_players.map { |sp| sp.display_name }
       rules = scoresheet.data.select { |_, v| v.is_a?(Hash) && v.key?("value") }
       child_mode = rules["child_mode"] == true
       custom_score_limit = rules["custom_score_limit"] == true
@@ -193,7 +193,7 @@ module Games
       rounds.each do |r|
         move = r.move_for_first_finisher rescue nil
         next unless move && move.data && move.data["finish_status"].present?
-        player = move.session_player.user.username rescue nil
+        player = move.session_player.display_name rescue nil
         score = r.data["scores"]&.[](player).to_i
         if move.data["finish_status"] == "success" && score > 0
           risk_counts[player] += 1

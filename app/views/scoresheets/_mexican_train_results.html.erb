@@ -47,12 +47,11 @@
           </thead>
           <tbody>
             <% # Build lookup for player keys to user objects %>
-            <% user_map = {} %>
+            <% player_map = {} %>
             <% session_players.each do |sp| %>
-              <% user_map[sp.user.username] = sp.user %>
-              <% user_map[sp.user.id] = sp.user %>
-              <% user_map[sp] = sp.user %>
-              <% user_map[sp.to_s] = sp.user %>
+              <% player_map[sp.display_name] = sp %>
+              <% player_map[sp.id] = sp %>
+              <% player_map[sp.to_s] = sp %>
             <% end %>
             <% @leaderboard.each do |entry| %>
               <tr>
@@ -68,13 +67,13 @@
                   <% end %>
                 </td>
                 <td>
-                  <% user = user_map[entry[:player]] || user_map[entry[:player].to_s] %>
-                  <% if user %>
+                  <% player = player_map[entry[:player]] || player_map[entry[:player].to_s] %>
+                  <% if player %>
                     <span class="inline-flex items-center gap-2">
-                      <% if user.avatar_url.present? %>
-                        <img src="<%= user.avatar_url %>" alt="avatar" class="w-6 h-6 rounded-full border inline-block" />
+                      <% if player.user&.avatar_url.present? %>
+                        <img src="<%= player.user.avatar_url %>" alt="avatar" class="w-6 h-6 rounded-full border inline-block" />
                       <% end %>
-                      <span class="text-xl"><%= user.username %></span>
+                      <span class="text-xl"><%= player.display_name %></span>
                     </span>
                   <% else %>
                     <span class="text-xl"><%= entry[:player] %></span>

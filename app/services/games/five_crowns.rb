@@ -51,8 +51,8 @@ module Games
         {
           "cards_per_round" => config["cards_per_round"][round_number],
           "wild_cards" => config["wild_cards"][round_number],
-          "first_player" => first_player.user.username,
-          "dealer" => dealer.user.username
+          "first_player" => first_player.display_name,
+          "dealer" => dealer.display_name
         }
       end
     end
@@ -134,7 +134,7 @@ module Games
     # Trophy/stat calculations for results view
     def self.trophies(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
-      players = scoresheet.game_session.session_players.map { |sp| sp.user.username }
+      players = scoresheet.game_session.session_players.map { |sp| sp.display_name }
       rules = scoresheet.data.select { |_, v| v.is_a?(Hash) && v.key?("value") }
       early_finish = rules["early_finish"]&.[]("value") == true
       double_if_not_lowest = rules["early_finish"]&.dig("subrules", "double_if_not_lowest") == true
@@ -199,7 +199,7 @@ module Games
         rounds.each do |r|
           move = r.move_for_first_finisher rescue nil
           next unless move && move.data && move.data["risky_finish"].present?
-          player = move.session_player.user.username rescue nil
+          player = move.session_player.display_name rescue nil
           result = move.data["risky_finish"]
           score = r.data["scores"]&.[](player).to_i
           if result == "success" && score > 0
