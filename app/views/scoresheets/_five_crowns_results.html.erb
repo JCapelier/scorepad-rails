@@ -71,7 +71,15 @@
                   <% if player %>
                     <span class="inline-flex items-center gap-2">
                       <% if player.user&.avatar_url.present? %>
-                        <img src="<%= player.user.avatar_url %>" alt="avatar" class="w-6 h-6 rounded-full border inline-block" />
+                        <span class="flex items-center justify-center w-8 h-8 min-w-[2rem] min-h-[2rem]">
+                          <img src="<%= player.user.avatar_url %>" alt="avatar" class="w-8 h-8 object-cover aspect-square rounded-full border inline-block" />
+                        </span>
+                      <% elsif player.user.nil? %>
+                        <span class="flex items-center justify-center w-8 h-8 min-w-[2rem] min-h-[2rem]">
+                          <span class="w-8 h-8 flex items-center justify-center rounded-full border border-yellow-300 bg-yellow-200 text-purple-800 text-[0.65rem] font-normal px-1">
+                            Guest
+                          </span>
+                        </span>
                       <% end %>
                       <span class="text-xl"><%= player.display_name %></span>
                     </span>
@@ -211,5 +219,7 @@
       <a href="<%= new_game_session_path(game_id: @scoresheet.game_session.game.id) %>" class="btn btn-primary">Play again</a>
       <a href="<%= root_path %>" class="btn btn-outline">Back to home</a>
     </div>
+  </div>
+</div>
   </div>
 </div>
