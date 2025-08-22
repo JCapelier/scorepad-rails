@@ -16,6 +16,11 @@ class ScoresheetsController < ApplicationController
     game = @scoresheet.game_session.game
     @trophies = game.game_engine.trophies(@scoresheet)
     @leaderboard = game.game_engine.leaderboard(@scoresheet)
+
+    respond_to do |format|
+      format.html # renders results.html.erb as usual
+      format.any { render :results, layout: true } # fallback for other formats (e.g., turbo_stream)
+    end
   end
 
 end
