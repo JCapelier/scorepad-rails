@@ -68,7 +68,6 @@ export default class extends Controller {
   displaySelected() {
     this.selectedTarget.innerHTML = ""
     this.selectedPlayers.forEach((player, index) => {
-      // Swap colors: users = purple bg/yellow text, guests = yellow bg/purple text
       let isGuest = !(player.user_id || player.id)
       let cardBg = isGuest ? "bg-yellow-200" : "bg-purple-700"
       let textColor = isGuest ? "text-purple-800" : "text-yellow-200"
@@ -87,7 +86,7 @@ export default class extends Controller {
       } else {
         // Guest
         name = player.guest_name
-        avatar = player.avatar_url || "/default-avatar.jpg"
+        avatar = null // No avatar for guest, show "Guest" in a circle instead
         hiddenFields = `
           <input type="hidden" name="game_session[session_players_attributes][${index}][guest_id]" value="${player.guest_id}">
           <input type="hidden" name="game_session[session_players_attributes][${index}][guest_name]" value="${player.guest_name}">
@@ -96,7 +95,11 @@ export default class extends Controller {
       }
       card.innerHTML = `
         <button type="button" class="absolute top-1 right-1 text-gray-400 hover:text-red-500 font-bold" title="Remove">&times;</button>
-        <img src="${avatar}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">
+        ${
+          !isGuest
+            ? `<img src="${avatar}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">`
+            : `<div class="w-12 h-12 rounded-full border mb-2 bg-yellow-200 flex items-center justify-center text-purple-800 text-xs"><span>Guest</span></div>`
+        }
         <span class="text-xs font-medium text-center truncate w-full">${name}</span>
         ${hiddenFields}
       `
