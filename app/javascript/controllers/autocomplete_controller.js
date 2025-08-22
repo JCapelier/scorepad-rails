@@ -25,11 +25,16 @@ export default class extends Controller {
     users.forEach(user => {
       if (this.selectedPlayers.find(player => player.username === user.username)) return
 
+      // Use same color logic as in displaySelected
+      let isGuest = !(user.user_id || user.id)
+      let cardBg = isGuest ? "bg-yellow-200" : "bg-purple-700"
+      let textColor = isGuest ? "text-purple-800" : "text-yellow-200"
+
       const card = document.createElement("div")
-      card.className = "flex flex-col items-center bg-gray-100 rounded-lg p-3 m-2 shadow-sm w-24 cursor-pointer"
+      card.className = `flex flex-col items-center ${cardBg} rounded-lg p-3 m-2 shadow-sm w-24 cursor-pointer ${textColor}`
       card.innerHTML = `
-        <img src=${user.avatar_url} alt="avatar" class="w-12 h-12 rounded-full mb-2">
-        <span class="text-xs font-medium text-gray-800 text-center truncate w-full">${user.username}</span>
+        <img src=${user.avatar_url} alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">
+        <span class="text-xs font-medium text-center truncate w-full">${user.username}</span>
       `
       card.addEventListener("click", () => {
         this.addPlayer(user)
@@ -63,10 +68,15 @@ export default class extends Controller {
   displaySelected() {
     this.selectedTarget.innerHTML = ""
     this.selectedPlayers.forEach((player, index) => {
+      // Swap colors: users = purple bg/yellow text, guests = yellow bg/purple text
+      let isGuest = !(player.user_id || player.id)
+      let cardBg = isGuest ? "bg-yellow-200" : "bg-purple-700"
+      let textColor = isGuest ? "text-purple-800" : "text-yellow-200"
+
       const card = document.createElement("div")
-      card.className = "relative flex flex-col items-center bg-gray-100 rounded-lg p-3 m-2 shadow-sm w-24"
+      card.className = `relative flex flex-col items-center ${cardBg} rounded-lg p-3 m-2 shadow-sm w-24 ${textColor}`
       let name, avatar, hiddenFields
-      if (player.user_id || player.id) {
+      if (!isGuest) {
         // Real user
         name = player.username
         avatar = player.avatar_url
@@ -86,8 +96,8 @@ export default class extends Controller {
       }
       card.innerHTML = `
         <button type="button" class="absolute top-1 right-1 text-gray-400 hover:text-red-500 font-bold" title="Remove">&times;</button>
-        <img src="${avatar}" alt="avatar" class="w-12 h-12 rounded-full mb-2">
-        <span class="text-xs font-medium text-gray-800 text-center truncate w-full">${name}</span>
+        <img src="${avatar}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">
+        <span class="text-xs font-medium text-center truncate w-full">${name}</span>
         ${hiddenFields}
       `
       card.querySelector("button").addEventListener("mousedown", () => {
@@ -130,13 +140,17 @@ export default class extends Controller {
     const ol = document.createElement("ol")
     ol.className = "w-full"
     this.selectedPlayers.forEach((player) => {
+      let isGuest = !(player.user_id || player.id)
+      let cardBg = isGuest ? "bg-yellow-200" : "bg-purple-700"
+      let textColor = isGuest ? "text-purple-800" : "text-yellow-200"
+
       const li = document.createElement("li")
-      li.className = "flex items-center bg-gray-100 rounded-lg px-3 py-2 m-1 shadow-sm mb-2"
+      li.className = `flex items-center ${cardBg} rounded-lg px-3 py-2 m-1 shadow-sm mb-2 ${textColor}`
       let name = player.username || player.guest_name
       let avatar = player.avatar_url || "/default-avatar.jpg"
       li.innerHTML = `
-        <img src="${avatar}" alt="avatar" class="w-8 h-8 rounded-full mr-3">
-        <span class="font-medium text-gray-800 text-base truncate flex-1">${name}</span>
+        <img src="${avatar}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">
+        <span class="font-medium text-base truncate flex-1">${name}</span>
       `
       ol.appendChild(li)
     })
