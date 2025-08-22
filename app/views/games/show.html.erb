@@ -8,6 +8,6 @@
   </div>
 
   <turbo-frame id="active_sessions_frame">
-    <%= render partial: "games/active_sessions", locals: { active_sessions: @active_sessions } %>
+    <%= render partial: "games/active_sessions", locals: { active_sessions: @active_sessions.sort_by { |s| -s.starts_at.to_i } } %>
   </turbo-frame>
 </div>
