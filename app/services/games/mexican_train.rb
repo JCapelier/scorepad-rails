@@ -51,7 +51,7 @@ module Games
 
         {
           "starting_domino" => starting_domino(round_number),
-          "first_player" => first_player.user.username,
+          "first_player" => first_player.display_name,
           "starting_domino" => starting_domino
         }
       end
@@ -118,7 +118,7 @@ module Games
     # Trophy/stat calculations for results view
     def self.trophies(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
-      players = scoresheet.game_session.session_players.map { |sp| sp.user.username }
+      players = scoresheet.game_session.session_players.map { |sp| sp.display_name }
       rules = scoresheet.data.select { |_, v| v.is_a?(Hash) && v.key?("value") }
 
       # Efficiency Trophy (ex aequo)

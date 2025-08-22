@@ -9,7 +9,7 @@
         <th style="border-bottom:1px solid #ccc; padding:8px; width:40px; text-align:center;">Round</th>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <th style="border-bottom:1px solid #ccc; padding:8px; text-align:center;">
-            <%= session_player.user.username %>
+            <%= session_player.display_name %>
           </th>
         <% end %>
       </tr>
@@ -23,8 +23,8 @@
           </td>
           <% first_finisher = round.data["first_finisher"] %>
           <% @scoresheet.game_session.session_players.each do |session_player| %>
-            <% score = round.data.dig("scores", session_player.user.username) %>
-            <% is_first = session_player.user.username == first_finisher %>
+            <% score = round.data.dig("scores", session_player.display_name) %>
+            <% is_first = session_player.display_name == first_finisher %>
             <% cell_style = "padding:8px; text-align:center; cursor:pointer; background:#fafafa;" %>
             <% if is_first %>
               <% cell_style += " color: purple; font-weight: bold;" %>
@@ -32,7 +32,7 @@
             <td style="<%= cell_style %>"
                 data-round="<%= round.round_number %>"
                 data-first-finisher="<%= round.data["first_finisher"] %>"
-                data-player="<%= session_player.user.username %>"
+                data-player="<%= session_player.display_name %>"
                 data-mexican-train-target="scoreCell"
                 <% if editable %>
                   data-action="click->mexican-train#editRound"
@@ -50,7 +50,7 @@
         <% totals = @scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet) %>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">
-            <%= totals[session_player.user.username] %>
+            <%= totals[session_player.display_name] %>
           </td>
         <% end %>
       </tr>
@@ -105,22 +105,22 @@
         <%= select_tag :first_finisher,
           options_for_select([
             ['Choose a player', '']
-          ] + @scoresheet.game_session.session_players.map { |sp| [sp.user.username, sp.user.username] }, ''),
+          ] + @scoresheet.game_session.session_players.map { |sp| [sp.display_name, sp.display_name] }, ''),
           class: "select select-bordered w-full mb-3",
           data: { mexican_train_target: "firstFinisher", action: "change->mexican-train#prefillForm" } %>
 
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <div class="form-control mb-2">
             <%= label_tag(
-              "scores[#{session_player.user.username}]",
-              session_player.user.username,
+              "scores[#{session_player.display_name}]",
+              session_player.display_name,
               class: "label"
             ) %>
             <%= number_field_tag(
-              "scores[#{session_player.user.username}]",
+              "scores[#{session_player.display_name}]",
               nil,
               class: "input input-bordered w-20",
-              data: { mexican_train_target: "score", player: session_player.user.username }
+              data: { mexican_train_target: "score", player: session_player.display_name }
             ) %>
           </div>
         <% end %>

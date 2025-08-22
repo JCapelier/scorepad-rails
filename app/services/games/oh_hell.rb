@@ -52,8 +52,8 @@ module Games
         end
         {
           "cards_per_round" => cards_per_round,
-          "first_player" => first_player.user.username,
-          "dealer" => dealer.user.username,
+          "first_player" => first_player.display_name,
+          "dealer" => dealer.display_name,
           "phase" => "bidding"
         }
       end
@@ -154,7 +154,7 @@ module Games
     # Trophies for Oh Hell
     def self.trophies(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
-      players = scoresheet.game_session.session_players.map { |sp| sp.user.username }
+      players = scoresheet.game_session.session_players.map { |sp| sp.display_name }
 
       # Consistency Trophy: most bids accomplished
       accomplished = Hash.new(0)

@@ -9,7 +9,7 @@
         <th style="border-bottom:1px solid #ccc; padding:8px; width:40px; text-align:center;">Round</th>
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <th style="border-bottom:1px solid #ccc; padding:8px; text-align:center;">
-            <%= session_player.user.username %>
+            <%= session_player.display_name %>
           </th>
         <% end %>
       </tr>
@@ -26,8 +26,8 @@
           <% first_finisher = round.data["first_finisher"] %>
           <% dealer = round.data["dealer"] %>
           <% @scoresheet.game_session.session_players.each do |session_player| %>
-            <% score = round.data.dig("scores", session_player.user.username) %>
-            <% is_first = session_player.user.username == first_finisher %>
+            <% score = round.data.dig("scores", session_player.display_name) %>
+            <% is_first = session_player.display_name == first_finisher %>
             <% cell_style = "padding:8px; text-align:center; cursor:pointer; background:#fafafa;" %>
             <% if is_first && finish_status == "failure" %>
               <% cell_style += " color: red; font-weight: bold;" %>
@@ -38,7 +38,7 @@
                 data-round="<%= round.round_number %>"
                 data-first-finisher="<%= round.data["first_finisher"] %>"
                 data-dealer="<%= dealer %>"
-                data-player="<%= session_player.user.username %>"
+                data-player="<%= session_player.display_name %>"
                 data-finish-status="<%= finish_status %>"
                 data-child-mode="<%= round.scoresheet.data["child_mode"] %>"
                 data-skyjo-target="scoreCell"
@@ -58,7 +58,7 @@
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <% total = 0 %>
           <% @scoresheet.rounds.order(:round_number).each do |round| %>
-            <% score = round.data.dig("scores", session_player.user.username) %>
+            <% score = round.data.dig("scores", session_player.display_name) %>
             <% total += score.to_i if score.present? %>
           <% end %>
           <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">
@@ -116,7 +116,7 @@
         <%= select_tag :first_finisher,
           options_for_select([
             ['Choose a player', '']
-          ] + @scoresheet.game_session.session_players.map { |sp| [sp.user.username, sp.user.username] }, ''),
+          ] + @scoresheet.game_session.session_players.map { |sp| [sp.display_name, sp.display_name] }, ''),
           class: "select select-bordered w-full mb-3",
           data: { skyjo_target: "firstFinisher", action: "change->skyjo#prefillForm" }
         %>
@@ -124,15 +124,15 @@
         <% @scoresheet.game_session.session_players.each do |session_player| %>
           <div class="form-control mb-2">
             <%= label_tag(
-              "scores[#{session_player.user.username}]",
-              session_player.user.username,
+              "scores[#{session_player.display_name}]",
+              session_player.display_name,
               class: "label"
             ) %>
             <%= number_field_tag(
-              "scores[#{session_player.user.username}]",
+              "scores[#{session_player.display_name}]",
               nil,
               class: "input input-bordered w-20",
-              data: { skyjo_target: "score", player: session_player.user.username }
+              data: { skyjo_target: "score", player: session_player.display_name }
             ) %>
           </div>
         <% end %>

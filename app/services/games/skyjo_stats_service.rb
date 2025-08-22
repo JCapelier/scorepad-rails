@@ -45,7 +45,7 @@ module Games
           end
           total_first_finisher += 1 if round.data["first_finisher"] == @user.username
           move = round.move_for_first_finisher rescue nil
-          if move && move.data && move.data["finish_status"].present? && move.session_player.user.username == @user.username
+          if move && move.data && move.data["finish_status"].present? && move.session_player.display_name == @user.username
             risky_total += 1
             if move.data["finish_status"] == "success"
               risky_success += 1
