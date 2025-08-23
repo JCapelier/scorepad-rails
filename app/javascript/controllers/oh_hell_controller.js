@@ -106,6 +106,7 @@ export default class extends Controller {
   }
 
   editScoring(event, isCompletedRound = false) {
+
     // Show scoring form, hide bidding form
     document.getElementById("scoring-form").style.display = "block";
     document.getElementById("bidding-form").style.display = "none";
@@ -115,6 +116,11 @@ export default class extends Controller {
     const roundId = event.currentTarget.dataset.roundId;
 
     if (isCompletedRound) {
+      // Parse tricks JSON from data-tricks
+      let tricks = {};
+      try {
+        tricks = JSON.parse(event.currentTarget.dataset.tricks || '{}');
+      } catch (e) { tricks = {}; }
       // Get number of cards for this round from the row's data attribute, or fallback to 0
       let cardsPerRound = 0;
       if (event.currentTarget.dataset.cardsPerRound) {
@@ -132,6 +138,36 @@ export default class extends Controller {
         scoringForm.action = `/rounds/${roundId}`;
       }
 
+      // --- Reorder form fields to match round order ---
+      const firstPlayer = event.currentTarget.dataset.firstPlayer;
+      if (firstPlayer) {
+        // Get only player rows in the scoring form
+        const formRows = Array.from(scoringForm.querySelectorAll('.form-control[data-oh-hell-player-row]'));
+        // Move all player rows to the top of the form (before any non-player elements)
+        formRows.forEach(row => scoringForm.insertBefore(row, scoringForm.firstChild));
+        // Map from player name to row
+        const playerToRow = {};
+        formRows.forEach(row => {
+          const player = row.querySelector('[data-oh-hell-target="tricks"]').dataset.player;
+          playerToRow[player] = row;
+        });
+        // Get the order of players from the table header
+        const allPlayers = formRows.map(row => row.querySelector('[data-oh-hell-target="tricks"]').dataset.player);
+        const firstIdx = allPlayers.indexOf(firstPlayer);
+        let orderedPlayers = [];
+        if (firstIdx !== -1) {
+          orderedPlayers = allPlayers.slice(firstIdx).concat(allPlayers.slice(0, firstIdx));
+        } else {
+          orderedPlayers = allPlayers;
+        }
+        // Remove all rows
+        formRows.forEach(row => row.remove());
+        // Append in correct order
+        orderedPlayers.forEach(player => {
+          if (playerToRow[player]) scoringForm.appendChild(playerToRow[player]);
+        });
+      }
+
       // For each tricks select, update options and value
       this.tricksTargets.forEach(input => {
         const player = input.dataset.player;
@@ -143,11 +179,10 @@ export default class extends Controller {
           option.textContent = i;
           input.appendChild(option);
         }
-        // Set value from data-score-<username>
-        const score = event.currentTarget.getAttribute(`data-score-${player}`);
-        if (score !== undefined && score !== null && score !== "") {
-          input.value = score;
-        }
+  // Set value from tricks JSON (allow 0 as valid)
+  let trick = tricks[player];
+  if (trick === undefined || trick === null) trick = '';
+  input.value = trick;
       });
 
       // Update the "Bid" display for each player
