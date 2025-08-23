@@ -34,9 +34,11 @@
             data-round-status="<%= round.status %>"
             data-round-number="<%= round.round_number %>"
             data-cards-per-round="<%= round.data['cards_per_round'] %>"
+            data-first-player="<%= round.data['first_player'] %>"
+            data-tricks='<%= round.data['tricks'].to_json %>'
             <% @scoresheet.game_session.session_players.each do |session_player| %>
-              data-bid-<%= session_player.display_name %>="<%= round.data.dig('bids', session_player.display_name) %>"
-              data-score-<%= round.data.dig('scores', session_player.display_name) %>="<%= round.data.dig('scores', session_player.display_name) %>"
+              data-bid-<%= session_player.display_name.parameterize(separator: '_') %>="<%= round.data.dig('bids', session_player.display_name) %>"
+              data-score-<%= session_player.display_name.parameterize(separator: '_') %>="<%= round.data.dig('scores', session_player.display_name) %>"
             <% end %>
           <% end %>
         >
@@ -116,6 +118,15 @@
       <h3 class="text-lg font-bold" id="modal-title"></h3>
 
       <% cards_this_round = @current_round&.data&.dig("cards_per_round") || 0 %>
+      <%# --- Compute player order for this round, starting from first player --- %>
+
+  <%# --- Determine which round's order to use for the modal --- %>
+  <% modal_round = @modal_round || @current_round %>
+  <% session_players = @scoresheet.game_session.session_players.to_a %>
+  <% first_player_name = modal_round&.data&.dig("first_player") %>
+  <% first_idx = session_players.index { |sp| sp.display_name == first_player_name } || 0 %>
+  <% ordered_players = session_players.rotate(first_idx) %>
+
       <div id="bidding-form" style="display: none;">
         <%= form_with url: @current_round ? round_path(@current_round) : "#", method: :patch, html: {
           id: "bidding-score-form",
@@ -128,8 +139,8 @@
         } do %>
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
           <%= hidden_field_tag :phase, "bidding" %>
-          <% @scoresheet.game_session.session_players.each do |session_player| %>
-            <div class="form-control mb-2">
+          <% ordered_players.each do |session_player| %>
+            <div class="form-control mb-2" data-oh-hell-player-row>
               <%= label_tag(
                 "bids[#{session_player.display_name}]",
                 "Bid for #{session_player.display_name}",
@@ -158,8 +169,8 @@
           }
         } do %>
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-          <% @scoresheet.game_session.session_players.each do |session_player| %>
-            <div class="form-control mb-2 flex flex-row items-center gap-4">
+          <% ordered_players.each do |session_player| %>
+            <div class="form-control mb-2 flex flex-row items-center gap-4" data-oh-hell-player-row>
               <span class="font-bold w-24"><%= session_player.display_name %></span>
               <span class="w-20">Bid: <%= @current_round&.data&.dig("bids", session_player.display_name) %></span>
               <%= select_tag(
