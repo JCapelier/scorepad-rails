@@ -16,6 +16,7 @@ class ScoresheetsController < ApplicationController
     game = @scoresheet.game_session.game
     @trophies = game.game_engine.trophies(@scoresheet)
     @leaderboard = game.game_engine.leaderboard(@scoresheet)
+    Move.create!(round: @scoresheet.rounds.last, session_player: @leaderboard.first[:player], move_type: "win")
 
     respond_to do |format|
       format.html # renders results.html.erb as usual
