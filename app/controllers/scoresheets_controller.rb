@@ -16,7 +16,12 @@ class ScoresheetsController < ApplicationController
     game = @scoresheet.game_session.game
     @trophies = game.game_engine.trophies(@scoresheet)
     @leaderboard = game.game_engine.leaderboard(@scoresheet)
-    Move.create!(round: @scoresheet.rounds.last, session_player: @leaderboard.first[:player], move_type: "win")
+    # leaderboard return names instead of players
+    winner_name = @leaderboard.first[:player]
+    # The string is either sp.user.username or sp.guest_name
+    winner_session_player = @scoresheet.game_session.session_players.detect { |sp| sp.display_name == winner_name }
+    # Create a win move, for stats purpose.
+    Move.create!(round: @scoresheet.rounds.last, session_player: winner_session_player, move_type: "win")
 
     respond_to do |format|
       format.html # renders results.html.erb as usual
