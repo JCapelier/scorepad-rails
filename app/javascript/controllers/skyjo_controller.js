@@ -3,7 +3,6 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["firstFinisher", "score", "saveButton", "scoreCell"]
   connect() {
-    console.log(this.scoreCellTargets)
     this.checkButton()
 
     this.scoreTargets.forEach(input => {
@@ -33,11 +32,11 @@ export default class extends Controller {
 
   editRound(event) {
     this.resetScoreForm();
-  this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || "";
-  const roundNumber = event.currentTarget.dataset.roundNumber;
-  const roundId = event.currentTarget.dataset.roundId;
+    this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || "";
+    const roundNumber = event.currentTarget.dataset.roundNumber;
+    const roundId = event.currentTarget.dataset.roundId;
 
-  const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber);
+    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber);
 
     this.scoreTargets.forEach(input => {
       const player = input.dataset.player;
@@ -45,14 +44,10 @@ export default class extends Controller {
 
       if (cell) {
         let scoreText = cell.textContent.trim();
-        console.log(cell.dataset.finishStatus)
-        console.log(cell.dataset.player)
-        console.log(this.firstFinisherTarget.value)
         if (scoreText === "-") {
           console.log("salut")
           input.value = "";
         } else if (cell.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value && cell.dataset.childMode === "false") {
-          console.log("coucou")
           input.value = parseInt(scoreText, 10) / 2;
         } else {
           console.log("bonjour")
@@ -62,6 +57,8 @@ export default class extends Controller {
         input.value = "";
       }
 
+      console.log(player)
+      console.log(this.firstFinisherTarget.value)
       if (player === this.firstFinisherTarget.value) {
         input.style.color = "purple";
         input.style.fontWeight = "bold";

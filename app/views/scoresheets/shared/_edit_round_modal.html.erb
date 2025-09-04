@@ -16,7 +16,7 @@
             ['Choose a player', '']
           ] + @scoresheet.game_session.session_players.map { |sp| [sp.display_name, sp.display_name] }, ''),
           class: "select select-bordered w-full mb-3",
-          data: { "#{controller_name}_target": "firstFinisher", "#{prefill_action}" => "change->skyjo#prefillForm" }
+          data: { "#{controller_name}_target" => "firstFinisher", action: prefill_action }
         %>
         <% if hidden_fields %>
           <% hidden_fields.each do |name, value| %>

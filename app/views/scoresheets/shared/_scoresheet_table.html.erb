@@ -18,10 +18,12 @@
           <% is_first = player.display_name == first_finisher %>
           <% attrs = {} %>
           <% if editable_cell?(round) %>
+            <%# These first attributes are set for every game %>
             <% attrs['data-action'] = edit_action %>
             <% attrs['data-round-id'] = round.id %>
             <% attrs['data-round-number'] = round.round_number %>
             <% attrs['data-player'] = player.display_name %>
+            <%# The specific attributes are given in each game scoresheet show %>
             <% specific_attributes = scoresheet_cell_attributes(scoresheet, round, player) %>
             <% specific_attributes.each { |attribute, value| attrs[attribute] = value } %>
           <% end %>
@@ -34,7 +36,8 @@
         <% end %>
       </tr>
     <% end %>
-    <!-- Totals row -->
+
+    <%# This last tr is for the totals row %>
     <tr>
       <td class="font-bold bg-gray-100 text-center">Total</td>
       <% players.each do |player| %>

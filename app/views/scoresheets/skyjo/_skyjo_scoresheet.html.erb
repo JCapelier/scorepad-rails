@@ -1,3 +1,9 @@
+<%= render partial: "scoresheets/shared/round_info",
+           locals: {
+            round: @current_round,
+            rules: round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
+           } %>
+
 <div id="controller-div" data-controller="skyjo">
   <% if flash[:alert] %>
     <div class="alert alert-error"><%= flash[:alert] %></div>
@@ -14,7 +20,7 @@
              datasets: {
               'data-first-finisher' => round.data['first_finisher'],
               'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
-              'data-child-mode' => @scoresheet.data["child_mode"]
+              'data-child-mode' => @scoresheet.data['child_mode']
              }
            } %>
 
