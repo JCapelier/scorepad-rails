@@ -1,3 +1,4 @@
+
 module Games
   class Skyjo
 
@@ -141,92 +142,91 @@ module Games
       leaderboard
     end
 
-    def self.first_finisher_counts(scoresheet)
-      # Needed for efficiency and safety trophies
-      first_finisher_moves = scoresheet.rounds.map { |r| r.moves.find_by(move_type: 'first_finisher') }.compact
-      counts = Hash.new(0)
-      first_finisher_moves.each { |move| counts[move.session_player.display_name] += 1 }
-      counts
+    def self.player_stats(scoresheet)
+      rounds = scoresheet.rounds.order(:round_number)
+      players = scoresheet.game_session.session_players.map(&:display_name)
+
+      leaderboard = self.leaderboard(scoresheet)
+      scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
+      ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
+
+      finisher_stats = first_finisher_stats(rounds, players)
+      score_extremes = lowest_and_highest_scores(rounds, players)
+      average_scores = average_score_per_round(rounds, players)
+
+      stats = {}
+      players.each do |player|
+        stats[player] = {
+          total_score: scores_by_player[player],
+          rank: ranks_by_player[player],
+          average_score: average_scores[player],
+          first_finisher_count: finisher_stats[player][:first_finisher_count],
+          finish_success: finisher_stats[player][:finish_success],
+          finish_failure: finisher_stats[player][:finish_failure],
+          finish_ratio: finisher_stats[player][:finish_ratio],
+          rounds_with_the_lowest_score: score_extremes[player][:lowest_score_rounds],
+          lowest_score_in_a_round: score_extremes[player][:lowest_score],
+          highest_score_in_a_round: score_extremes[player][:highest_score]
+        }
+      end
+      stats
     end
 
-    def self.efficiency_trophy(scoresheet)
-      counts = first_finisher_counts(scoresheet)
-      max_count = counts.values.max || 0
-      players = counts.select { |_, v| v == max_count }.keys
-      { players: players, count: max_count }
+    def self.average_score_per_round(rounds, players)
+      total_rounds = rounds.last&.round_number
+      scoresheet = rounds.first&.scoresheet
+      leaderboard = scoresheet ? self.leaderboard(scoresheet) : []
+      averages = {}
+      leaderboard.each do |entry|
+        averages[entry[:player]] = (entry[:score].to_f / total_rounds).round(2)
+      end
+      averages
     end
 
-    def self.safety_trophy(scoresheet)
-      counts = first_finisher_counts(scoresheet)
-      min_count = counts.values.min || 0
-      players = counts.select { |_, v| v == min_count }.keys
-      { players: players, count: min_count }
-    end
-
-    def self.consistency_trophy(rounds)
-      # Consistency Trophy: most rounds with lowest score
-      lowest_counts = Hash.new(0)
-      rounds.each do |r|
-        scores = r.data['scores'] || {}
-        min_score = scores.values.map(&:to_i).min
-        scores.each do |player, score|
-          lowest_counts[player] += 1 if score.to_i == min_score
+    def self.first_finisher_stats(rounds, players)
+      stats = {}
+      players.each do |player|
+        stats[player] = { first_finisher_count: 0, finish_success: 0, finish_failure: 0, finish_ratio: 0.0 }
+      end
+      rounds.each do |round|
+        move = round.move_for_first_finisher
+        finish_status = move&.data&.dig('finish_status')
+        first_finisher = move&.session_player&.display_name
+        players.each do |player|
+          if player == first_finisher
+            stats[player][:first_finisher_count] += 1
+            if finish_status == 'success'
+              stats[player][:finish_success] += 1
+            elsif finish_status == 'failure'
+              stats[player][:finish_failure] += 1
+            end
+          end
         end
       end
-      cons_max = lowest_counts.values.max || 0
-      players = lowest_counts.select { |_, v| v == cons_max }.keys
-      { players: players, count: cons_max }
-    end
-
-    def self.fail_trophy(rounds)
-      # Fail Trophy (highest score in a single round)
-      fail_scores = []
-      rounds.each do |r|
-        # Easier to find the highest with arrays
-        r.data['scores']&.each { |player, score| fail_scores << [player, score.to_i] }
+      players.each do |player|
+        # If child mode is enable, first_finisher_count will progress without relation to a success ratio.
+        total = stats[player][:finish_success] + stats[player][:finish_failure]
+        stats[player][:finish_ratio] = total > 0 ? (stats[player][:finish_success].to_f / total).round(2) : nil
       end
-      fail_max = fail_scores.map { |_, v| v }.max
-      players = fail_scores.select { |_, v| v == fail_max }.map(&:first).uniq
-      { players: players, count: fail_max}
+      stats
     end
 
-    def self.finish_status_trophies(scoresheet, status)
-      # Common code for risk and reward and greed trophies
-      rounds = scoresheet.rounds.order(:round_number)
-      counts = Hash.new(0)
-      rounds.each do |r|
-        # move_for_finisher is a method of the Round model
-        move = r.move_for_first_finisher
-        # In the absence of finish_status, there's no risk or reward in finishing first.
-        return nil unless move&.data && move.data['finish_status'].present?
-
-        player = move.session_player.display_name
-        counts[player] += 1 if move.data['finish_status'] == status
+    def self.lowest_and_highest_scores(rounds, players)
+      stats = {}
+      players.each do |player|
+        stats[player] = { lowest_score_rounds: 0, lowest_score: nil, highest_score: nil }
       end
-      max = counts.values.max || 0
-      players = counts.select { |_, v| v == max }.keys
-      { players: players, count: max }
-    end
-
-    def self.risk_reward_trophy(scoresheet)
-      finish_status_trophies(scoresheet, 'success')
-    end
-
-    def self.greed_trophy(scoresheet)
-      finish_status_trophies(scoresheet, 'failure')
-    end
-
-    def self.trophies(scoresheet)
-      rounds = scoresheet.rounds.order(:round_number)
-
-      {
-        efficiency: efficiency_trophy(scoresheet),
-        consistency: consistency_trophy(rounds),
-        safety: safety_trophy(scoresheet),
-        fail: fail_trophy(rounds),
-        risk_reward: risk_reward_trophy(scoresheet),
-        greed: greed_trophy(scoresheet)
-      }
+      rounds.each do |round|
+        scores = round.data['scores'] || {}
+        min_score = scores.values.map(&:to_i).min
+        players.each do |player|
+          score = scores[player].to_i
+          stats[player][:lowest_score_rounds] += 1 if score == min_score
+          stats[player][:lowest_score] = score if stats[player][:lowest_score].nil? || score < stats[player][:lowest_score]
+          stats[player][:highest_score] = score if stats[player][:highest_score].nil? || score > stats[player][:highest_score]
+        end
+      end
+      stats
     end
   end
 end

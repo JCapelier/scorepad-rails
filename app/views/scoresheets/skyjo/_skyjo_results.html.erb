@@ -3,116 +3,25 @@
 <%= render "scoresheets/shared/leaderboard" %>
 
 
-  <!-- Trophies / Stats -->
+  <!-- Player Stats -->
   <div class="mb-8 flex flex-col items-center w-full">
     <div class="w-full max-w-2xl relative">
       <div class="flex items-center justify-center mb-4">
         <div class="flex flex-col flex-1 items-center">
-          <h2 class="text-xl font-bold text-center">Trophies</h2>
-          <button type="button" class="text-xs text-gray-500 underline mt-1" style="background:none;border:none;padding:0;cursor:pointer;" onclick="document.getElementById('trophy-info-modal').showModal()">(check trophies description)</button>
+          <h2 class="text-xl font-bold text-center">Player Stats</h2>
         </div>
       </div>
-      <dialog id="trophy-info-modal" class="modal">
-        <div class="modal-box">
-          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="document.getElementById('trophy-info-modal').close()">✕</button>
-          <h3 class="text-lg font-bold mb-4 text-center">Trophy Descriptions</h3>
-          <div class="space-y-4 text-center">
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">⚡</span>
-                <span class="font-bold">Efficiency Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Most rounds finished first</span>
-              </div>
-            </div>
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">🟢</span>
-                <span class="font-bold">Consistency Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Most rounds with a score of 0 overall</span>
-              </div>
-            </div>
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">💪</span>
-                <span class="font-bold">Winning Streak Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Longest streak of rounds with a score of 0</span>
-              </div>
-            </div>
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">💥</span>
-                <span class="font-bold">Fail Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Highest score in a single round</span>
-              </div>
-            </div>
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">💀</span>
-                <span class="font-bold">Martyr Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Most rounds finished with a score above 0</span>
-              </div>
-            </div>
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">🎲</span>
-                <span class="font-bold">Risk & Reward Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Most risky finishes succeeded overall</span>
-              </div>
-            </div>
-            <div class="border-b pb-2">
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-2xl">🤑</span>
-                <span class="font-bold">Greed Trophy</span>
-                <span class="text-gray-500 text-sm mt-1">Most risky finishes failed overall</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </dialog>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <% if @trophies[:efficiency] %>
-        <div class="trophy bg-yellow-100 p-4 rounded shadow">
-          <span class="text-2xl">⚡</span>
-          <span class="font-bold">Efficiency Trophy:</span>
-          <span><%= Array(@trophies[:efficiency][:players]).join(', ') %> (<%= @trophies[:efficiency][:count] %> first finishes)</span>
-        </div>
-      <% end %>
-      <% if @trophies[:consistency] %>
-        <div class="trophy bg-green-100 p-4 rounded shadow">
-          <span class="text-2xl">🟢</span>
-          <span class="font-bold">Consistency Trophy:</span>
-          <span><%= @trophies[:consistency][:players].join(', ') %> (<%= @trophies[:consistency][:count] %> rounds at 0)</span>
-        </div>
-      <% end %>
-      <% if @trophies[:fail] %>
-        <div class="trophy bg-red-100 p-4 rounded shadow">
-          <span class="text-2xl">💥</span>
-          <span class="font-bold">Fail Trophy:</span>
-          <span><%= @trophies[:fail][:players].join(', ') %> (<%= @trophies[:fail][:count] %> points in a round)</span>
-        </div>
-      <% end %>
-      <% if @trophies[:risk_reward] %>
-        <div class="trophy bg-orange-100 p-4 rounded shadow">
-          <span class="text-2xl">🎲</span>
-          <span class="font-bold">Risk & Reward Trophy:</span>
-          <span><%= @trophies[:risk_reward][:players].join(', ') %> (<%= @trophies[:risk_reward][:count] %> successful risky finishes)</span>
-        </div>
-      <% end %>
-      <% if @trophies[:greed] %>
-        <div class="trophy bg-pink-100 p-4 rounded shadow">
-          <span class="text-2xl">🤑</span>
-          <span class="font-bold">Greed Trophy:</span>
-          <span><%= @trophies[:greed][:players].join(', ') %> (<%= @trophies[:greed][:count] %> failed risky finishes)</span>
-        </div>
-      <% end %>
-        </div>
-
-
-    <div class="flex justify-center gap-4 mt-8">
-      <a href="<%= new_game_session_path(game_id: @scoresheet.game_session.game.id) %>" class="btn btn-primary">Play again</a>
-      <a href="<%= root_path %>" class="btn btn-outline">Back to home</a>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <% ordered_players = @scoresheet.game_session.session_players.sort_by { |sp| sp.data["rank"] || 999 } %>
+        <% ordered_players.each do |player| %>
+          <%= render partial: "shared/player_stats", locals: { player: player, stats: player.data } %>
+        <% end %>
+      </div>
+      <div class="flex justify-center gap-4 mt-8">
+        <a href="<%= new_game_session_path(game_id: @scoresheet.game_session.game.id) %>" class="btn btn-primary">Play again</a>
+        <a href="<%= root_path %>" class="btn btn-outline">Back to home</a>
+      </div>
     </div>
   </div>
-</div>
   </div>
 </div>

@@ -1,0 +1,45 @@
+<dialog id="my_modal_3" class="modal" >
+    <div class="modal-box">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
+      <h3 class="text-lg font-bold" id="modal-title"></h3>
+      <%= form_with url: round_path(current_round), method: :patch, html: {
+        id: "score-form",
+        data: {
+          turbo: "false",
+          action: "ajax:success->skyjo#closeModalAfterSuccess",
+        }
+      } do %>
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <%= label_tag :first_finisher, "First player to finish" %>
+        <%= select_tag :first_finisher,
+          options_for_select([
+            ['Choose a player', '']
+          ] + @scoresheet.game_session.session_players.map { |sp| [sp.display_name, sp.display_name] }, ''),
+          class: "select select-bordered w-full mb-3",
+          data: { "#{controller_name}_target": "firstFinisher", "#{prefill_action}" => "change->skyjo#prefillForm" }
+        %>
+        <% if hidden_fields %>
+          <% hidden_fields.each do |name, value| %>
+            <%= hidden_field_tag name, value.to_s, id: name.dasherize %>
+          <% end %>
+        <% end %>
+        <% @scoresheet.game_session.session_players.each do |session_player| %>
+          <div class="form-control mb-2">
+            <%= label_tag(
+              "scores[#{session_player.display_name}]",
+              session_player.display_name,
+              class: "label"
+            ) %>
+            <%= number_field_tag(
+              "scores[#{session_player.display_name}]",
+              nil,
+              class: "input input-bordered w-20",
+              data: { "#{controller_name}_target" => "score", player: session_player.display_name }
+            ) %>
+          </div>
+        <% end %>
+        <%= submit_tag "Save", class: "btn btn-primary mt-3", data: { "#{controller_name}_target": "saveButton" } %>
+        <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+      <% end %>
+    </div>
+  </dialog>

@@ -28,5 +28,8 @@
       <% if selected.empty? %>
         <span class="badge badge-outline badge-lg mx-1 italic">Standard rules</span>
       <% end %>
+      <div class="mt-2 text-purple-800 text-lg font-semibold">
+        Rounds played: <%= @scoresheet.rounds.count %>
+      </div>
     </div>
   </div>
