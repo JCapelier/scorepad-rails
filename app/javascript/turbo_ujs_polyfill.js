@@ -1,5 +1,5 @@
-// Polyfill to support method: :delete and data-confirm with Turbo and Importmap (no Rails UJS)
-// Source: https://github.com/hotwired/turbo-rails/issues/438#issuecomment-1102506466
+// This polyfill was done by Copilot after hours of struggle. Deleting game sessions turned out to be the only hell I couldn't escape from.
+// I'll come back and conquer you, just wait a moment !
 
 document.addEventListener('turbo:click', function(event) {
   var link = event.target.closest('a[data-method]');

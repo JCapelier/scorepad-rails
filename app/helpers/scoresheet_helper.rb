@@ -13,7 +13,7 @@ module ScoresheetHelper
   def scoresheet_in_progress?(scoresheet)
     case scoresheet.game_session.game.title
     when "Skyjo"
-      scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet).values.all? { |score| score < scoresheet.data["score_limit"] || 100 }
+      scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet).values.all? { |score| score < scoresheet.data["score_limit"] }
     end
   end
 
@@ -33,7 +33,7 @@ module ScoresheetHelper
       {
         'data-first-finisher' => round.data['first_finisher'],
         'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
-        'data-child-mode' => scoresheet.data["child_mode"]
+        'data-child-mode' => scoresheet.data['child_mode']['value']
       }
     end
   end

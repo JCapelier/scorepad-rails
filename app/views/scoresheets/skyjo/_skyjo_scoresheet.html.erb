@@ -17,11 +17,6 @@
              cell_style_helper: method(:skyjo_score_cell_style),
              edit_action: "click->skyjo#editRound",
              controller_name: "skyjo",
-             datasets: {
-              'data-first-finisher' => round.data['first_finisher'],
-              'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
-              'data-child-mode' => @scoresheet.data['child_mode']
-             }
            } %>
 
 <% in_progress = @totals.values.all? { |score| score < @score_limit } %>

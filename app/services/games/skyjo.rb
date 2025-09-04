@@ -5,10 +5,10 @@ module Games
     def self.initial_data(players, custom_rules = {})
       config = YAML.load_file(Rails.root.join('config/games/skyjo.yml'))
 
-      config['child_mode'] = true if custom_rules['child_mode'] && custom_rules['child_mode']['value'] == 'true'
+      config['child_mode']['value'] = true if custom_rules['child_mode'] && custom_rules['child_mode']['value'] == 'true'
 
       if custom_rules['custom_score_limit'] && custom_rules['custom_score_limit']['value'].present?
-        config['custom_score_limit'] = true
+        config['custom_score_limit']['value'] = true
         config['score_limit'] = custom_rules['custom_score_limit']['value'].to_i
       end
 
@@ -43,7 +43,7 @@ module Games
 
     def self.set_first_finish_status(round, scores, first_finisher)
       # Child mode implies that the finish status is nil, because irrelevant
-      return if round.scoresheet.data['child_mode'] == true
+      return if round.scoresheet.data['child_mode']['value'] == true
 
       first_score = scores[first_finisher].to_i
       other_scores = scores.reject { |player, _| player == first_finisher }.values.map(&:to_i)
@@ -59,15 +59,13 @@ module Games
       scores = params[:scores]
       first_finisher = params[:first_finisher]
 
-      first_score = scores[first_finisher].to_i if scores && first_finisher
-
       finish_status = set_first_finish_status(round, scores, first_finisher)
 
       session_player = round.scoresheet.game_session.session_players.find_by(user: User.find_by(username: first_finisher))
       move_data = { round: round,
                     session_player: session_player,
                     move_type: 'first_finisher',
-                    data: { finish_status: finish_status } }
+                    data: round.scoresheet.data['child_mode']['value'] == false ? { finish_status: finish_status } : { finish_status: nil } }
       # totals = calculate_total_scores(round.scoresheet)
       # I need to figure out if I calculate totals in the back or the front, once and for all
 
@@ -142,6 +140,8 @@ module Games
       leaderboard
     end
 
+    # This gets the stats for the game session, which will be set as data for the session player.
+    # Larger scales stats are not processed in this service.
     def self.player_stats(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)

@@ -43,6 +43,10 @@ export default class extends Controller {
       const cell = scoreCells.find(cell => cell.dataset.player === player);
 
       if (cell) {
+                console.log("coucou")
+                console.log(cell)
+                console.log(cell.dataset)
+        console.log(cell.dataset.childMode)
         let scoreText = cell.textContent.trim();
         if (scoreText === "-") {
           console.log("salut")
@@ -57,8 +61,6 @@ export default class extends Controller {
         input.value = "";
       }
 
-      console.log(player)
-      console.log(this.firstFinisherTarget.value)
       if (player === this.firstFinisherTarget.value) {
         input.style.color = "purple";
         input.style.fontWeight = "bold";
