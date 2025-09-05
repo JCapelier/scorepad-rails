@@ -1,0 +1,53 @@
+<%= render partial: "scoresheets/shared/round_info",
+           locals: {
+            round: @current_round,
+            rules: round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
+           } %>
+
+<div id="controller-div" data-controller="skyjo">
+  <% if flash[:alert] %>
+    <div class="alert alert-error"><%= flash[:alert] %></div>
+  <% end %>
+
+<%= render partial: "scoresheets/shared/scoresheet_table",
+           locals: {
+             scoresheet: @scoresheet,
+             rounds: @scoresheet.rounds.order(:round_number),
+             players: @scoresheet.game_session.session_players,
+             cell_style_helper: method(:skyjo_score_cell_style),
+             edit_action: "click->skyjo#editRound",
+             controller_name: "skyjo",
+           } %>
+
+<% in_progress = @totals.values.all? { |score| score < @score_limit } %>
+
+
+<% if scoresheet_in_progress?(@scoresheet) %>
+  <%= render partial: "scoresheets/shared/end_round_button",
+             locals: {
+              current_round: @current_round,
+              round: round,
+              edit_action: "click->skyjo#editRound",
+             } %>
+  <% else %>
+    <%= render partial: "scoresheets/shared/finish_game_button",
+             locals: {
+              scoresheet: @scoresheet,
+              complete_game_action: "click->skyjo#confirmEndGame"
+             }  %>
+  <% end %>
+
+  <%= render "scoresheets/shared/suspend_game_button" %>
+
+  <%= render partial: "scoresheets/shared/edit_round_modal",
+             locals: {
+              current_round: @current_round,
+              form_authenticity_token: form_authenticity_token,
+              hidden_fields: {
+                "child-mode" => @scoresheet.data["child-mode"]
+              },
+              prefill_action: "change->skyjo#prefillForm",
+              controller_name: "skyjo"
+             } %>
+
+</div>

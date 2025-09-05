@@ -14,9 +14,14 @@ class ScoresheetsController < ApplicationController
     @scoresheet = Scoresheet.find(params[:id])
     @scoresheet.game_session.update(status: "completed", ends_at: Time.current)
     game = @scoresheet.game_session.game
-    @trophies = game.game_engine.trophies(@scoresheet)
     @leaderboard = game.game_engine.leaderboard(@scoresheet)
-    Move.create!(round: @scoresheet.rounds.last, session_player: @leaderboard.first[:player], move_type: "win")
+    @stats = game.game_engine.player_stats(@scoresheet)
+    players = @scoresheet.game_session.session_players
+
+    players.each do |player|
+      player_stats = @stats[player.display_name]
+      player.update(data: player_stats)
+    end
 
     respond_to do |format|
       format.html # renders results.html.erb as usual

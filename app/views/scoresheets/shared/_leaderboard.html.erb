@@ -1,0 +1,63 @@
+<div class="mb-8 flex flex-col items-center w-full">
+  <div class="w-full max-w-2xl">
+      <h2 class="text-xl font-bold mb-4 text-center">Leaderboard</h2>
+      <% session_players = @scoresheet.game_session.session_players.includes(:user) %>
+      <div class="flex justify-center w-full">
+        <table class="table text-left mx-4 w-full" style="max-width: 600px;">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% # Build lookup for player keys to user objects %>
+            <% player_map = {} %>
+            <% session_players.each do |sp| %>
+              <% player_map[sp.display_name] = sp %>
+              <% player_map[sp.id] = sp %>
+              <% player_map[sp.to_s] = sp %>
+            <% end %>
+            <% @leaderboard.each do |entry| %>
+              <tr>
+                <td>
+                  <% if entry[:rank] == 1 %>
+                    <span class="text-2xl">🥇</span>
+                  <% elsif entry[:rank] == 2 %>
+                    <span class="text-2xl">🥈</span>
+                  <% elsif entry[:rank] == 3 %>
+                    <span class="text-2xl">🥉</span>
+                  <% else %>
+                    <%= entry[:rank] %>
+                  <% end %>
+                </td>
+                <td>
+                  <% player = player_map[entry[:player]] || player_map[entry[:player].to_s] %>
+                  <% if player %>
+                    <span class="inline-flex items-center gap-2">
+                      <% if player.user&.avatar_url.present? %>
+                        <span class="flex items-center justify-center w-8 h-8 min-w-[2rem] min-h-[2rem]">
+                          <img src="<%= player.user.avatar_url %>" alt="avatar" class="w-8 h-8 object-cover aspect-square rounded-full border inline-block" />
+                        </span>
+                      <% elsif player.user.nil? %>
+                        <span class="flex items-center justify-center w-8 h-8 min-w-[2rem] min-h-[2rem]">
+                          <span class="w-8 h-8 flex items-center justify-center rounded-full border border-yellow-300 bg-yellow-200 text-purple-800 text-[0.65rem] font-normal px-1">
+                            Guest
+                          </span>
+                        </span>
+                      <% end %>
+                      <span class="text-xl"><%= player.display_name %></span>
+                    </span>
+                  <% else %>
+                    <span class="text-xl"><%= entry[:player] %></span>
+                  <% end %>
+                </td>
+                <td><span class="text-xl"><%= entry[:score] %></span></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

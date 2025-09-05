@@ -1,0 +1,20 @@
+<div class="relative flex flex-col items-center bg-yellow-300 border-2 border-purple-800 rounded-xl p-4 m-2 shadow-lg w-full max-w-xs">
+  <%# Avatar or guest placeholder %>
+  <% if player.user && player.user.avatar_url.present? %>
+    <img src="<%= player.user.avatar_url %>" alt="avatar" class="w-16 h-16 rounded-full mb-2 border-4 border-purple-800 bg-white object-cover mx-auto">
+  <% else %>
+    <div class="w-16 h-16 rounded-full mb-2 flex items-center justify-center bg-yellow-400 border-4 border-purple-800 mx-auto">
+      <span class="text-purple-900 font-bold text-sm">Guest</span>
+    </div>
+  <% end %>
+  <h3 class="text-lg font-bold text-purple-900 mb-2 text-center"><%= player.display_name %></h3>
+  <ul class="w-full text-sm text-gray-900">
+    <% stats.each do |key, value| %>
+      <% label = key.to_s.gsub('_', ' ').capitalize %>
+      <li class="flex justify-between py-2 border-b-2 border-purple-300 last:border-b-0 font-medium">
+        <span class="font-semibold text-purple-800"><%= label %>:</span>
+        <span class="text-right text-yellow-700"><%= value %></span>
+      </li>
+    <% end %>
+  </ul>
+</div>

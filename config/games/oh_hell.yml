@@ -1,4 +1,5 @@
-long_game: false
+long_game:
+  value: false
 number_of_rounds: nil
 min_players: 2
 max_players: 8

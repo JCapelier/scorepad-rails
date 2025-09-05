@@ -1,0 +1,5 @@
+<div class="flex flex-col items-center justify-center mb-6">
+  <%= form_with url: results_scoresheet_path(scoresheet), method: :get, html: { id: "finish-game-form", class: "flex flex-col items-center justify-center mb-6" } do %>
+    <%= button_tag "Finish game", type: "submit", class: "btn btn-lg btn-primary w-64 mb-2 text-xl", data: { action: complete_game_action } %>
+  <% end %>
+</div>

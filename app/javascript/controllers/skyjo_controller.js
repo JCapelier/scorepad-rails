@@ -3,7 +3,6 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["firstFinisher", "score", "saveButton", "scoreCell"]
   connect() {
-    console.log(this.hasFirstFinisherTarget)
     this.checkButton()
 
     this.scoreTargets.forEach(input => {
@@ -34,26 +33,28 @@ export default class extends Controller {
   editRound(event) {
     this.resetScoreForm();
     this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || "";
-    const roundNumber = event.currentTarget.dataset.round;
+    const roundNumber = event.currentTarget.dataset.roundNumber;
     const roundId = event.currentTarget.dataset.roundId;
 
-    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.round === roundNumber);
+    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber);
 
     this.scoreTargets.forEach(input => {
       const player = input.dataset.player;
       const cell = scoreCells.find(cell => cell.dataset.player === player);
-      if (cell) {
-        console.log(cell.dataset.finishStatus === "failure")
-        console.log(cell.dataset.player === this.firstFinisherTarget.value)
-        console.log(cell.dataset.childMode === "false")}
 
       if (cell) {
+                console.log("coucou")
+                console.log(cell)
+                console.log(cell.dataset)
+        console.log(cell.dataset.childMode)
         let scoreText = cell.textContent.trim();
         if (scoreText === "-") {
+          console.log("salut")
           input.value = "";
         } else if (cell.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value && cell.dataset.childMode === "false") {
           input.value = parseInt(scoreText, 10) / 2;
         } else {
+          console.log("bonjour")
           input.value = scoreText;
         }
       } else {

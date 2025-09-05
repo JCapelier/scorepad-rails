@@ -1,0 +1,50 @@
+<table class="w-full border-collapse mb-6">
+  <thead>
+    <tr>
+      <th class="border-b px-4 py-2 text-center">Round</th>
+      <% players.each do |player| %>
+        <th class="border-b px-4 py-2 text-center"><%= player.display_name %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% rounds.each do |round| %>
+      <tr>
+        <td class="border-r px-4 py-2 text-center font-bold"><%= round.round_number %></td>
+        <% first_finisher = round.data["first_finisher"] if round.data.key?("first_finisher") %>
+        <% finish_status = round.move_for_first_finisher&.data&.dig("finish_status") if round.respond_to?(:move_for_first_finisher) %>
+        <% players.each do |player| %>
+          <% score = round.data.dig("scores", player.display_name) %>
+          <% is_first = player.display_name == first_finisher %>
+          <% attrs = {} %>
+          <% if editable_cell?(round) %>
+            <%# These first attributes are set for every game %>
+            <% attrs['data-action'] = edit_action %>
+            <% attrs['data-round-id'] = round.id %>
+            <% attrs['data-round-number'] = round.round_number %>
+            <% attrs['data-player'] = player.display_name %>
+            <%# The specific attributes are given in each game scoresheet show %>
+            <% specific_attributes = scoresheet_cell_attributes(scoresheet, round, player) %>
+            <% specific_attributes.each { |attribute, value| attrs[attribute] = value unless value == nil } %>
+          <% end %>
+          <td style="<%= cell_style_helper.call(is_first, finish_status) %>" class="text-center"
+            <%= attrs.map { |k,v| "#{k}=#{v}" }.join(' ') %>
+          data-<%= controller_name %>-target="scoreCell"
+          >
+            <%= score.present? ? score : "-" %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+
+    <%# This last tr is for the totals row %>
+    <tr>
+      <td class="font-bold bg-gray-100 text-center">Total</td>
+      <% players.each do |player| %>
+        <td class="font-bold bg-gray-100 text-center">
+          <%= player_total(scoresheet, player) %>
+        </td>
+      <% end %>
+    </tr>
+  </tbody>
+</table>

@@ -1,2 +1,7 @@
-<% game_formated = @scoresheet.game_session.game.title.parameterize.underscore %>
-<%= render "scoresheets/#{game_formated}_results", scoresheet: @scoresheet %>
+<%= render "scoresheets/shared/results_info" %>
+
+<%= render "scoresheets/shared/leaderboard" %>
+
+<%= render "scoresheets/shared/session_stats" %>
+
+<%= render "scoresheets/shared/results_buttons" %>

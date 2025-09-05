@@ -1,0 +1,35 @@
+<div class="w-full max-w-2xl mx-auto p-6">
+  <!-- Game Title and Rules -->
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-bold text-purple-700 mb-2"><%= @scoresheet.game_session.game.title %></h1>
+    <div class="text-gray-600">
+      <% # Find rules hash in @scoresheet.data (not custom_rules) %>
+      <% rules = {} %>
+      <% @scoresheet.data.each do |key, value| %>
+        <% if value.is_a?(Hash) && value.key?("value") %>
+          <% rules[key] = value %>
+        <% end %>
+      <% end %>
+      <% selected = [] %>
+      <% rules.each do |key, value| %>
+        <% if value["value"] == true %>
+          <% selected << key %>
+          <span class="badge badge-outline badge-lg mx-1"><%= key.titleize %></span>
+          <% if value["subrules"] %>
+            <% value["subrules"].each do |subkey, subval| %>
+              <% if subval == true %>
+                <% selected << subkey %>
+                <span class="badge badge-outline badge-lg mx-1"><%= subkey.titleize %></span>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+      <% if selected.empty? %>
+        <span class="badge badge-outline badge-lg mx-1 italic">Standard rules</span>
+      <% end %>
+      <div class="mt-2 text-purple-800 text-lg font-semibold">
+        Rounds played: <%= @scoresheet.rounds.count %>
+      </div>
+    </div>
+  </div>

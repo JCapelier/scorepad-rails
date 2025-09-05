@@ -1,10 +1,8 @@
-<!-- Scoresheet Header -->
 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
   <h2 style="margin: 0;"><%= @scoresheet.game_session.game.title %></h2>
   <span style="font-size: 0.9em; color: #888;"><%= @scoresheet.created_at.strftime("%b %d, %Y") %></span>
 </div>
 
   <% game_formated = @scoresheet.game_session.game.title.parameterize.underscore %>
-  <%= render "scoresheets/#{game_formated}_round_info", round: @current_round, scoresheet: @scoresheet %>
-  <%= render "scoresheets/#{game_formated}_scoresheet", round: @current_round %>
+  <%= render "scoresheets/#{game_formated}/#{game_formated}_scoresheet", round: @current_round, scoresheet: @scoresheet %>
 </div>
