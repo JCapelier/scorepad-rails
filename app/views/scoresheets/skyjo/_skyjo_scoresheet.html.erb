@@ -14,13 +14,10 @@
              scoresheet: @scoresheet,
              rounds: @scoresheet.rounds.order(:round_number),
              players: @scoresheet.game_session.session_players,
-             cell_style_helper: method(:skyjo_score_cell_style),
+             cell_style_helper: method(:default_score_cell_style),
              edit_action: "click->skyjo#editRound",
              controller_name: "skyjo",
            } %>
-
-<% in_progress = @totals.values.all? { |score| score < @score_limit } %>
-
 
 <% if scoresheet_in_progress?(@scoresheet) %>
   <%= render partial: "scoresheets/shared/end_round_button",

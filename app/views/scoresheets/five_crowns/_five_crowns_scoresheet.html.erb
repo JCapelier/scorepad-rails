@@ -1,140 +1,50 @@
-<div data-controller="five-crowns">
+<%= render partial: "scoresheets/shared/round_info",
+           locals: {
+            round: @current_round,
+            rules: round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
+           } %>
+
+<div id="controller-div" data-controller="five-crowns" data-early-finish="<%= @scoresheet.data&.dig('early_finish', 'value') %>">
   <% if flash[:alert] %>
     <div class="alert alert-error"><%= flash[:alert] %></div>
   <% end %>
 
-  <table style="width:100%; border-collapse:collapse; margin-bottom:24px;">
-    <thead>
-      <tr>
-        <th style="border-bottom:1px solid #ccc; padding:8px; width:40px; text-align:center;">Round</th>
-        <% @scoresheet.game_session.session_players.each do |session_player| %>
-          <th style="border-bottom:1px solid #ccc; padding:8px; text-align:center;">
-            <%= session_player.display_name %>
-          </th>
-        <% end %>
-      </tr>
-    </thead>
-    <tbody>
-      <% @scoresheet.rounds.order(:round_number).each do |round| %>
-        <% editable = round.status == "completed" %>
-        <% risky_finish = round.move_for_first_finisher&.data&.dig("risky_finish") %>
-        <% round_rules = round.scoresheet.data["early_finish"] %>
-        <tr>
-          <td style="border-right:1px solid #eee; padding:8px; width:40px; text-align:center; font-weight:bold;">
-            <%= round.round_number %>
-          </td>
-          <% first_finisher = round.data["first_finisher"] %>
-          <% @scoresheet.game_session.session_players.each do |session_player| %>
-            <% score = round.data.dig("scores", session_player.display_name) %>
-            <% is_first = session_player.display_name == first_finisher %>
-            <% cell_style = "padding:8px; text-align:center; cursor:pointer; background:#fafafa;" %>
-            <% if is_first && risky_finish == "failure" %>
-              <% cell_style += " color: red; font-weight: bold;" %>
-            <% elsif is_first %>
-              <% cell_style += " color: purple; font-weight: bold;" %>
-            <% end %>
-            <td style="<%= cell_style %>"
-                data-round="<%= round.round_number %>"
-                data-first-finisher="<%= round.data["first_finisher"] %>"
-                data-player="<%= session_player.display_name %>"
-                data-risky-finish="<%= risky_finish %>"
-                data-early-finish='<%= round_rules["value"] %>'
-                data-five-crowns-target="scoreCell"
-                <% if editable %>
-                  data-action="click->five-crowns#editRound"
-                  data-round-id="<%= round.id %>"
-                <% end %>
-              >
-              <%= score.present? ? score : "-" %>
-            </td>
-          <% end %>
-        </tr>
-      <% end %>
-      <!-- Totals row -->
-      <tr>
-        <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">Grand Total</td>
-        <% totals = @scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet) %>
-        <% @scoresheet.game_session.session_players.each do |session_player| %>
-          <td style="padding:8px; font-weight:bold; background:#f0f0f0; text-align:center;">
-            <%= totals[session_player.display_name] %>
-          </td>
-        <% end %>
-      </tr>
-    </tbody>
-  </table>
+  <%= render partial: "scoresheets/shared/scoresheet_table",
+            locals: {
+              scoresheet: @scoresheet,
+              rounds: @scoresheet.rounds.order(:round_number),
+              players: @scoresheet.game_session.session_players,
+              cell_style_helper: method(:default_score_cell_style),
+              edit_action: "click->five-crowns#editRound",
+              controller_name: "five-crowns",
+            } %>
 
-  <% in_progress = @scoresheet.rounds.any? { |round| round.status == "pending" || round.status == "active" } %>
+    <% if scoresheet_in_progress?(@scoresheet) %>
+    <%= render partial: "scoresheets/shared/end_round_button",
+              locals: {
+                current_round: @current_round,
+                round: round,
+                edit_action: "click->five-crowns#editRound",
+              } %>
+    <% else %>
+      <%= render partial: "scoresheets/shared/finish_game_button",
+              locals: {
+                scoresheet: @scoresheet,
+                complete_game_action: "click->five-crowns#confirmEndGame"
+              }  %>
+    <% end %>
 
-  <!-- End Round Button -->
-  <% if in_progress %>
-    <div class="flex flex-col items-center justify-center mb-6">
-      <button id="end-round-btn"
-        class="btn btn-lg btn-primary w-64 mb-2 text-xl"
-        data-action="click->five-crowns#editRound"
-        data-round-number="<%= @current_round.round_number || round.round_number %>"
-        data-round-id="<%= @current_round.id || round.id %>">
-        End Round
-      </button>
-    </div>
-  <% end %>
+    <%= render "scoresheets/shared/suspend_game_button" %>
 
-  <!-- Finish Game Button -->
-  <% if @scoresheet.rounds.all? { |round| round.status == "completed" } %>
-    <div class="flex flex-col items-center justify-center mb-6">
-      <%= form_with url: results_scoresheet_path(@scoresheet), method: :get, html: { id: "finish-game-form", class: "flex flex-col items-center justify-center mb-6" }, data: {turbo: false} do %>
-        <%= button_tag "Finish game", type: "submit", class: "btn btn-lg btn-primary w-64 mb-2 text-xl", data: { action: "click->five-crowns#confirmEndGame" } %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <!-- Suspend Game Button -->
-  <% unless @scoresheet.rounds.all? { |round| round.status == "completed" } %>
-    <div class="flex flex-col items-center justify-center mt-8 mb-4">
-      <%= link_to "Suspend game", root_path, class: "btn btn-warning w-48 text-base" %>
-    </div>
-  <% end %>
-
-  <!-- DaisyUI Modal -->
-  <dialog id="my_modal_3" class="modal" >
-    <div class="modal-box">
-      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
-      <h3 class="text-lg font-bold" id="modal-title"></h3>
-      <%= form_with url: round_path(@current_round), method: :patch, html: {
-        id: "score-form",
-        data: {
-          turbo: "false",
-          action: "ajax:success->five-crowns#closeModalAfterSuccess",
-        }
-      } do %>
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <%= label_tag :first_finisher, "First player to finish" %>
-        <%= select_tag :first_finisher,
-          options_for_select([
-            ['Choose a player', '']
-          ] + @scoresheet.game_session.session_players.map { |sp| [sp.display_name, sp.display_name] }, ''),
-          class: "select select-bordered w-full mb-3",
-          data: { five_crowns_target: "firstFinisher", action: "change->five-crowns#prefillForm", early_finish: @scoresheet.data["early_finish"] }
-        %>
-        <%= hidden_field_tag "early_finish", @scoresheet.data["early_finish"]["value"].to_s, id: "early-finish" %>
-        <%= hidden_field_tag "double_if_not_lowest", @scoresheet.data["early_finish"]["subrules"]["double_if_not_lowest"].to_s, id: "double_if_not_lowest" %>
-        <% @scoresheet.game_session.session_players.each do |session_player| %>
-          <div class="form-control mb-2">
-            <%= label_tag(
-              "scores[#{session_player.display_name}]",
-              session_player.display_name,
-              class: "label"
-            ) %>
-            <%= number_field_tag(
-              "scores[#{session_player.display_name}]",
-              nil,
-              class: "input input-bordered w-20",
-              data: { five_crowns_target: "score", player: session_player.display_name }
-            ) %>
-          </div>
-        <% end %>
-        <%= submit_tag "Save", class: "btn btn-primary mt-3", data: { five_crowns_target: "saveButton" } %>
-        <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
-      <% end %>
-    </div>
-  </dialog>
+    <%= render partial: "scoresheets/shared/edit_round_modal",
+              locals: {
+                current_round: @current_round,
+                form_authenticity_token: form_authenticity_token,
+                hidden_fields: {
+                  "early-finish" => @scoresheet.data&.dig("early-finish", "value"),
+                  "double-if-not-lowest" => @scoresheet.data&.dig("early-finish", "subrules", "double_if_not_lowest")
+                },
+                prefill_action: "change->five-crowns#prefillForm",
+                controller_name: "five-crowns"
+              } %>
 </div>

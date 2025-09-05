@@ -19,25 +19,19 @@ export default class extends Controller {
   }
 
   prefillForm() {
-    if (document.getElementById("early-finish")?.value === "true") {
-      this.scoreTargets.forEach((target) => {
-        if (target.dataset.player === this.firstFinisherTarget.value) {
-          target.style.color = "purple";
-          target.style.fontWeight = "bold";
-        } else {
-          target.style.color = "";
-          target.style.fontWeight = "";
-        }
-      });
-      return;
-    }
-
+    console.log(this.element)
+    console.log(this.element.dataset.earlyFinish)
+    const earlyFinish = this.element.dataset.earlyFinish;
     this.scoreTargets.forEach((target) => {
       if (target.dataset.player === this.firstFinisherTarget.value) {
-        target.value = 0;
         target.style.color = "purple";
         target.style.fontWeight = "bold";
-        target.readOnly = true;
+        if (earlyFinish === "false") {
+          target.value = 0;
+          target.readOnly = true;
+        } else {
+          target.readOnly = false;
+        }
       } else {
         target.value = "";
         target.style.color = "";
@@ -50,11 +44,12 @@ export default class extends Controller {
   editRound(event) {
     this.resetScoreForm();
     this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || "";
-    const roundNumber = event.currentTarget.dataset.round;
+    const roundNumber = event.currentTarget.dataset.roundNumber;
     const roundId = event.currentTarget.dataset.roundId;
 
-    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.round === roundNumber);
+    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber);
 
+    const earlyFinish = this.element.dataset.earlyFinish;
     this.scoreTargets.forEach(input => {
       const player = input.dataset.player;
       const cell = scoreCells.find(cell => cell.dataset.player === player);
@@ -63,7 +58,7 @@ export default class extends Controller {
         let scoreText = cell.textContent.trim();
         if (scoreText === "-") {
           input.value = "";
-        } else if (cell.dataset.riskyFinish === "failure" && cell.dataset.player === this.firstFinisherTarget.value) {
+        } else if (cell.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value) {
           input.value = parseInt(scoreText, 10) / 2;
         } else {
           input.value = scoreText;
@@ -75,8 +70,11 @@ export default class extends Controller {
       if (player === this.firstFinisherTarget.value) {
         input.style.color = "purple";
         input.style.fontWeight = "bold";
-        if (document.getElementById("early-finish")?.value === "false") {
-          input.readOnly = true;}
+        if (earlyFinish === "false") {
+          input.readOnly = true;
+        } else {
+          input.readOnly = false;
+        }
       } else {
         input.style.color = "";
         input.style.fontWeight = "";

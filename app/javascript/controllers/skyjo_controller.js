@@ -43,10 +43,6 @@ export default class extends Controller {
       const cell = scoreCells.find(cell => cell.dataset.player === player);
 
       if (cell) {
-                console.log("coucou")
-                console.log(cell)
-                console.log(cell.dataset)
-        console.log(cell.dataset.childMode)
         let scoreText = cell.textContent.trim();
         if (scoreText === "-") {
           console.log("salut")
