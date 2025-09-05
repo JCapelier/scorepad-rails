@@ -45,12 +45,10 @@ export default class extends Controller {
       if (cell) {
         let scoreText = cell.textContent.trim();
         if (scoreText === "-") {
-          console.log("salut")
           input.value = "";
         } else if (cell.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value && cell.dataset.childMode === "false") {
           input.value = parseInt(scoreText, 10) / 2;
         } else {
-          console.log("bonjour")
           input.value = scoreText;
         }
       } else {

@@ -14,7 +14,7 @@ module ScoresheetHelper
     case scoresheet.game_session.game.title
     when "Skyjo"
       scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet).values.all? { |score| score < scoresheet.data["score_limit"] }
-    when "Five Crowns"
+    when "Five Crowns", "Mexican Train"
       scoresheet.rounds.any? { |round| round.status == "pending" || round.status == "active" }
     end
   end
@@ -42,6 +42,10 @@ module ScoresheetHelper
         'data-first-finisher' => round.data['first_finisher'],
         'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
         'data-early-finish' => scoresheet.data['early_finish']['value']
+      }
+    when "Mexican Train"
+      {
+        'data-first-finisher' => round.data['first_finisher']
       }
     end
   end

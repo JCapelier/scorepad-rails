@@ -19,19 +19,6 @@ export default class extends Controller {
   }
 
   prefillForm() {
-    if (document.getElementById("early-finish")?.value === "true") {
-      this.scoreTargets.forEach((target) => {
-        if (target.dataset.player === this.firstFinisherTarget.value) {
-          target.style.color = "purple";
-          target.style.fontWeight = "bold";
-        } else {
-          target.style.color = "";
-          target.style.fontWeight = "";
-        }
-      });
-      return;
-    }
-
     this.scoreTargets.forEach((target) => {
       if (target.dataset.player === this.firstFinisherTarget.value) {
         target.value = 0;
@@ -55,36 +42,56 @@ export default class extends Controller {
 
     const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.round === roundNumber);
 
-    this.scoreTargets.forEach(input => {
-      const player = input.dataset.player;
-      const cell = scoreCells.find(cell => cell.dataset.player === player);
+    const endButton = document.getElementById("end-round-btn");
 
-       if (cell) {
-        let scoreText = cell.textContent.trim();
-        if (scoreText === "-") {
-          input.value = "";
+    // Only prefill scores if NOT clicking the end round button
+    if (event.currentTarget !== endButton) {
+      this.scoreTargets.forEach(input => {
+        const player = input.dataset.player;
+        const cell = scoreCells.find(cell => cell.dataset.player === player);
+
+        if (cell) {
+          let scoreText = cell.textContent.trim();
+          if (scoreText === "-") {
+            input.value = "";
+          } else {
+            input.value = scoreText;
+          }
         } else {
-          input.value = scoreText;
+          input.value = "";
         }
-      } else {
-        input.value = "";
-      }
 
-      if (player === this.firstFinisherTarget.value) {
-        input.style.color = "purple";
-        input.style.fontWeight = "bold";
-        if (document.getElementById("early-finish")?.value === "false") {
-          input.readOnly = true;}
-      } else {
-        input.style.color = "";
-        input.style.fontWeight = "";
-        input.readOnly = false;
-      }
-    });
+        if (player === this.firstFinisherTarget.value) {
+          input.style.color = "purple";
+          input.style.fontWeight = "bold";
+          if (document.getElementById("early-finish")?.value === "false") {
+            input.readOnly = true;
+          }
+        } else {
+          input.style.color = "";
+          input.style.fontWeight = "";
+          input.readOnly = false;
+        }
+      });
+    } else {
+      // For end round, just reset styles (already done by resetScoreForm)
+      this.scoreTargets.forEach(input => {
+        if (input.dataset.player === this.firstFinisherTarget.value) {
+          input.style.color = "purple";
+          input.style.fontWeight = "bold";
+          if (document.getElementById("early-finish")?.value === "false") {
+            input.readOnly = true;
+          }
+        } else {
+          input.style.color = "";
+          input.style.fontWeight = "";
+          input.readOnly = false;
+        }
+      });
+    }
 
 
     const form = document.getElementById("score-form");
-    const endButton = document.getElementById("end-round-btn")
     if (roundId) {
       form.action = `/rounds/${roundId}`;
       console.log(form.action)
