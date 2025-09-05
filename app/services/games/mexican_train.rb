@@ -115,72 +115,91 @@ module Games
       leaderboard
     end
 
-    # Trophy/stat calculations for results view
-    def self.trophies(scoresheet)
+    def self.player_stats(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
-      players = scoresheet.game_session.session_players.map { |sp| sp.display_name }
-      rules = scoresheet.data.select { |_, v| v.is_a?(Hash) && v.key?("value") }
+      players = scoresheet.game_session.session_players.map(&:display_name)
 
-      # Efficiency Trophy (ex aequo)
-      first_finish_counts = Hash.new(0)
-      rounds.each { |r| first_finish_counts[r.data["first_finisher"]] += 1 if r.data["first_finisher"].present? }
-      eff_max = first_finish_counts.values.max || 0
-      eff_players = first_finish_counts.select { |_, v| v == eff_max }.keys
+      leaderboard = self.leaderboard(scoresheet)
+      scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
+      ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
 
-      # Consistency Trophy (ex aequo)
-      zero_counts = Hash.new(0)
-      rounds.each do |r|
-        r.data["scores"]&.each { |player, score| zero_counts[player] += 1 if score.to_i == 0 }
-      end
-      cons_max = zero_counts.values.max || 0
-      cons_players = zero_counts.select { |_, v| v == cons_max }.keys
-      show_consistency = cons_max > 0
+      finisher_stats = first_finisher_stats(rounds, players)
+      score_extremes = lowest_and_highest_scores(rounds, players)
+      average_scores = average_score_per_round(rounds, players)
 
-      # Winning Streak Trophy (ex aequo)
-      streaks = Hash.new(0)
+      stats = {}
       players.each do |player|
-        max_streak = 0; current = 0
-        rounds.each do |r|
-          score = r.data["scores"]&.[](player)
-          if score.to_i == 0
-            current += 1; max_streak = [max_streak, current].max
-          else
-            current = 0
+        stats[player] = {
+          total_score: scores_by_player[player],
+          rank: ranks_by_player[player],
+          average_score: average_scores[player],
+          first_finisher_count: finisher_stats[player][:first_finisher_count],
+          finish_success: finisher_stats[player][:finish_success],
+          finish_failure: finisher_stats[player][:finish_failure],
+          finish_ratio: finisher_stats[player][:finish_ratio],
+          rounds_with_the_lowest_score: score_extremes[player][:lowest_score_rounds],
+          lowest_score_in_a_round: score_extremes[player][:lowest_score],
+          highest_score_in_a_round: score_extremes[player][:highest_score]
+        }
+      end
+      stats
+    end
+
+    def self.average_score_per_round(rounds, players)
+      total_rounds = rounds.last&.round_number
+      scoresheet = rounds.first&.scoresheet
+      leaderboard = scoresheet ? self.leaderboard(scoresheet) : []
+      averages = {}
+      leaderboard.each do |entry|
+        averages[entry[:player]] = (entry[:score].to_f / total_rounds).round(2)
+      end
+      averages
+    end
+
+    def self.first_finisher_stats(rounds, players)
+      stats = {}
+      players.each do |player|
+        stats[player] = { first_finisher_count: 0, finish_success: 0, finish_failure: 0, finish_ratio: 0.0 }
+      end
+      rounds.each do |round|
+        move = round.move_for_first_finisher
+        finish_status = move&.data&.dig('finish_status')
+        first_finisher = move&.session_player&.display_name
+        players.each do |player|
+          if player == first_finisher
+            stats[player][:first_finisher_count] += 1
+            if finish_status == 'success'
+              stats[player][:finish_success] += 1
+            elsif finish_status == 'failure'
+              stats[player][:finish_failure] += 1
+            end
           end
         end
-        streaks[player] = max_streak
       end
-      streak_max = streaks.values.max || 0
-      streak_players = streaks.select { |_, v| v == streak_max }.keys
-      show_streak = streak_max > 0
-
-      # Fail Trophy (ex aequo)
-      fail_scores = []
-      rounds.each do |r|
-        r.data["scores"]&.each { |player, score| fail_scores << [player, score.to_i] }
+      players.each do |player|
+        # If child mode is enable, first_finisher_count will progress without relation to a success ratio.
+        total = stats[player][:finish_success] + stats[player][:finish_failure]
+        stats[player][:finish_ratio] = total > 0 ? (stats[player][:finish_success].to_f / total).round(2) : nil
       end
-      fail_max = fail_scores.map { |_, v| v }.max || 0
-      fail_players = fail_scores.select { |_, v| v == fail_max }.map(&:first).uniq
+      stats
+    end
 
-      # Martyr Trophy (ex aequo)
-      martyr_counts = Hash.new(0)
-      rounds.each do |r|
-        r.data["scores"]&.each do |player, score|
-          unless r.data["first_finisher"] == player || score.to_i == 0
-            martyr_counts[player] += 1
-          end
+    def self.lowest_and_highest_scores(rounds, players)
+      stats = {}
+      players.each do |player|
+        stats[player] = { lowest_score_rounds: 0, lowest_score: nil, highest_score: nil }
+      end
+      rounds.each do |round|
+        scores = round.data['scores'] || {}
+        min_score = scores.values.map(&:to_i).min
+        players.each do |player|
+          score = scores[player].to_i
+          stats[player][:lowest_score_rounds] += 1 if score == min_score
+          stats[player][:lowest_score] = score if stats[player][:lowest_score].nil? || score < stats[player][:lowest_score]
+          stats[player][:highest_score] = score if stats[player][:highest_score].nil? || score > stats[player][:highest_score]
         end
       end
-      martyr_max = martyr_counts.values.max || 0
-      martyr_players = martyr_counts.select { |_, v| v == martyr_max }.keys
-
-      {
-        efficiency: { players: eff_players, count: eff_max },
-        consistency: show_consistency ? { players: cons_players, count: cons_max } : nil,
-        winning_streak: show_streak ? { players: streak_players, count: streak_max } : nil,
-        fail: { players: fail_players, count: fail_max },
-        martyr: { players: martyr_players, count: martyr_max },
-      }
+      stats
     end
   end
 end
