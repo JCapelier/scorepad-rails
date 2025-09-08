@@ -1,11 +1,9 @@
 <div style="background: #f8f8f8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-  <div>Round <%= round.round_number %></div>
-  <div>Dealer: <%= round.data["dealer"] %></div>
-  <%# This next line is for the specific case of Skyjo %>
-  <% if round.scoresheet.data["score_limit"] %>
-    <div>Score Limit: <%= round.scoresheet.data["score_limit"] %></div>
+  <% set_round_info(round).each do |key, value| %>
+    <% if value %>
+      <div><%= key %> <%= value %></div>
+    <% end %>
   <% end %>
-
   <div class="flex flex-wrap gap-2 mt-2">
     <% rules = round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true } %>
     <% if rules.empty? %>
@@ -22,6 +20,5 @@
         <% end %>
       <% end %>
     <% end %>
-
   </div>
 </div>

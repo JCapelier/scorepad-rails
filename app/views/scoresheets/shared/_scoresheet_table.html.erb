@@ -24,7 +24,7 @@
             <% attrs['data-round-number'] = round.round_number %>
             <% attrs['data-player'] = player.display_name %>
             <%# The specific attributes are given in each game scoresheet show %>
-            <% specific_attributes = scoresheet_cell_attributes(scoresheet, round, player) %>
+            <% specific_attributes = scoresheet_cell_attributes(scoresheet, round) %>
             <% specific_attributes.each { |attribute, value| attrs[attribute] = value unless value == nil } %>
           <% end %>
           <td style="<%= cell_style_helper.call(is_first, finish_status) %>" class="text-center"

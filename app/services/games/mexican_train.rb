@@ -21,7 +21,7 @@ module Games
     def self.starting_domino(round_number)
       domino = 12 - ((round_number - 1) % 13)
       if domino == 12
-        starting_domino = "Double joker"
+        starting_domino = "Double white"
       else
         starting_domino = "Double #{domino}"
       end
