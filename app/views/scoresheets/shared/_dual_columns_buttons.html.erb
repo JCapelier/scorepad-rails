@@ -2,8 +2,10 @@
   <button id="end-round-btn"
     class="btn btn-lg btn-primary w-64 mb-2 text-xl"
     data-action="<%= first_phase_action %>"
-    data-round-number="<%= current_round.round_number || round.round_number %>"
-    data-round-id="<%= current_round.id || round.id %>">
+    data-round-number="<%= round.round_number %>"
+    data-round-id="<%= round.id %>"
+    data-cards-per-round="<%= round.data["cards_per_round"]%>"
+    >
     <%= first_phase_title %>
   </button>
 </div>
@@ -13,8 +15,11 @@
       <button id="end-round-btn"
       class="btn btn-lg btn-primary w-64 mb-2 text-xl"
       data-action="<%= second_phase_action %>"
-      data-round-number="<%= current_round.round_number || round.round_number %>"
-      data-round-id="<%= current_round.id || round.id %>">
+      data-round-number="<%= round.round_number %>"
+      data-round-id="<%= round.id %>"
+      data-cards-per-round="<%= round.data["cards_per_round"] %>"
+      data-current-round="true"
+      >
       <%= second_phase_title %>
     </button>
   </div>

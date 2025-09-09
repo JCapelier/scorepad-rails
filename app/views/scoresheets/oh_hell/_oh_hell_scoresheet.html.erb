@@ -1,7 +1,7 @@
 <%= render partial: "scoresheets/shared/round_info",
            locals: {
-            round: @current_round,
-            rules: round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
+            round: current_round,
+            rules: current_round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
            } %>
 
 
@@ -21,10 +21,9 @@
     <%= render partial: "scoresheets/shared/dual_columns_buttons",
                 locals: {
                   scoresheet: @scoresheet,
-                  current_round: @current_round,
-                  round: round,
                   first_phase_action: "click->oh-hell#editBidding",
-                  second_phase: round.data["phase"] != "bidding",
+                  round: current_round,
+                  second_phase: current_round.data["phase"] != "bidding",
                   second_phase_action: "click->oh-hell#editScoring",
                   first_phase_title: "Bidding",
                   second_phase_title: "Scoring"
@@ -38,13 +37,15 @@
 
   <%= render partial: "scoresheets/oh_hell/oh_hell_bidding_modal",
               locals: {
-                cards_this_round: @current_round&.data&.dig("cards_per_round"),
+                current_round: current_round,
+                cards_this_round: current_round&.data&.dig("cards_per_round"),
                 ordered_players: set_ordered_players(@scoresheet, @current_round)
               } %>
 
   <%= render partial: "scoresheets/oh_hell/oh_hell_scoring_modal",
               locals: {
-                cards_this_round: @current_round&.data&.dig("cards_per_round"),
+                current_round: current_round,
+                cards_this_round: current_round&.data&.dig("cards_per_round"),
                 ordered_players: set_ordered_players(@scoresheet, @current_round)
               } %>
 </div>

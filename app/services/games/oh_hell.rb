@@ -60,7 +60,7 @@ module Games
     end
 
     def self.handle_bidding_phase(round, params)
-      bids = params[:bids]
+      bids = params[:bid]
       move_data = []
 
       if bids.values.map(&:to_i).sum == round.data["cards_per_round"]

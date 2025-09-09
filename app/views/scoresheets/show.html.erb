@@ -4,5 +4,5 @@
 </div>
 <div>
   <% game_formated = @scoresheet.game_session.game.title.parameterize.underscore %>
-  <%= render "scoresheets/#{game_formated}/#{game_formated}_scoresheet", round: @current_round, scoresheet: @scoresheet %>
+  <%= render "scoresheets/#{game_formated}/#{game_formated}_scoresheet", current_round: @current_round, scoresheet: @scoresheet %>
 </div>

@@ -1,0 +1,27 @@
+<dialog id="my_modal_4" class="modal">
+  <div class="modal-box">
+    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_4.close()">✕</button>
+    <h3 class="text-lg font-bold" id="scoring-modal-title"></h3>
+
+    <%= form_with url: "#", id: 'scoring-form', method: :patch, data: { turbo: "false", action: "turbo:submit-end->oh-hell#closeModalAfterSuccess" } do %>
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      <% ordered_players.each do |session_player| %>
+        <div class="form-control mb-2 flex flex-row items-center gap-4">
+          <span class="font-bold w-24"><%= session_player.display_name %></span>
+          <span class="w-20" data-oh-hell-target="bidReminder" data-player="<%= session_player.display_name %>">
+          Bid: <%= current_round&.data&.dig("bids", session_player.display_name) %>
+          </span>
+          <%= select_tag(
+            "tricks[#{session_player.display_name}]",
+            options_for_select((0..current_round.data['cards_per_round']).to_a, current_round&.data&.dig("tricks", session_player.display_name)),
+            scoring_modal_player_attributes(current_round, session_player).merge(class: "select select-bordered w-24", data: { oh_hell_target: 'tricksInput', action: "change->oh-hell#checkTricksButton" })
+          ) %>
+        </div>
+      <% end %>
+      <%= submit_tag "Save Scores", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveTricksButton" }  %>
+      <button type="button" class="btn ml-2" onclick="my_modal_4.close()">Cancel</button>
+    <% end %>
+  </div>
+</dialog>
+
+

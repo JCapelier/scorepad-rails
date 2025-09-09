@@ -28,7 +28,7 @@
             <% specific_attributes.each { |attribute, value| attrs[attribute] = value unless value == nil } %>
           <% end %>
           <td style="<%= cell_style_helper.call(is_first, finish_status) %>" class="text-center"
-            <%= attrs.map { |k,v| "#{k}=#{v}" }.join(' ') %>
+            <%= tag_options(attrs) %>
           data-<%= controller_name %>-target="scoreCell"
           >
             <%= score.present? ? score : "-" %>

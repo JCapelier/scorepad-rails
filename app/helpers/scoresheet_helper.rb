@@ -69,7 +69,7 @@ module ScoresheetHelper
     round.status == 'completed'
   end
 
-  def scoresheet_cell_attributes(scoresheet, round)
+  def scoresheet_cell_attributes(scoresheet, round, player)
     case scoresheet.game_session.game.title
     when 'Skyjo'
       {
@@ -87,32 +87,66 @@ module ScoresheetHelper
       {
         'data-first-finisher' => round.data['first_finisher']
       }
-
     end
   end
 
-  def dual_columns_scoresheet_cell_attributes(scoresheet, round, session_player, cell_type)
-    case scoresheet.game_session.game.title
-    when 'Oh Hell'
-      {
-        'data-round-id' => round.id,
-        'data-round-phase' => round.data['phase'],
-        'data-round-status' => round.status,
-        'data-round-number' => round.round_number,
-        'data-cards-per-round' => round.data['cards_per_round'],
-        'data-first-player' => round.data['first_player'],
-        'data-tricks' => round.data['tricks'].to_json,
-        'data-player' => session_player.display_name,
-        "data-#{cell_type}" => round.data.dig("#{cell_type}s", session_player.display_name),
-        'data-oh-hell-target' => "'#{cell_type}'-cell"
-      }
-    end
+  # For Oh Hell, I had to separate data for the row level and data for the cell level.
+  # The whole needs to be streamlined
+  def oh_hell_row_attributes(round)
+    {
+      'data-round-id' => round.id,
+      'data-round-number' => round.round_number,
+      'data-cards-per-round' => round.data['cards_per_round'],
+      'data-first-player' => round.data['first_player'],
+      'data-action' => 'click->oh-hell#editScoring'
+    }
   end
+
+  def oh_hell_cell_attributes(round, player, cell_type)
+    {
+      'data-round-id' => round.id,
+      'data-round-number' => round.round_number,
+      'data-player' => player.display_name,
+      'data-bids' => round.data['bids']&.[](player.display_name),
+      'data-tricks' => round.data['tricks']&.[](player.display_name),
+      'data-oh-hell-target' => "#{cell_type}Cell"
+    }
+  end
+
 
   def set_ordered_players(scoresheet, round)
-    players = scoresheet.game_session_players.to_a
+    players = scoresheet.game_session.session_players.to_a
     first_player = round.data['first_player']
     first_player_index = players.index { |player| player.display_name == first_player }
     players.rotate(first_player_index)
   end
+
+  def modal_form_attributes(round)
+    {
+      'data-round-id' => round.id,
+      'data-round-number' => round.round_number,
+      'data-cards-per-round' => round.data['cards_per_round'],
+      'data-first-player' => round.data['first_player'],
+      'data-turbo' => 'false'
+    }
+  end
+
+  def scoring_modal_player_attributes(round, player)
+    tricks = round.data['tricks'] && round.data['tricks'][player.display_name]
+    bid = round.data['bids'] && round.data['bids'][player.display_name]
+    {
+      'data-player' => player.display_name,
+      'data-tricks' => tricks,
+      'data-bid' => bid,
+    }
+  end
+
+  def bidding_modal_player_attributes(round, player)
+    bid = round.data['bids'] && round.data['bids'][player.display_name]
+    {
+      'data-player' => player.display_name,
+      'data-bid' => bid
+    }
+  end
+
 end
