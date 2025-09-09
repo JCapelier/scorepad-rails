@@ -60,7 +60,7 @@ module Games
     end
 
     def self.handle_bidding_phase(round, params)
-      bids = params[:bids]
+      bids = params[:bid]
       move_data = []
 
       if bids.values.map(&:to_i).sum == round.data["cards_per_round"]
@@ -112,11 +112,54 @@ module Games
       }
     end
 
+    def self.player_stats(scoresheet)
+      rounds = scoresheet.rounds.order(:round_number)
+      players = scoresheet.game_session.session_players.map(&:display_name)
+
+      leaderboard = self.leaderboard(scoresheet)
+      scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
+      ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
+
+      stats = {}
+      players.each do |player|
+        stats[player] = {
+          total_score: scores_by_player[player],
+          rank: ranks_by_player[player],
+          bid_accuracy: bid_accuracy(rounds, player),
+          shortfall_ratio: shortfall_ratio(rounds, player),
+          overshot_ratio: overshot_ratio(rounds, player),
+          highest_bid_fulfilled: highest_bid_fulfilled(rounds, player),
+          max_bid_tricks_distance: max_bid_tricks_distance(rounds, player),
+          longest_streak: longest_streak(rounds, player),
+          luckiest_round: luckiest_round(rounds, player),
+          unluckiest_round: unluckiest_round(rounds, player)
+        }
+      end
+      stats
+    end
+
+    def self.leaderboard(scoresheet)
+      total_scores = calculate_total_scores(scoresheet)
+      sorted = total_scores.sort_by { |_, score| -score.to_i }
+      leaderboard = []
+      prev_score = nil
+      prev_rank = 0
+      count = 0
+      sorted.each do |player, score|
+        count += 1
+        rank = score == prev_score ? prev_rank : count
+        leaderboard << { player: player, score: score, rank: rank }
+        prev_score = score
+        prev_rank = rank
+      end
+      leaderboard
+    end
+
     def self.calculate_total_scores(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
       totals = Hash.new(0)
       rounds.each do |round|
-        scores = round.data["scores"] || {}
+        scores = round.data['scores'] || {}
         scores.each do |player, score|
           totals[player] += score.to_i
         end
@@ -124,103 +167,59 @@ module Games
       totals
     end
 
-    # Leaderboard: highest to lowest total score
-    def self.leaderboard(scoresheet)
-      rounds = scoresheet.rounds.order(:round_number)
-      total_scores = Hash.new(0)
-      rounds.each do |r|
-        r.data["scores"]&.each do |player, score|
-          total_scores[player] += score.to_i
-        end
-      end
-      # Sort by score descending (highest is best)
-      sorted = total_scores.sort_by { |_, score| -score.to_i }
-      leaderboard = []
-      last_score = nil
-      last_rank = 0
-      sorted.each_with_index do |(player, score), i|
-        if score == last_score
-          rank = last_rank
-        else
-          rank = i + 1
-          last_rank = rank
-          last_score = score
-        end
-        leaderboard << { player: player, score: score, rank: rank }
-      end
-      leaderboard
+    def self.bid_accuracy(rounds, player)
+      total = rounds.size
+      successful = rounds.count { |r| r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i }
+      percent = total > 0 ? ((successful.to_f / total) * 100).round(1) : 0
+      { percent: percent, count: successful, total: total }
     end
 
-    # Trophies for Oh Hell
-    def self.trophies(scoresheet)
-      rounds = scoresheet.rounds.order(:round_number)
-      players = scoresheet.game_session.session_players.map { |sp| sp.display_name }
+    def self.shortfall_ratio(rounds, player)
+      total = rounds.size
+      shortfall = rounds.count { |r| r.data.dig('tricks', player).to_i < r.data.dig('bids', player).to_i }
+      percent = total > 0 ? ((shortfall.to_f / total) * 100).round(1) : 0
+      { percent: percent, count: shortfall, total: total }
+    end
 
-      # Consistency Trophy: most bids accomplished
-      accomplished = Hash.new(0)
+    def self.overshot_ratio(rounds, player)
+      total = rounds.size
+      overshot = rounds.count { |r| r.data.dig('tricks', player).to_i > r.data.dig('bids', player).to_i }
+      percent = total > 0 ? ((overshot.to_f / total) * 100).round(1) : 0
+      { percent: percent, count: overshot, total: total }
+    end
+
+    def self.highest_bid_fulfilled(rounds, player)
+      rounds.select { |r| r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i }
+            .map { |r| r.data.dig('bids', player).to_i }
+            .max || 0
+    end
+
+    def self.max_bid_tricks_distance(rounds, player)
+      rounds.map { |r| (r.data.dig('bids', player).to_i - r.data.dig('tricks', player).to_i).abs }.max || 0
+    end
+
+    def self.longest_streak(rounds, player)
+      max_streak = 0
+      streak = 0
       rounds.each do |r|
-        next unless r.data["bids"] && r.data["scores"]
-        r.data["bids"].each do |player, bid|
-          tricks = r.data["tricks"][player]
-          accomplished[player] += 1 if tricks.to_i == bid.to_i
+        if r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i
+          streak += 1
+          max_streak = [max_streak, streak].max
+        else
+          streak = 0
         end
       end
-      cons_max = accomplished.values.max || 0
-      cons_players = accomplished.select { |_, v| v == cons_max }.keys
+      max_streak
+    end
 
-      # Winning Streak Trophy: longest streak of consecutive accomplished bids
-      streaks = Hash.new(0)
-      players.each do |player|
-        max_streak = 0; current = 0
-        rounds.each do |r|
-          bid = r.data["bids"]&.[](player)
-          tricks = r.data["tricks"]&.[](player)
-          if bid && tricks && tricks.to_i == bid.to_i
-            current += 1; max_streak = [max_streak, current].max
-          else
-            current = 0
-          end
-        end
-        streaks[player] = max_streak
-      end
-      streak_max = streaks.values.max || 0
-      streak_players = streaks.select { |_, v| v == streak_max }.keys
+    def self.luckiest_round(rounds, player)
+      best = rounds.max_by { |r| r.data.dig('scores', player).to_i }
+      best&.round_number
+    end
 
-      # Fail Trophy: lowest score in a single round
-      fail_scores = []
-      rounds.each do |r|
-        r.data["scores"]&.each { |player, score| fail_scores << [player, score.to_i] }
-      end
-      fail_min = fail_scores.map { |_, v| v }.min || 0
-      fail_players = fail_scores.select { |_, v| v == fail_min }.map(&:first).uniq
-
-      # Martyr Trophy: most bids failed
-      martyr_counts = Hash.new(0)
-      rounds.each do |r|
-        next unless r.data["bids"] && r.data["tricks"]
-        r.data["bids"].each do |player, bid|
-          tricks = r.data["tricks"][player]
-          martyr_counts[player] += 1 if tricks && tricks.to_i != bid.to_i
-        end
-      end
-      martyr_max = martyr_counts.values.max || 0
-      martyr_players = martyr_counts.select { |_, v| v == martyr_max }.keys
-
-      # Risk & Reward: highest score in a round
-      risk_scores = []
-      rounds.each do |r|
-        r.data["scores"]&.each { |player, score| risk_scores << [player, score.to_i] }
-      end
-      risk_max = risk_scores.map { |_, v| v }.max || 0
-      risk_players = risk_scores.select { |_, v| v == risk_max }.map(&:first).uniq
-
-      {
-        consistency: { players: cons_players, count: cons_max },
-        winning_streak: { players: streak_players, count: streak_max },
-        fail: { players: fail_players, count: fail_min },
-        martyr: { players: martyr_players, count: martyr_max },
-        risk_reward: { players: risk_players, count: risk_max }
-      }
+    def self.unluckiest_round(rounds, player)
+      worst = rounds.min_by { |r| r.data.dig('scores', player).to_i }
+      worst&.round_number
     end
   end
 end

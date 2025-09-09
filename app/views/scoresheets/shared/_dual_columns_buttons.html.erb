@@ -1,0 +1,28 @@
+<div class="flex flex-col items-center justify-center mb-6">
+  <button id="end-round-btn"
+    class="btn btn-lg btn-primary w-64 mb-2 text-xl"
+    data-action="<%= first_phase_action %>"
+    data-round-number="<%= round.round_number %>"
+    data-round-id="<%= round.id %>"
+    data-cards-per-round="<%= round.data["cards_per_round"]%>"
+    >
+    <%= first_phase_title %>
+  </button>
+</div>
+
+<% if scoresheet_in_progress?(scoresheet) && second_phase%>
+  <div class="flex flex-col items-center justify-center mb-6">
+      <button id="end-round-btn"
+      class="btn btn-lg btn-primary w-64 mb-2 text-xl"
+      data-action="<%= second_phase_action %>"
+      data-round-number="<%= round.round_number %>"
+      data-round-id="<%= round.id %>"
+      data-cards-per-round="<%= round.data["cards_per_round"] %>"
+      data-current-round="true"
+      >
+      <%= second_phase_title %>
+    </button>
+  </div>
+<% end %>
+
+<%= render "scoresheets/shared/suspend_game_button" %>

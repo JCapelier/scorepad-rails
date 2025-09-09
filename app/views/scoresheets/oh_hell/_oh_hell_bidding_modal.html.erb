@@ -1,0 +1,28 @@
+<dialog id="my_modal_3" class="modal">
+  <div class="modal-box">
+    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" type="button" onclick="my_modal_3.close()">✕</button>
+    <h3 class="text-lg font-bold" id="bidding-modal-title"></h3>
+
+    <%= form_with url: "#", id: 'bidding-form',data: { turbo: "false", action: "turbo:submit-end->oh-hell#closeModalAfterSuccess" }, method: :patch do %>
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      <%= hidden_field_tag :phase, 'bidding' %>
+      <% ordered_players.each do |player| %>
+        <div class="form-control mb-2">
+          <%= label_tag(
+            "bid[#{player.display_name}]",
+            "Bid for #{player.display_name}",
+            class: "label"
+          ) %>
+          <%= select_tag(
+            "bid[#{player.display_name}]",
+            options_for_select((0..current_round.data['cards_per_round']).to_a, current_round&.data&.dig("tricks", player.display_name)),
+            class: "select select-bordered w-24",
+            data: { oh_hell_target: "bidsInput", action: "change->oh-hell#checkBidsButton", player: "#{player.display_name}"}
+          ) %>
+        </div>
+      <% end %>
+      <%= submit_tag "Save Bids", class: "btn btn-primary mt-3", data: { oh_hell_target: "saveBidsButton" } %>
+      <button type="button" class="btn ml-2" onclick="my_modal_3.close()">Cancel</button>
+    <% end %>
+  </div>
+</dialog>

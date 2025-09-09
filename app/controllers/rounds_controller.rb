@@ -6,19 +6,20 @@ class RoundsController < ApplicationController
     round.data ||= {}
 
     if params[:phase] && params[:phase] == "bidding"
+      puts "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
       results = game_engine.handle_bidding_phase(round, params)
 
     else
       results = game_engine.handle_round_completion(round, params)
-          if results[:error]
-            flash[:alert] = results[:error]
-            redirect_to scoresheet_path(round.scoresheet)
-            return
-          else
-            unless round.status == "completed"
-              round.update(status: "completed")
-            end
-          end
+      if results[:error]
+        flash[:alert] = results[:error]
+        redirect_to scoresheet_path(round.scoresheet)
+        return
+      else
+        unless round.status == "completed"
+          round.update(status: "completed")
+        end
+      end
     end
 
 
