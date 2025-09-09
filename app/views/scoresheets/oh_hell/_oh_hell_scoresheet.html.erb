@@ -28,11 +28,12 @@
                   first_phase_title: "Bidding",
                   second_phase_title: "Scoring"
                 } %>
-  <% else render partial: "scoresheet/shared/finish_game_button",
-                  locals: {
-                    scoresheet: @scoresheet,
-                    complete_game_action: "click->oh-hell#confirmEndGame"
-                  } %>
+  <% else %>
+    <%= render partial: "scoresheets/shared/finish_game_button",
+        locals: {
+          scoresheet: @scoresheet,
+          complete_game_action: "click->oh-hell#confirmEndGame"
+        } %>
   <% end %>
 
   <%= render partial: "scoresheets/oh_hell/oh_hell_bidding_modal",

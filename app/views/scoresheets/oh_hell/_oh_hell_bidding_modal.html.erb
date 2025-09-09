@@ -17,7 +17,7 @@
             "bid[#{player.display_name}]",
             options_for_select((0..current_round.data['cards_per_round']).to_a, current_round&.data&.dig("tricks", player.display_name)),
             class: "select select-bordered w-24",
-            data: { oh_hell_target: "bidsInput", action: "change->oh-hell#checkBidsButton"}
+            data: { oh_hell_target: "bidsInput", action: "change->oh-hell#checkBidsButton", player: "#{player.display_name}"}
           ) %>
         </div>
       <% end %>

@@ -13,7 +13,8 @@
       <% label = key.to_s.gsub('_', ' ').capitalize %>
       <li class="flex justify-between py-2 border-b-2 border-purple-300 last:border-b-0 font-medium">
         <span class="font-semibold text-purple-800"><%= label %>:</span>
-        <span class="text-right text-yellow-700"><%= value %></span>
+        <%# Far from ideal. Treating every value as a ratio, because there is a helper which presents it, and return just the value if it isn't a ratio %>
+        <span class="text-right text-yellow-700"><%= format_stat_value(value) %></span>
       </li>
     <% end %>
   </ul>

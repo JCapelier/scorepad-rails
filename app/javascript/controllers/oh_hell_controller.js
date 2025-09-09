@@ -52,6 +52,7 @@ export default class extends Controller {
     }}
 
 
+  // editBidding and editScoring are nowhere near DRY enough...
   editBidding(event) {
     this.resetForm()
     this.checkBidsButton()
@@ -77,6 +78,12 @@ export default class extends Controller {
       }
       }
     });
+
+    this.bidsInputTargets.forEach(input => {
+      console.log(this.bidsInputTargets)
+      const previousCell = this.scoreCellTargets.find(target => target.dataset.player === input.dataset.player && target.dataset.roundId === roundId)
+      if (previousCell && previousCell.dataset.bids !== undefined) {input.value = previousCell.dataset.bids}
+    })
 
     this.checkBidsButton()
 
@@ -111,7 +118,6 @@ export default class extends Controller {
 
       this.tricksInputTargets.forEach(input => {
         const previousCell = this.scoreCellTargets.find(target => target.dataset.player === input.dataset.player && target.dataset.roundId === roundId)
-        console.log(previousCell)
         const playerBidReminder = this.bidReminderTargets.find(reminder => reminder.dataset.player === input.dataset.player)
         playerBidReminder.innerText = `Bid: ${previousCell.dataset.bids}`
         if (event.currentTarget.dataset.currentRound !== "true") {input.value = previousCell.dataset.tricks}
