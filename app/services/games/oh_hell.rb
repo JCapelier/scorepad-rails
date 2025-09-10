@@ -1,8 +1,9 @@
 module Games
-  class OhHell
+  class OhHell < Games::Shared::GameBase
 
     def self.initial_data(players, custom_rules = {})
-      config = YAML.load_file(Rails.root.join('config/games/five_crowns.yml'))
+      data = super(players, custom_rules)
+      config = data['config']
 
       number_of_players = players.size
       max_cards = (52 / number_of_players.floor)
@@ -14,23 +15,11 @@ module Games
         config["number_of_rounds"] = max_cards
       end
 
-      {
-        "config" => config,
+      data.merge({
         "number_of_rounds" => config["number_of_rounds"],
-        "players" => players,
         "total_scores" => players.to_h { |player| [player, 0] },
         "long_game" => config["long_game"]
-      }
-    end
-
-    def self.max_players
-      config = YAML.load_file(Rails.root.join('config/games/five_crowns.yml'))
-      config['max_players']
-    end
-
-    def self.min_players
-      config = YAML.load_file(Rails.root.join('config/games/five_crowns.yml'))
-      config['min_players']
+      })
     end
 
     def self.round_data(players, config)
@@ -116,7 +105,7 @@ module Games
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)
 
-      leaderboard = self.leaderboard(scoresheet)
+      leaderboard = self.leaderboard(scoresheet, ascending: false)
       scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
       ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
 
@@ -125,101 +114,17 @@ module Games
         stats[player] = {
           total_score: scores_by_player[player],
           rank: ranks_by_player[player],
-          bid_accuracy: bid_accuracy(rounds, player),
-          shortfall_ratio: shortfall_ratio(rounds, player),
-          overshot_ratio: overshot_ratio(rounds, player),
-          highest_bid_fulfilled: highest_bid_fulfilled(rounds, player),
-          max_bid_tricks_distance: max_bid_tricks_distance(rounds, player),
-          longest_streak: longest_streak(rounds, player),
-          luckiest_round: luckiest_round(rounds, player),
-          unluckiest_round: unluckiest_round(rounds, player)
+          bid_accuracy: session_stats_service.bid_accuracy(rounds, player),
+          shortfall_ratio: session_stats_service.shortfall_ratio(rounds, player),
+          overshot_ratio: session_stats_service.overshot_ratio(rounds, player),
+          highest_bid_fulfilled: session_stats_service.highest_bid_fulfilled(rounds, player),
+          max_bid_tricks_distance: session_stats_service.max_bid_tricks_distance(rounds, player),
+          longest_streak: session_stats_service.longest_streak(rounds, player),
+          luckiest_round: session_stats_service.luckiest_round(rounds, player),
+          unluckiest_round: session_stats_service.unluckiest_round(rounds, player)
         }
       end
       stats
-    end
-
-    def self.leaderboard(scoresheet)
-      total_scores = calculate_total_scores(scoresheet)
-      sorted = total_scores.sort_by { |_, score| -score.to_i }
-      leaderboard = []
-      prev_score = nil
-      prev_rank = 0
-      count = 0
-      sorted.each do |player, score|
-        count += 1
-        rank = score == prev_score ? prev_rank : count
-        leaderboard << { player: player, score: score, rank: rank }
-        prev_score = score
-        prev_rank = rank
-      end
-      leaderboard
-    end
-
-    def self.calculate_total_scores(scoresheet)
-      rounds = scoresheet.rounds.order(:round_number)
-      totals = Hash.new(0)
-      rounds.each do |round|
-        scores = round.data['scores'] || {}
-        scores.each do |player, score|
-          totals[player] += score.to_i
-        end
-      end
-      totals
-    end
-
-    def self.bid_accuracy(rounds, player)
-      total = rounds.size
-      successful = rounds.count { |r| r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i }
-      percent = total > 0 ? ((successful.to_f / total) * 100).round(1) : 0
-      { percent: percent, count: successful, total: total }
-    end
-
-    def self.shortfall_ratio(rounds, player)
-      total = rounds.size
-      shortfall = rounds.count { |r| r.data.dig('tricks', player).to_i < r.data.dig('bids', player).to_i }
-      percent = total > 0 ? ((shortfall.to_f / total) * 100).round(1) : 0
-      { percent: percent, count: shortfall, total: total }
-    end
-
-    def self.overshot_ratio(rounds, player)
-      total = rounds.size
-      overshot = rounds.count { |r| r.data.dig('tricks', player).to_i > r.data.dig('bids', player).to_i }
-      percent = total > 0 ? ((overshot.to_f / total) * 100).round(1) : 0
-      { percent: percent, count: overshot, total: total }
-    end
-
-    def self.highest_bid_fulfilled(rounds, player)
-      rounds.select { |r| r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i }
-            .map { |r| r.data.dig('bids', player).to_i }
-            .max || 0
-    end
-
-    def self.max_bid_tricks_distance(rounds, player)
-      rounds.map { |r| (r.data.dig('bids', player).to_i - r.data.dig('tricks', player).to_i).abs }.max || 0
-    end
-
-    def self.longest_streak(rounds, player)
-      max_streak = 0
-      streak = 0
-      rounds.each do |r|
-        if r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i
-          streak += 1
-          max_streak = [max_streak, streak].max
-        else
-          streak = 0
-        end
-      end
-      max_streak
-    end
-
-    def self.luckiest_round(rounds, player)
-      best = rounds.max_by { |r| r.data.dig('scores', player).to_i }
-      best&.round_number
-    end
-
-    def self.unluckiest_round(rounds, player)
-      worst = rounds.min_by { |r| r.data.dig('scores', player).to_i }
-      worst&.round_number
     end
   end
 end
