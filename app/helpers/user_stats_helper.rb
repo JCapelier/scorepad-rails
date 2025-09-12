@@ -25,7 +25,7 @@ module UserStatsHelper
     first_finisher_total: "Total of rounds finished first",
     first_finisher_successes: "First finisher successes",
     first_finisher_failures: "First finisher failures",
-    first_finisher_succes_ratio: "First finisher success ratio",
+    first_finisher_succes_ratio: "First finisher success ratio (%)",
     # Oh Hell specific
     total_bids: "Total bids",
     total_tricks: "Total tricks",
@@ -34,9 +34,9 @@ module UserStatsHelper
     bids_fulfilled: "Bids fulfilled",
     bids_overshot: "Bids overshot",
     bids_shortfall: "Bids shortfall",
-    bids_success_ration: "Bids success ratio",
-    bids_overshot_ratio: "Bids overshot ratio",
-    bids_shortfall_ratio: "Bids shortfall ratio",
+    bids_success_ration: "Bids success ratio (%)",
+    bids_overshot_ratio: "Bids overshot ratio (%)",
+    bids_shortfall_ratio: "Bids shortfall ratio (%)",
     longest_streak: "Longest fulfilled bids streak",
     highest_bid_fulfilled: "Highest bid fulfilled"
     }

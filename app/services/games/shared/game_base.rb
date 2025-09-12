@@ -46,7 +46,7 @@ module Games
         totals
       end
 
-      def self.leaderboard(scoresheet, ascending: true)
+      def self.leaderboard(scoresheet, ascending)
         total_scores = calculate_total_scores(scoresheet)
         sorted = ascending ? total_scores.sort_by { |_, score| score.to_i } : total_scores.sort_by { |_, score| -score.to_i }
         leaderboard = []

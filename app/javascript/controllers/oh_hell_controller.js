@@ -1,6 +1,6 @@
-import { Controller } from "@hotwired/stimulus"
+import DefaultScoresheetController from "./default_scoresheet_controller"
 
-export default class extends Controller {
+export default class extends DefaultScoresheetController {
   static targets = ["bids", "bidCell", "scoreCell", "tricks", "saveBidsButton", "saveTricksButton", "bidReminder", "bidsInput", "tricksInput"]
   connect() {
   }
@@ -43,7 +43,6 @@ export default class extends Controller {
   }
 
   resetForm() {
-    console.log("reset")
     if (this.hasBidsInputTarget) {
       this.bidsInputTargets.forEach(bid => { bid.value = ""; });
     }
@@ -117,6 +116,8 @@ export default class extends Controller {
 
 
       this.tricksInputTargets.forEach(input => {
+        console.log(this.scoreCellTargets)
+        
         const previousCell = this.scoreCellTargets.find(target => target.dataset.player === input.dataset.player && target.dataset.roundId === roundId)
         const playerBidReminder = this.bidReminderTargets.find(reminder => reminder.dataset.player === input.dataset.player)
         playerBidReminder.innerText = `Bid: ${previousCell.dataset.bids}`
@@ -130,20 +131,4 @@ export default class extends Controller {
     my_modal_4.showModal();
   }
 
-  confirmEndGame(event) {
-    event.preventDefault()
-    Swal.fire({
-      title: "Go the the results page ?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Finish the game!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        document.getElementById("finish-game-form").submit();
-      }
-    })
-  }
 }

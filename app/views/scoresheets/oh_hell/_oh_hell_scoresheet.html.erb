@@ -13,8 +13,10 @@
   <%= render partial: "scoresheets/shared/dual_columns_scoresheet_table",
               locals: {
                 scoresheet: @scoresheet,
+                cell_style_helper: method(:oh_hell_score_cell_style),
                 edit_action: "click->oh-hell#editScoring",
-                cell_types: ["bid", "score"]
+                controller_name: "oh-hell",
+                cell_types: ["bid", "score"],
               }%>
 
   <% if scoresheet_in_progress?(@scoresheet) %>

@@ -125,11 +125,11 @@ module Games
         stats[player] = {
           total_score: scores_by_player[player],
           rank: ranks_by_player[player],
-          average_score: session_stats_service.average_scores[player],
+          average_score: session_stats_service.average_score_per_round(rounds, players)[player],
           first_finisher_count: finisher_stats[player][:first_finisher_count],
           finish_success: finisher_stats[player][:finish_success],
           finish_failure: finisher_stats[player][:finish_failure],
-          finish_ratio: finisher_stats[player][:finish_ratio],
+          finish_ratio: {finisher_stats[player][:finish_ratio]},
           rounds_with_the_lowest_score: score_extremes[player][:lowest_score_rounds],
           lowest_score_in_a_round: score_extremes[player][:lowest_score],
           highest_score_in_a_round: score_extremes[player][:highest_score]

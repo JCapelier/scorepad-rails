@@ -20,7 +20,7 @@
       <% scoresheet.rounds.order(:round_number).each do |round| %>
           <tr
             <% if editable_cell?(round) %>
-              <%=tag.attributes(oh_hell_row_attributes(round))%>
+              <%=tag.attributes(scoresheet_row_attributes(scoresheet, round))%>
               class="hover:bg-blue-100 transition cursor-pointer"
             <% end %>
           >
@@ -29,9 +29,11 @@
           </td>
             <% scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
               <% cell_types.each do |cell_type| %>
+                <% bid = round.data['bids']&.[](session_player.display_name) || 0 %>
+                <% tricks = round.data['tricks']&.[](session_player.display_name) || 0 %>
                 <td
-                  style="padding:8px; text-align:center; font-size:13px; color:#555; background:#fafafa; border-right:1px solid #ddd;"
-                  <%= tag.attributes(oh_hell_cell_attributes(round, session_player, cell_type)) %>
+                  style="<%= cell_style_helper.call(cell_type, bid, tricks) %>"
+                  <%= tag.attributes(scoresheet_cell_attributes(round, session_player, controller_name, cell_type)) %>
                 >
                   <%= round.data.dig("#{cell_type}s", session_player.display_name) %>
                 </td>
