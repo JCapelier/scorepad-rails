@@ -5,8 +5,7 @@ class RoundsController < ApplicationController
     game_engine = round.scoresheet.game_session.game.game_engine
     round.data ||= {}
 
-    if params[:phase] && params[:phase] == "bidding"
-      puts "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    if params[:phase] && params[:phase] == "bidding" 
       results = game_engine.handle_bidding_phase(round, params)
 
     else

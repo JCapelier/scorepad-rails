@@ -2,6 +2,14 @@
 module Games
   class Skyjo < Games::Shared::GameBase
 
+    def self.ascending_scoring?
+      true
+    end
+
+    def self.include_first_finisher?
+      true
+    end
+
     def self.initial_data(players, custom_rules = {})
       data = super(players, custom_rules)
       config = data['config']
@@ -100,6 +108,7 @@ module Games
     # This gets the stats for the game session, which will be set as data for the session player.
     # Larger scales stats are not processed in this service.
     def self.player_stats(scoresheet)
+      # These five first lines are almost identical for every game, except the ascendant parameter. It needs refacto.
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)
 
@@ -128,5 +137,6 @@ module Games
       end
       stats
     end
+
   end
 end

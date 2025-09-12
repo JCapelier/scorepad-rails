@@ -57,6 +57,8 @@ module Games
         stats
       end
 
+      # These should be made more robust by using Move instead of digging round data (that's why they exist...).
+      # But, it would d make the method more complex.
       def self.bid_accuracy(rounds, player)
         total = rounds.size
         successful = rounds.count { |r| r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i }

@@ -4,8 +4,6 @@ class ScoresheetsController < ApplicationController
     @rounds = @scoresheet.rounds.order(:round_number)
     @current_round = @rounds.find_by(status: "active") || @rounds.find_by(status: "pending") || @rounds.last
 
-    @rounds_json = @rounds.map { |round| round.data.merge("round_number" => round.round_number) }.to_json
-
     @totals = @scoresheet.game_session.game.game_engine.calculate_total_scores(@scoresheet)
     @score_limit = @scoresheet.data["score_limit"] if @scoresheet.data["score_limit"]
   end
@@ -14,7 +12,11 @@ class ScoresheetsController < ApplicationController
     @scoresheet = Scoresheet.find(params[:id])
     @scoresheet.game_session.update(status: "completed", ends_at: Time.current)
     game = @scoresheet.game_session.game
-    @leaderboard = game.game_engine.leaderboard(@scoresheet)
+
+    @leaderboard = game.game_engine.leaderboard(@scoresheet, ascending: game.game_engine.ascending_scoring?)
+    winner_username = @leaderboard.select { |player| player[:rank] == 1 }
+    @scoresheet.data['winner_username'] = winner_username
+
     @stats = game.game_engine.player_stats(@scoresheet)
     players = @scoresheet.game_session.session_players
 
@@ -28,5 +30,4 @@ class ScoresheetsController < ApplicationController
       format.any { render :results, layout: true } # fallback for other formats (e.g., turbo_stream)
     end
   end
-
 end

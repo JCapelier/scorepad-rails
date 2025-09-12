@@ -27,12 +27,12 @@
             <% specific_attributes = scoresheet_cell_attributes(scoresheet, round) %>
             <% specific_attributes.each { |attribute, value| attrs[attribute] = value unless value == nil } %>
           <% end %>
-          <td style="<%= cell_style_helper.call(is_first, finish_status) %>" class="text-center"
-            <%= tag_options(attrs) %>
-          data-<%= controller_name %>-target="scoreCell"
-          >
-            <%= score.present? ? score : "-" %>
-          </td>
+          <%= tag.td(
+                score.present? ? score : "-",
+                style: cell_style_helper.call(is_first, finish_status),
+                class: "text-center",
+                data: { "#{controller_name}-target": "scoreCell" }.merge(attrs)
+              ) %>
         <% end %>
       </tr>
     <% end %>

@@ -1,69 +1,16 @@
-<div class="w-full max-w-2xl mx-auto mt-8">
-  <div class="flex flex-col items-center mb-8">
-    <% if @user.avatar_url.present? %>
-      <img src="<%= @user.avatar_url %>" alt="avatar" class="w-20 h-20 aspect-square object-cover rounded-full" />
-    <% else %>
-      <div class="w-24 h-24 rounded-full border mb-2 bg-gray-300 flex items-center justify-center text-gray-500 text-4xl">?</div>
-    <% end %>
-    <h1 class="text-3xl font-bold text-purple-700 mb-2"><%= @user.username %></h1>
-  </div>
-
-  <div class="bg-white shadow rounded-lg p-6 mb-8 flex flex-col items-center">
-    <h2 class="text-xl font-bold mb-4 text-center">General Stats</h2>
-    <% all_games = Game.all %>
-    <% total_games = 0 %>
-    <% total_wins = 0 %>
-    <% all_games.each do |game| %>
-      <% stats = game.stats_service.new(@user, game).stats rescue nil %>
-      <% if stats %>
-        <% total_games += stats[:total_games].to_i %>
-        <% total_wins += stats[:win_count].to_i %>
-      <% end %>
-    <% end %>
-    <% victory_percent = total_games > 0 ? (total_wins * 100 / total_games) : 0 %>
-    <div class="flex flex-row gap-8 items-center justify-center">
-      <div class="flex flex-col items-center">
-        <span class="text-2xl font-bold text-purple-700"><%= total_games %></span>
-        <span class="text-gray-600">Games Completed</span>
-      </div>
-      <div class="flex flex-col items-center">
-        <span class="text-2xl font-bold text-green-700"><%= total_wins %></span>
-        <span class="text-gray-600">Games Won</span>
-      </div>
-      <div class="flex flex-col items-center">
-        <div class="relative w-16 h-16">
-          <svg viewBox="0 0 36 36" class="circular-chart" style="width:64px;height:64px;">
-            <path class="circle-bg" stroke="#eee" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-            <path class="circle" stroke="#4ade80" stroke-width="4" stroke-linecap="round" fill="none"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              stroke-dasharray="<%= victory_percent %>, 100" />
-          </svg>
-          <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-green-700"><%= victory_percent %>%</span>
-        </div>
-        <span class="text-gray-600">Victory Rate</span>
-      </div>
-    </div>
-  </div>
-
-  <% # Game-specific stats section %>
-  <% user_sessions = @user.session_players.includes(:game_session => :game).map(&:game_session) %>
-  <% games_played = user_sessions.group_by(&:game) %>
-  <% # Order games by most recent session played %>
-  <% ordered_games = games_played.keys.sort_by { |g| -games_played[g].map(&:updated_at).max.to_i } %>
+<div>
+  <%= render partial: 'users/user_global_stats', locals: { user: @user, stats: @stats } %>
 
   <div class="w-full max-w-2xl mx-auto mt-8">
     <h2 class="text-xl font-bold text-center mb-4">Game Specific Stats</h2>
-    <% ordered_games.each do |game| %>
-      <% sessions = games_played[game] %>
-      <% completed = sessions.select { |s| s.status == "completed" } %>
-      <% won = completed.select { |s| s.scoresheet && game.game_engine.leaderboard(s.scoresheet).present? && game.game_engine.leaderboard(s.scoresheet).first[0] == @user.username } %>
+    <% @stats.ordered_games_played.each do |game| %>
       <div class="bg-base-100 border-base-300 collapse border mb-4 mt-4">
         <input type="checkbox" class="peer" />
         <div class="collapse-title bg-yellow-200 text-purple-700 peer-checked:bg-yellow-300 peer-checked:text-purple-900">
           <span class="font-bold text-lg"><%= game.title %></span>
         </div>
         <div class="collapse-content bg-white text-purple-900 peer-checked:bg-yellow-50 peer-checked:text-purple-900">
-          <%= render partial: "users/#{game.title.parameterize.underscore}_stats", locals: { stats: game.stats_service.new(@user, game).stats } %>
+          <%= render partial: "users/user_game_stats", locals: { game: game, user: @user } %>
         </div>
       </div>
     <% end %>

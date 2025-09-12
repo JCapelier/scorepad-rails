@@ -1,6 +1,14 @@
 module Games
   class MexicanTrain < Games::Shared::GameBase
 
+    def self.ascending_scoring?
+      true
+    end
+
+    def self.include_first_finisher?
+      true
+    end
+
     def self.initial_data(players, custom_rules = {})
       data = super(players, custom_rules)
       config = data['config']

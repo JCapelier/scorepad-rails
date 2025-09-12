@@ -1,7 +1,7 @@
 <%= render partial: "scoresheets/shared/round_info",
            locals: {
-            round: @current_round,
-            rules: round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
+            round: current_round,
+            rules: current_round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
            } %>
 
 <div id="controller-div" data-controller="skyjo">
