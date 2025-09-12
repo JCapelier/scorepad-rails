@@ -4,7 +4,7 @@ module Games
       def self.average_score_per_round(rounds, players)
         total_rounds = rounds.last&.round_number
         scoresheet = rounds.first&.scoresheet
-        leaderboard = scoresheet ? self.leaderboard(scoresheet) : []
+        leaderboard = scoresheet ? scoresheet.game.game_engine.leaderboard(scoresheet, scoresheet.game.game_engine.ascending_scoring?) : []
         averages = {}
         leaderboard.each do |entry|
           averages[entry[:player]] = (entry[:score].to_f / total_rounds).round(2)
@@ -34,7 +34,7 @@ module Games
         end
         players.each do |player|
           total = stats[player][:finish_success] + stats[player][:finish_failure]
-          stats[player][:finish_ratio] = total > 0 ? (stats[player][:finish_success].to_f / total).round(2) : nil
+          stats[player][:finish_ratio] = total > 0 ? ((stats[player][:finish_success].to_f / total) * 100).round(2) : nil
         end
         stats
       end
@@ -57,6 +57,8 @@ module Games
         stats
       end
 
+      # These should be made more robust by using Move instead of digging round data (that's why they exist...).
+      # But, it would d make the method more complex.
       def self.bid_accuracy(rounds, player)
         total = rounds.size
         successful = rounds.count { |r| r.data.dig('bids', player).to_i == r.data.dig('tricks', player).to_i }

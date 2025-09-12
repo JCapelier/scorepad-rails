@@ -1,7 +1,7 @@
 <%= render partial: "scoresheets/shared/round_info",
            locals: {
             round: @current_round,
-            rules: round.scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
+            rules: @scoresheet.data.select { |key, value| value.is_a?(Hash) && value["value"] == true }
            } %>
 
 <div id="controller-div" data-controller="five-crowns" data-early-finish="<%= @scoresheet.data&.dig('early_finish', 'value') %>">
@@ -23,7 +23,6 @@
     <%= render partial: "scoresheets/shared/end_round_button",
               locals: {
                 current_round: @current_round,
-                round: round,
                 edit_action: "click->five-crowns#editRound",
               } %>
     <% else %>

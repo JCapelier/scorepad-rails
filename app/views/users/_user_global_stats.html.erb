@@ -1,0 +1,26 @@
+<div class="w-full max-w-2xl mx-auto mt-8">
+  <div class="flex flex-col items-center mb-8">
+    <% if user.avatar_url.present? %>
+      <img src="<%= user.avatar_url %>" alt="avatar" class="w-20 h-20 aspect-square object-cover rounded-full" />
+    <% else %>
+      <div class="w-24 h-24 rounded-full border mb-2 bg-gray-300 flex items-center justify-center text-gray-500 text-4xl">?</div>
+    <% end %>
+    <h1 class="text-3xl font-bold text-purple-700 mb-2"><%= user.username %></h1>
+  </div>
+  <div class="bg-white shadow rounded-lg p-6 mb-8 flex flex-row items-center justify-center gap-8">
+    <div class="flex flex-col items-center">
+      <span class="text-2xl font-bold text-purple-700"><%= stats.sessions_completed.length %></span>
+      <span class="text-gray-600">Games completed</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <span class="text-2xl font-bold text-green-700"><%= stats.sessions_won.length %></span>
+      <span class="text-gray-600">Games won</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <span class="text-2xl font-bold text-yellow-500">
+        <%= stats.sessions_completed.length > 0 ? (stats.sessions_won.length * 100 / stats.sessions_completed.length) : '--' %>%
+      </span>
+      <span class="text-gray-600">Victory Ratio</span>
+    </div>
+  </div>
+</div>

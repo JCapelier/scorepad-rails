@@ -2,6 +2,14 @@
 module Games
   class Skyjo < Games::Shared::GameBase
 
+    def self.ascending_scoring?
+      true
+    end
+
+    def self.include_first_finisher?
+      true
+    end
+
     def self.initial_data(players, custom_rules = {})
       data = super(players, custom_rules)
       config = data['config']
@@ -100,6 +108,7 @@ module Games
     # This gets the stats for the game session, which will be set as data for the session player.
     # Larger scales stats are not processed in this service.
     def self.player_stats(scoresheet)
+      # These five first lines are almost identical for every game, except the ascendant parameter. It needs refacto.
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)
 
@@ -116,11 +125,11 @@ module Games
         stats[player] = {
           total_score: scores_by_player[player],
           rank: ranks_by_player[player],
-          average_score: session_stats_service.average_scores[player],
+          average_score: session_stats_service.average_score_per_round(rounds, players)[player],
           first_finisher_count: finisher_stats[player][:first_finisher_count],
           finish_success: finisher_stats[player][:finish_success],
           finish_failure: finisher_stats[player][:finish_failure],
-          finish_ratio: finisher_stats[player][:finish_ratio],
+          finish_ratio: {finisher_stats[player][:finish_ratio]},
           rounds_with_the_lowest_score: score_extremes[player][:lowest_score_rounds],
           lowest_score_in_a_round: score_extremes[player][:lowest_score],
           highest_score_in_a_round: score_extremes[player][:highest_score]
@@ -128,5 +137,6 @@ module Games
       end
       stats
     end
+
   end
 end

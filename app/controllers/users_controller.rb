@@ -3,6 +3,9 @@ class UsersController < ApplicationController
 
   def show
     @user = current_user
+    @stats = Users::UserStatsService.new(@user)
+    # The next syntax avoids N+1 query problems (eager loading)
+
   end
 
   def autocomplete

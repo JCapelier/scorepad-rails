@@ -1,6 +1,14 @@
 module Games
   class OhHell < Games::Shared::GameBase
 
+    def self.ascending_scoring?
+      false
+    end
+
+    def self.include_first_finisher?
+      false
+    end
+
     def self.initial_data(players, custom_rules = {})
       data = super(players, custom_rules)
       config = data['config']

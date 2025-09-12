@@ -10,6 +10,18 @@ module ScoresheetHelper
     style
   end
 
+  def oh_hell_score_cell_style(cell_type, bid, tricks)
+    style = 'padding:8px; text-align:center; cursor:pointer; background:#fafafa;'
+    if cell_type == 'bid'
+      # just default style
+    elsif cell_type == 'score' && bid.to_i != tricks.to_i
+      style += ' color: red; font-weight: bold;'
+    elsif cell_type == 'score' && bid.to_i == tricks.to_i
+      style += ' color: purple; font-weight: bold;'
+    end
+    style
+  end
+
   def set_round_info(round)
     case round.scoresheet.game_session.game.title
     when 'Skyjo'
@@ -69,7 +81,9 @@ module ScoresheetHelper
     round.status == 'completed'
   end
 
-  def scoresheet_cell_attributes(scoresheet, round, player)
+
+
+  def scoresheet_row_attributes(scoresheet, round)
     case scoresheet.game_session.game.title
     when 'Skyjo'
       {
@@ -87,30 +101,33 @@ module ScoresheetHelper
       {
         'data-first-finisher' => round.data['first_finisher']
       }
+    when 'Oh Hell'
+      {
+        'data-round-id' => round.id,
+        'data-round-number' => round.round_number,
+        'data-cards-per-round' => round.data['cards_per_round'],
+        'data-first-player' => round.data['first_player'],
+        'data-action' => 'click->oh-hell#editScoring'
+      }
     end
   end
 
-  # For Oh Hell, I had to separate data for the row level and data for the cell level.
-  # The whole needs to be streamlined
-  def oh_hell_row_attributes(round)
-    {
-      'data-round-id' => round.id,
-      'data-round-number' => round.round_number,
-      'data-cards-per-round' => round.data['cards_per_round'],
-      'data-first-player' => round.data['first_player'],
-      'data-action' => 'click->oh-hell#editScoring'
-    }
-  end
-
-  def oh_hell_cell_attributes(round, player, cell_type)
-    {
+  def scoresheet_cell_attributes(round, player, controller, cell_type = nil)
+    attributes = {
       'data-round-id' => round.id,
       'data-round-number' => round.round_number,
       'data-player' => player.display_name,
-      'data-bids' => round.data['bids']&.[](player.display_name),
-      'data-tricks' => round.data['tricks']&.[](player.display_name),
-      'data-oh-hell-target' => "#{cell_type}Cell"
+      "data-#{controller}-target" => 'scoreCell'
     }
+    case round.scoresheet.game_session.game.title
+    when 'Oh Hell'
+      attributes = attributes.merge(
+        'data-bids' => round.data['bids']&.[](player.display_name),
+        'data-tricks' => round.data['tricks']&.[](player.display_name),
+        'data-oh-hell-target' => "#{cell_type}Cell"
+      )
+    end
+    attributes
   end
 
 
@@ -121,7 +138,7 @@ module ScoresheetHelper
     players.rotate(first_player_index)
   end
 
-  def modal_form_attributes(round)
+  def default_modal_form_attributes(round)
     {
       'data-round-id' => round.id,
       'data-round-number' => round.round_number,

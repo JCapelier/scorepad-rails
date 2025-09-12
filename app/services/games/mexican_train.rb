@@ -1,6 +1,14 @@
 module Games
   class MexicanTrain < Games::Shared::GameBase
 
+    def self.ascending_scoring?
+      true
+    end
+
+    def self.include_first_finisher?
+      true
+    end
+
     def self.initial_data(players, custom_rules = {})
       data = super(players, custom_rules)
       config = data['config']
@@ -74,9 +82,9 @@ module Games
       stats = {}
       players.each do |player|
         stats[player] = {
-          total_score: scores_by_player[player],
           rank: ranks_by_player[player],
-          average_score: session_stats_service.average_scores[player],
+          total_score: scores_by_player[player],
+          average_score_per_round: session_stats_service.average_scores_per_round(rounds, players)[player],
           first_finisher_count: finisher_stats[player][:first_finisher_count],
           finish_success: finisher_stats[player][:finish_success],
           finish_failure: finisher_stats[player][:finish_failure],
