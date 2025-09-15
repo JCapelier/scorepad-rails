@@ -3,6 +3,7 @@ class GameSessionsController < ApplicationController
   def new
     @game = Game.find(params[:game_id])
     @session = GameSession.new
+    authorize @session
     @users = User.all
 
     custom_rules_config = YAML.load_file(Rails.root.join("config/games/custom_rules.yml"))
@@ -12,6 +13,7 @@ class GameSessionsController < ApplicationController
   def create
     @game = Game.find(params[:game_session][:game_id])
     @session = GameSession.new(session_params)
+    authorize @session
     @session.starts_at = Time.current
     @session.status = "active"
     if @session.save
@@ -32,6 +34,7 @@ class GameSessionsController < ApplicationController
 
   def destroy
     session = GameSession.find(params[:id])
+    authorize session
     game = session.game
     session.destroy
     @active_sessions = game.game_sessions.where(status: 'active').joins(:session_players).where(session_players: { user_id: current_user.id }).distinct

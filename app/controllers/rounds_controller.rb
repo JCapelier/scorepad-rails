@@ -1,6 +1,7 @@
 class RoundsController < ApplicationController
   def update
     round = Round.find(params[:id])
+    authorize round
     scoresheet = round.scoresheet
     game_engine = round.scoresheet.game_session.game.game_engine
     round.data ||= {}

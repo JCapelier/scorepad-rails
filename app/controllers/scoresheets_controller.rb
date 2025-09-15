@@ -1,6 +1,7 @@
 class ScoresheetsController < ApplicationController
   def show
     @scoresheet = Scoresheet.find(params[:id])
+    authorize @scoresheet
     @rounds = @scoresheet.rounds.order(:round_number)
     @current_round = @rounds.find_by(status: "active") || @rounds.find_by(status: "pending") || @rounds.last
 
