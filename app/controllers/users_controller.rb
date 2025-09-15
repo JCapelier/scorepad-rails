@@ -3,10 +3,13 @@ class UsersController < ApplicationController
 
   def show
     @user = current_user
+    authorize @user
     @stats = Users::UserStatsService.new(@user)
   end
 
   def autocomplete
+    user = current_user
+    authorize user
     input = params[:input].to_s.strip
     if input.length < 2
       render json: []
@@ -18,7 +21,7 @@ class UsersController < ApplicationController
 
   def update
     @user = current_user
-
+    authorize @user
     # Handle password update
     if params[:user][:current_password].present? || params[:user][:password].present?
       if @user.update_with_password(password_params)
