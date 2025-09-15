@@ -7,20 +7,22 @@ module Games
       end
 
       def stats_hash_for(game)
-        super(@game).merge(
-          total_bids: total_bids,
-          total_tricks: total_tricks,
-          average_bids_per_session: average_bids_per_session,
-          average_tricks_per_session: average_tricks_per_session,
-          bids_fulfilled: bids_tricks_stats[:successes],
-          bids_overshot: bids_tricks_stats[:overshot],
-          bids_shortfall: bids_tricks_stats[:shortfall],
-          bids_success_ration: bids_tricks_stats[:success_ratio],
-          bids_overshot_ratio: bids_tricks_stats[:overshot_ratio],
-          bids_shortfall_ratio: bids_tricks_stats[:shortfall_ratio],
-          longest_streak: longest_streak,
-          highest_bid_fulfilled: highest_bid_fulfilled
-        )
+        if sessions_completed_for(@game).length != 0
+          super(@game).merge(
+            total_bids: total_bids,
+            total_tricks: total_tricks,
+            average_bids_per_session: average_bids_per_session,
+            average_tricks_per_session: average_tricks_per_session,
+            bids_fulfilled: bids_tricks_stats[:successes],
+            bids_overshot: bids_tricks_stats[:overshot],
+            bids_shortfall: bids_tricks_stats[:shortfall],
+            bids_success_ration: bids_tricks_stats[:success_ratio],
+            bids_overshot_ratio: bids_tricks_stats[:overshot_ratio],
+            bids_shortfall_ratio: bids_tricks_stats[:shortfall_ratio],
+            longest_streak: longest_streak,
+            highest_bid_fulfilled: highest_bid_fulfilled
+          )
+        end
       end
 
       def user_bid_moves
@@ -49,6 +51,8 @@ module Games
         shortfalls = 0
 
         rounds_for(@game).each do |round|
+          puts "#{round.moves.find { |move| move.move_type == 'bid'}}"
+          puts "#{round.moves.find { |move| move.session_player.user == @user }}"
           round_bid_move = round.moves.find { |move| move.move_type == "bid" && move.session_player.user == @user }
           bid = round_bid_move.data['bid'].to_i
           round_tricks_move = round.moves.find { |move| move.move_type == "tricks" && move.session_player.user == @user }
@@ -85,11 +89,11 @@ module Games
       end
 
       def highest_bid_fulfilled
-        @game.game_engine.highest_bid_fulfilled(rounds_for(@game), @user.username)
+        Games::Shared::SessionStatsService.highest_bid_fulfilled(rounds_for(@game), @user.username)
       end
 
       def longest_streak
-        @game.game_engine.longest_streak(rounds_for(@game), @user.username)
+        Games::Shared::SessionStatsService.longest_streak(rounds_for(@game), @user.username)
       end
     end
   end

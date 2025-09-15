@@ -103,16 +103,6 @@ module Games
         end
         max_streak
       end
-
-      def self.luckiest_round(rounds, player)
-        best = rounds.max_by { |r| r.data.dig('scores', player).to_i }
-        best&.round_number
-      end
-
-      def self.unluckiest_round(rounds, player)
-        worst = rounds.min_by { |r| r.data.dig('scores', player).to_i }
-        worst&.round_number
-      end
     end
   end
 end

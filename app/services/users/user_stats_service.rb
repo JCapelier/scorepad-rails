@@ -5,25 +5,27 @@ module Users
     end
 
     def stats_hash_for(game)
-      hash = {
-        sessions_completed: sessions_completed_for(game).length,
-        sessions_won: sessions_won_for(game).length,
-        sessions_win_ratio: sessions_win_ratio_for(game),
-        total_score: total_score_for(game),
-        highest_session_score: highest_session_score_for(game),
-        lowest_session_score: lowest_session_score_for(game),
-        average_score_per_session: average_score_per_session_for(game),
-        highest_round_score: highest_round_score_for(game),
-        lowest_round_score: lowest_round_score_for(game),
-        average_score_per_round: average_score_per_round_for(game)
-      }
-      if game.game_engine.include_first_finisher?
-        hash.merge(
-        first_finisher_total: first_finisher_total_for(game),
-        first_finisher_successes: first_finisher_success_count_for(game),
-        first_finisher_failures: first_finisher_failure_count_for(game),
-        first_finisher_succes_ratio: first_finisher_failure_count_for(game)
-        )
+      if sessions_completed_for(game).length != 0
+        hash = {
+          sessions_completed: sessions_completed_for(game).length,
+          sessions_won: sessions_won_for(game).length,
+          sessions_win_ratio: sessions_win_ratio_for(game),
+          total_score: total_score_for(game),
+          highest_session_score: highest_session_score_for(game),
+          lowest_session_score: lowest_session_score_for(game),
+          average_score_per_session: average_score_per_session_for(game),
+          highest_round_score: highest_round_score_for(game),
+          lowest_round_score: lowest_round_score_for(game),
+          average_score_per_round: average_score_per_round_for(game)
+        }
+        if game.game_engine.include_first_finisher?
+          hash.merge(
+          first_finisher_total: first_finisher_total_for(game),
+          first_finisher_successes: first_finisher_success_count_for(game),
+          first_finisher_failures: first_finisher_failure_count_for(game),
+          first_finisher_succes_ratio: first_finisher_failure_count_for(game)
+          )
+        end
       end
       hash
     end
