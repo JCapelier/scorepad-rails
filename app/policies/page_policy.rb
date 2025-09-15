@@ -1,5 +1,5 @@
 class PagePolicy < ApplicationPolicy
-  def show?
+  def home?
     true
   end
 end
