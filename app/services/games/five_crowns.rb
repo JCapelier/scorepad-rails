@@ -89,8 +89,8 @@ module Games
     def self.player_stats(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)
-
-      leaderboard = self.leaderboard(scoresheet, ascending: true)
+      ascending = scoresheet.game.game_engine.ascending_scoring?
+      leaderboard = self.leaderboard(scoresheet, ascending)
       scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
       ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
 

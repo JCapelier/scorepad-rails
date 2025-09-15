@@ -112,8 +112,8 @@ module Games
     def self.player_stats(scoresheet)
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)
-
-      leaderboard = self.leaderboard(scoresheet, ascending: false)
+      ascending = scoresheet.game.game_engine.ascending_scoring?
+      leaderboard = self.leaderboard(scoresheet, ascending)
       scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
       ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
 
@@ -128,8 +128,6 @@ module Games
           highest_bid_fulfilled: session_stats_service.highest_bid_fulfilled(rounds, player),
           max_bid_tricks_distance: session_stats_service.max_bid_tricks_distance(rounds, player),
           longest_streak: session_stats_service.longest_streak(rounds, player),
-          luckiest_round: session_stats_service.luckiest_round(rounds, player),
-          unluckiest_round: session_stats_service.unluckiest_round(rounds, player)
         }
       end
       stats

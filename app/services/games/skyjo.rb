@@ -111,8 +111,8 @@ module Games
       # These five first lines are almost identical for every game, except the ascendant parameter. It needs refacto.
       rounds = scoresheet.rounds.order(:round_number)
       players = scoresheet.game_session.session_players.map(&:display_name)
-
-      leaderboard = leaderboard(scoresheet, ascending: false)
+      ascending = scoresheet.game.game_engine.ascending_scoring?
+      leaderboard = self.leaderboard(scoresheet, ascending)
       scores_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:score]] }
       ranks_by_player = leaderboard.to_h { |entry| [entry[:player], entry[:rank]] }
 
@@ -129,7 +129,7 @@ module Games
           first_finisher_count: finisher_stats[player][:first_finisher_count],
           finish_success: finisher_stats[player][:finish_success],
           finish_failure: finisher_stats[player][:finish_failure],
-          finish_ratio: {finisher_stats[player][:finish_ratio]},
+          finish_ratio: finisher_stats[player][:finish_ratio],
           rounds_with_the_lowest_score: score_extremes[player][:lowest_score_rounds],
           lowest_score_in_a_round: score_extremes[player][:lowest_score],
           highest_score_in_a_round: score_extremes[player][:highest_score]

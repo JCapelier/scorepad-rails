@@ -5,7 +5,7 @@ class RoundsController < ApplicationController
     game_engine = round.scoresheet.game_session.game.game_engine
     round.data ||= {}
 
-    if params[:phase] && params[:phase] == "bidding" 
+    if params[:phase] && params[:phase] == "bidding"
       results = game_engine.handle_bidding_phase(round, params)
 
     else
@@ -41,12 +41,14 @@ class RoundsController < ApplicationController
 
     round.data.merge!(results[:round_data_updates])
     round.save
-
-    Move.where(round_id: round.id).destroy_all
-    Move.create(results[:move_data]) if results[:move_data].present?
-    if results[:move_data_list].present?
-      results[:move_data_list].each { |move_attrs| Move.create(move_attrs) }
+    if params[:phase] == "bidding"
+      Move.where(round_id: round.id).destroy_all
+    else
+      Move.where(round_id: round.id, move_type: "tricks").destroy_all
     end
+
+    Move.create(results[:move_data]) if results[:move_data].present?
+    results[:move_data_list].each { |move_attrs| Move.create(move_attrs) } if results[:move_data_list].present?
 
     game_name = scoresheet.game_session.game.title.underscore
     respond_to do |format|
