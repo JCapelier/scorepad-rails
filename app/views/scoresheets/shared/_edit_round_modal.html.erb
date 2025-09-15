@@ -23,7 +23,8 @@
             <%= hidden_field_tag name, value.to_s, id: name.dasherize %>
           <% end %>
         <% end %>
-        <% @scoresheet.game_session.session_players.each do |session_player| %>
+  <div class="text-sm text-red-500 mb-2" style="display:none" data-<%= controller_name %>-target="errorMsg"></div>
+  <% @scoresheet.game_session.session_players.each do |session_player| %>
           <div class="form-control mb-2">
             <%= label_tag(
               "scores[#{session_player.display_name}]",
