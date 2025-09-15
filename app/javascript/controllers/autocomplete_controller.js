@@ -1,12 +1,25 @@
 import { Controller } from "@hotwired/stimulus"
 import Sortable from "sortablejs"
 
+// This needs to be reworked. The autocomplete actually takes care of everything in the new game session view...
+
 export default class extends Controller {
-  static targets = ["input", "results", "selected", "submit", "sortableList", "guestInput"]
+  static targets = ["input", "results", "selected", "submit", "sortableList", "guestInput", "addGuestBtn", "guestNameMsg"]
   connect() {
     this.defaultAvatarUrl = this.element.dataset.defaultAvatarUrl || "/assets/default-avatar.jpg"
-    this.selectedPlayers=[]
-    this.checkButton()
+    // Get current user info from a data attribute
+    const currentUser = {
+      id: parseInt(this.element.dataset.currentUserId, 10),
+      username: this.element.dataset.currentUsername,
+      avatar_url: this.element.dataset.currentUserAvatarUrl
+    }
+    this.currentUser = currentUser
+    this.selectedPlayers = [currentUser]
+  this.displaySelected()
+  this.checkButton()
+    if (this.hasGuestInputTarget) {
+      this.guestInputTarget.addEventListener("input", this.validateGuestName.bind(this))
+    }
   }
 
   search(event) {
@@ -22,6 +35,7 @@ export default class extends Controller {
 
   displayResults(users) {
     this.resultsTarget.innerHTML = ""
+    let displayed = 0;
     users.forEach(user => {
       if (this.selectedPlayers.find(player => player.username === user.username)) return
 
@@ -40,7 +54,14 @@ export default class extends Controller {
         this.addPlayer(user)
       })
       this.resultsTarget.appendChild(card)
-    })
+      displayed++;
+    });
+    if (displayed === 0) {
+      const msg = document.createElement("div")
+      msg.className = "text-sm text-gray-500 p-2 w-full text-center"
+      msg.textContent = "No players go by this username."
+      this.resultsTarget.appendChild(msg)
+    }
   }
 
   addPlayer(player) {
@@ -53,7 +74,10 @@ export default class extends Controller {
 
   addGuest() {
     const name = this.guestInputTarget.value.trim()
-    if (!name) return
+    if (!name || name.includes(" ")) {
+      this.showGuestNameMsg()
+      return
+    }
     const guest = {
       guest_name: name,
       guest_id: `guest_${Date.now()}`,
@@ -63,12 +87,39 @@ export default class extends Controller {
     this.guestInputTarget.value = ""
     this.displaySelected()
     this.checkButton()
+    this.hideGuestNameMsg()
+  }
+
+  validateGuestName() {
+    const name = this.guestInputTarget.value
+    if (name.includes(" ")) {
+      if (this.hasAddGuestBtnTarget) this.addGuestBtnTarget.disabled = true
+      this.showGuestNameMsg()
+    } else {
+      if (this.hasAddGuestBtnTarget) this.addGuestBtnTarget.disabled = false
+      this.hideGuestNameMsg()
+    }
+  }
+
+  showGuestNameMsg() {
+    if (this.hasGuestNameMsgTarget) {
+      this.guestNameMsgTarget.textContent = "Guest's name cannot contain spaces."
+      this.guestNameMsgTarget.style.display = "block"
+    }
+  }
+
+  hideGuestNameMsg() {
+    if (this.hasGuestNameMsgTarget) {
+      this.guestNameMsgTarget.textContent = ""
+      this.guestNameMsgTarget.style.display = "none"
+    }
   }
 
   displaySelected() {
     this.selectedTarget.innerHTML = ""
     this.selectedPlayers.forEach((player, index) => {
       let isGuest = !(player.user_id || player.id)
+      let isCurrentUser = player.id === this.currentUser.id
       let cardBg = isGuest ? "bg-yellow-200" : "bg-purple-700"
       let textColor = isGuest ? "text-purple-800" : "text-yellow-200"
 
@@ -94,7 +145,7 @@ export default class extends Controller {
         `
       }
       card.innerHTML = `
-        <button type="button" class="absolute top-1 right-1 text-gray-400 hover:text-red-500 font-bold" title="Remove">&times;</button>
+        ${!isCurrentUser ? `<button type="button" class="absolute top-1 right-1 text-gray-400 hover:text-red-500 font-bold" title="Remove">&times;</button>` : ""}
         ${
           !isGuest
             ? `<img src="${avatar}" alt="avatar" class="w-12 h-12 object-cover rounded-full mb-2">`
@@ -103,11 +154,13 @@ export default class extends Controller {
         <span class="text-xs font-medium text-center truncate w-full">${name}</span>
         ${hiddenFields}
       `
-      card.querySelector("button").addEventListener("mousedown", () => {
-        this.selectedPlayers.splice(index, 1)
-        this.displaySelected()
-        this.checkButton()
-      })
+      if (!isCurrentUser) {
+        card.querySelector("button").addEventListener("mousedown", () => {
+          this.selectedPlayers.splice(index, 1)
+          this.displaySelected()
+          this.checkButton()
+        })
+      }
       this.selectedTarget.appendChild(card)
     })
   }

@@ -1,4 +1,9 @@
-<div class="w-full max-w-md mx-auto px-4 py-8" data-controller="autocomplete" data-default-avatar-url="<%= asset_path('default-avatar.jpg') %>">
+<div class="w-full max-w-md mx-auto px-4 py-8"
+  data-controller="autocomplete"
+  data-default-avatar-url="<%= asset_path('default-avatar.jpg') %>"
+  data-current-user-id="<%= current_user.id %>"
+  data-current-username="<%= current_user.username %>"
+  data-current-user-avatar-url="<%= current_user.avatar_url %>">
   <div class="mb-8">
     <h1 class="font-bold text-xl text-center"><%= @game.title %></h1>
   </div>
@@ -66,8 +71,9 @@
         <label for="guest_name" class="block text-sm font-medium text-gray-800 mb-1">Add guest by name</label>
         <div class="flex gap-2">
           <input type="text" id="guest_name" class="w-full px-3 py-2 border rounded-md" data-autocomplete-target="guestInput" placeholder="Guest name">
-          <button type="button" class="btn btn-outline btn-sm" data-action="click->autocomplete#addGuest">Add Guest</button>
+          <button type="button" class="btn btn-outline btn-sm" data-action="click->autocomplete#addGuest" data-autocomplete-target="addGuestBtn">Add Guest</button>
         </div>
+        <div class="text-sm text-red-500 mt-1" style="display:none" data-autocomplete-target="guestNameMsg"></div>
       </div>
 
       <div class="text-center">
@@ -82,6 +88,10 @@
           disabled>
           Seat the players
         </button>
+
+          <div id="player-count-message" class="text-sm text-gray-500 mt-2" style="display: block;" data-autocomplete-target="playerCountMessage">
+            This game can only be played between <%= @game.min_players %> and <%= @game.max_players %> players.
+          </div>
 
         <dialog id="my_modal_3" class="modal">
           <div class="modal-box">

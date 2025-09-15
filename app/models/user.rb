@@ -18,18 +18,18 @@ class User < ApplicationRecord
   validates :last_name, presence: { message: "Last name can't be blank" }, length: { maximum: 30, message: "Last name is too long (max 30 characters)" }
   validates :email, presence: { message: "Email can't be blank" }, uniqueness: { case_sensitive: false, message: "Email is already taken" }, format: { with: URI::MailTo::EMAIL_REGEXP, message: "Email format is invalid" }
   validates :password, presence: { message: "Password can't be blank" }, length: { minimum: 6, message: "Password must be at least 6 characters" }, if: :password_required?
+  
+    def avatar_url
+      if avatar.attached?
+        Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: true)
+      else
+        ActionController::Base.helpers.asset_path("default-avatar.jpg")
+      end
+    end
 
   private
 
   def password_required?
     new_record? || password.present?
-  end
-
-  def avatar_url
-    if avatar.attached?
-      Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: true)
-    else
-      ActionController::Base.helpers.asset_path("default-avatar.jpg")
-    end
   end
 end

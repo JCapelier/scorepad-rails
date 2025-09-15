@@ -1,16 +1,52 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["firstFinisher", "score", "saveButton", "scoreCell"]
+  static targets = ["firstFinisher", "score", "saveButton", "scoreCell", "errorMsg"]
   connect() {
     this.checkButton()
 
     this.scoreTargets.forEach(input => {
-      input.addEventListener('keyup', () => this.checkButton());
+      input.addEventListener('keyup', (e) => {
+        this.checkButton();
+        this.validateScoreInput(e.target);
+      });
     });
 
     if (this.hasFirstFinisherTarget) {
       this.firstFinisherTarget.addEventListener('change', () => this.checkButton());
+    }
+  }
+
+  validateScoreInput(input) {
+    let hasError = false;
+    this.scoreTargets.forEach(input => {
+      const value = input.value;
+      console.log(!/^\d+$/.test(value))
+      if (!/^\d+$/.test(value)) {
+        hasError = true;
+        input.style.borderColor = "#dc2626"; // red
+      } else {
+        input.style.borderColor = "";
+      }
+    });
+    if (hasError) {
+      this.showErrorMsg("Scores must be numerical characters only.");
+    } else {
+      this.hideErrorMsg();
+    }
+  }
+
+  showErrorMsg(msg) {
+    if (this.hasErrorMsgTarget) {
+      this.errorMsgTarget.textContent = msg;
+      this.errorMsgTarget.style.display = "block";
+    }
+  }
+
+  hideErrorMsg() {
+    if (this.hasErrorMsgTarget) {
+      this.errorMsgTarget.textContent = "";
+      this.errorMsgTarget.style.display = "none";
     }
   }
 
