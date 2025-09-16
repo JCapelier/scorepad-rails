@@ -65,9 +65,6 @@ gem "cloudinary"
 
 gem "pundit"
 
-# Admin interface
-gem 'rails_admin'
-
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
