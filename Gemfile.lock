@@ -379,7 +379,7 @@ DEPENDENCIES
   bootsnap
   capybara
   cloudinary
-  cssbundling-rails (~> 1.4)
+  cssbundling-rails
   debug
   devise
   dotenv-rails
