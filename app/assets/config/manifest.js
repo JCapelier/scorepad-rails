@@ -3,5 +3,5 @@
 //= link_tree ../../javascript .js
 //= link_tree ../../../vendor/javascript .js
 //= link_tree ../builds
-//= link rails_admin/rails_admin.css
-//= link rails_admin/rails_admin.js
+//= link rails_admin/application.css
+//= link rails_admin/application.js
