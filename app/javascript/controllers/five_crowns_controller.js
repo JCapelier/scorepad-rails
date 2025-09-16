@@ -1,4 +1,4 @@
-import DefaultScoresheetController from "./default_scoresheet_controller"
+import DefaultScoresheetController from "controllers/default_scoresheet_controller"
 
 export default class extends DefaultScoresheetController {
 

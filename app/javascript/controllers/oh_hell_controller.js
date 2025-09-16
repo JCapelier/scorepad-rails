@@ -1,4 +1,4 @@
-import DefaultScoresheetController from "./default_scoresheet_controller"
+import DefaultScoresheetController from "controllers/default_scoresheet_controller"
 
 export default class extends DefaultScoresheetController {
   static targets = ["bids", "bidCell", "scoreCell", "tricks", "saveBidsButton", "saveTricksButton", "bidReminder", "bidsInput", "tricksInput"]
@@ -117,7 +117,7 @@ export default class extends DefaultScoresheetController {
 
       this.tricksInputTargets.forEach(input => {
         console.log(this.scoreCellTargets)
-        
+
         const previousCell = this.scoreCellTargets.find(target => target.dataset.player === input.dataset.player && target.dataset.roundId === roundId)
         const playerBidReminder = this.bidReminderTargets.find(reminder => reminder.dataset.player === input.dataset.player)
         playerBidReminder.innerText = `Bid: ${previousCell.dataset.bids}`
