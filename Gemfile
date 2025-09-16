@@ -8,6 +8,8 @@ gem "rails", "~> 7.1.5", ">= 7.1.5.1"
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
 
+gem 'sassc-rails'
+
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
@@ -63,6 +65,9 @@ gem "dotenv-rails"
 gem "cloudinary"
 
 gem "pundit"
+
+# Admin interface
+gem 'rails_admin'
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
