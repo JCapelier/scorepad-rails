@@ -1,0 +1,4 @@
+[35mapp/javascript/controllers/five_crowns_controller.js[m[36m:[m[32m1[m[36m:[mimport DefaultScoresheetController from "./[1;31mdefault_scoresheet_controller[m"
+[35mapp/javascript/controllers/mexican_train_controller.js[m[36m:[m[32m1[m[36m:[mimport DefaultScoresheetController from "./[1;31mdefault_scoresheet_controller[m"
+[35mapp/javascript/controllers/oh_hell_controller.js[m[36m:[m[32m1[m[36m:[mimport DefaultScoresheetController from "./[1;31mdefault_scoresheet_controller[m"
+[35mapp/javascript/controllers/skyjo_controller.js[m[36m:[m[32m1[m[36m:[mimport DefaultScoresheetController from "./[1;31mdefault_scoresheet_controller[m"
