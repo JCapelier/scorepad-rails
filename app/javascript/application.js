@@ -2,3 +2,5 @@
 import "@hotwired/turbo-rails"
 import "turbo_ujs_polyfill"
 import "controllers"
+
+import "rails_admin"

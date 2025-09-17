@@ -57,6 +57,8 @@ gem "devise"
 
 gem "simple_form"
 
+gem 'rails_admin'
+
 gem "dotenv-rails"
 
 gem "cloudinary"
