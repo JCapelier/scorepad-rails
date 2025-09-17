@@ -1,6 +1,16 @@
 Rails.application.routes.draw do
-  mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
-  
+  namespace :admin do
+      resources :games
+      resources :game_sessions
+      resources :moves
+      resources :rounds
+      resources :scoresheets
+      resources :session_players
+      resources :users
+
+      root to: "games#index"
+    end
+
   devise_for :users
   get 'users/autocomplete', to: 'users#autocomplete'
   root to: "pages#home"

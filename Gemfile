@@ -10,6 +10,7 @@ gem "sprockets-rails"
 
 gem "cssbundling-rails"
 
+
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
@@ -57,13 +58,14 @@ gem "devise"
 
 gem "simple_form"
 
-gem 'rails_admin'
 
 gem "dotenv-rails"
 
 gem "cloudinary"
 
 gem "pundit"
+
+gem 'administrate'
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
