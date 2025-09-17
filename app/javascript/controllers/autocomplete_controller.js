@@ -222,31 +222,20 @@ export default class extends Controller {
 
     Sortable.create(ol, {
       animation: 150,
-      onStart: (evt) => {
-        // Create a transparent image to avoid ghost trail
-        const img = document.createElement("img");
-        img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-        img.style.position = "absolute";
-        img.style.left = "-9999px";
-        document.body.appendChild(img);
-        evt.item.dragImgEl = img; // keep reference to remove later
-        evt.originalEvent.dataTransfer.setDragImage(img, 0, 0);
-      },
+      forceFallback: true,
+      fallbackOnBody: true,
+      chosenClass: 'is-chosen',
+
       onEnd: (evt) => {
-        // Remove the transparent image after drag
-        if (evt.item.dragImgEl) {
-          document.body.removeChild(evt.item.dragImgEl);
-          evt.item.dragImgEl = null;
-        }
-        const newOrder = Array.from(ol.children).map(li => li.querySelector("span").textContent)
+        const newOrder = Array.from(ol.children).map(li => li.querySelector("span").textContent);
         this.selectedPlayers.sort((a, b) => {
-          const aName = a.username || a.guest_name
-          const bName = b.username || b.guest_name
-          return newOrder.indexOf(aName) - newOrder.indexOf(bName)
-        })
-        this.displaySelected()
-        this.createList()
+          const aName = a.username || a.guest_name;
+          const bName = b.username || b.guest_name;
+          return newOrder.indexOf(aName) - newOrder.indexOf(bName);
+        });
+        this.displaySelected();
+        this.createList();
       }
-    })
+    });
   }
 }

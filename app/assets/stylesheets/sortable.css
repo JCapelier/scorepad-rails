@@ -1,0 +1,7 @@
+.is-chosen {
+  visibility: hidden;   /* hide original while dragging */
+}
+
+.sortable-ghost {
+  opacity: 0.25;        /* optional – make placeholder faint */
+}
