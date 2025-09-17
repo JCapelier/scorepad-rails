@@ -222,16 +222,20 @@ export default class extends Controller {
 
     Sortable.create(ol, {
       animation: 150,
+      forceFallback: true,
+      fallbackOnBody: true,
+      chosenClass: 'is-chosen',
+
       onEnd: (evt) => {
-        const newOrder = Array.from(ol.children).map(li => li.querySelector("span").textContent)
+        const newOrder = Array.from(ol.children).map(li => li.querySelector("span").textContent);
         this.selectedPlayers.sort((a, b) => {
-          const aName = a.username || a.guest_name
-          const bName = b.username || b.guest_name
-          return newOrder.indexOf(aName) - newOrder.indexOf(bName)
-        })
-        this.displaySelected()
-        this.createList()
+          const aName = a.username || a.guest_name;
+          const bName = b.username || b.guest_name;
+          return newOrder.indexOf(aName) - newOrder.indexOf(bName);
+        });
+        this.displaySelected();
+        this.createList();
       }
-    })
+    });
   }
 }

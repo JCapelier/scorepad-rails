@@ -1,3 +1,4 @@
 @import "tailwindcss";
 @import "./navbar_custom.css";
 @import "./dock_custom.css";
+@import "./sortable.css"
