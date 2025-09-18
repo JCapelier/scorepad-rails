@@ -167,11 +167,8 @@ export default class extends Controller {
 
   checkButton() {
     const min = parseInt(this.submitTarget.dataset.minPlayers, 10)
-    console.log(min)
     const max = parseInt(this.submitTarget.dataset.maxPlayers, 10)
-    console.log(max)
     const count = this.selectedPlayers.length
-    console.log(count)
     this.submitTarget.disabled = (count < min || count > max)
   }
 

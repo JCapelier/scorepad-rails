@@ -4,13 +4,14 @@ export default class extends Controller {
   static targets = ["firstFinisher", "score", "saveButton", "scoreCell", "errorMsg"]
   connect() {
     this.checkButton()
-
+    console.log("coucou")
     this.scoreTargets.forEach(input => {
       input.addEventListener('keyup', (e) => {
-        this.checkButton();
-        this.validateScoreInput(e.target);
-      });
-    });
+        console.log(e.target)
+        this.checkButton()
+        this.validateScoreInput(e.target)
+      })
+    })
 
     if (this.hasFirstFinisherTarget) {
       this.firstFinisherTarget.addEventListener('change', () => this.checkButton());
@@ -19,14 +20,15 @@ export default class extends Controller {
 
   validateScoreInput(input) {
     let hasError = false;
-    this.scoreTargets.forEach(input => {
-      const value = input.value;
-      console.log(!/^\d+$/.test(value))
-      if (!/^\d+$/.test(value)) {
+    this.scoreTargets.forEach(score => {
+      const value = score.value;
+      // Allow empty string, or valid integer (including negative)
+      const isInvalid = value !== "" && !/^-?\d+$/.test(value);
+      if (isInvalid) {
         hasError = true;
-        input.style.borderColor = "#dc2626"; // red
+        score.style.borderColor = "#dc2626"; // red
       } else {
-        input.style.borderColor = "";
+        score.style.borderColor = "";
       }
     });
     if (hasError) {

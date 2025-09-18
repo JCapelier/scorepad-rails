@@ -52,7 +52,6 @@ export default class extends DefaultScoresheetController {
     const endButton = document.getElementById("end-round-btn")
     if (roundId) {
       form.action = `/rounds/${roundId}`
-      console.log(form.action)
     }
 
     const modalTitle = document.querySelector("#my_modal_3 .modal-box h3")
