@@ -11,8 +11,10 @@ Rails.application.routes.draw do
       root to: "games#index"
     end
 
-  devise_for :users
+
+  devise_for :users, controllers: { registrations: 'users/registrations', sessions: 'users/sessions' }
   get 'users/autocomplete', to: 'users#autocomplete'
+  get 'users/confirm', to: 'users#confirm', as: :confirm_user
   root to: "pages#home"
 
   resources :users, only: [:show, :update] do
