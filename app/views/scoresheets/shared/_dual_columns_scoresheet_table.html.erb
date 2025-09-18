@@ -47,7 +47,7 @@
         <td style="font-weight:bold;">Total</td>
         <% scoresheet.game_session.session_players.each_with_index do |session_player, idx| %>
           <td></td>
-          <td style="font-weight:bold; font-size:18px; color:goldenrod;<% if idx < scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
+          <td style="font-weight:bold; font-size:18px; color:#6d28d9;<% if idx < scoresheet.game_session.session_players.size - 1 %> border-right:3px solid #888;<% end %>">
             <%= @scoresheet.rounds.sum { |round| round.data.dig("scores", session_player.display_name).to_i } %>
           </td>
         <% end %>

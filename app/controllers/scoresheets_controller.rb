@@ -16,8 +16,9 @@ class ScoresheetsController < ApplicationController
     ascending = game.game_engine.ascending_scoring?
     @leaderboard = game.game_engine.leaderboard(@scoresheet, ascending)
     puts "Leaderboard ascending: #{ascending}"
-    winner_username = @leaderboard.select { |player| player[:rank] == 1 }
+    winner_username = @leaderboard.select { |player| player[:rank] == 1 }.map { |p| p[:player] }
     @scoresheet.data['winner_username'] = winner_username
+    @scoresheet.update(data: @scoresheet.data)
 
     @stats = game.game_engine.player_stats(@scoresheet)
     players = @scoresheet.game_session.session_players

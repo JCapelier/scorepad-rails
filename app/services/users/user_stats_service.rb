@@ -51,7 +51,10 @@ module Users
     end
 
     def sessions_won
-      sessions_completed.select { |session| session.scoresheet.data['winner_username'] == @user.username}
+      sessions_completed.select do |session|
+        winners = session.scoresheet.data['winner_username']
+        Array(winners).include?(@user.username)
+      end
     end
 
     def sessions_win_ratio
@@ -63,7 +66,10 @@ module Users
     end
 
     def sessions_won_for(game)
-      sessions_completed_for(game).select { |session| session.scoresheet.data['winner_username'] == @user.username}
+      sessions_completed_for(game).select do |session|
+        winners = session.scoresheet.data['winner_username']
+        Array(winners).include?(@user.username)
+      end
     end
 
     def sessions_win_ratio_for(game)
