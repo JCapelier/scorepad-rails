@@ -1,4 +1,5 @@
 @import "tailwindcss";
 @import "./navbar_custom.css";
 @import "./dock_custom.css";
-@import "./sortable.css"
+@import "./sortable.css";
+@import "./number_input_arrows.css"

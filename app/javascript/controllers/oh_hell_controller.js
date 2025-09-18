@@ -79,7 +79,6 @@ export default class extends DefaultScoresheetController {
     });
 
     this.bidsInputTargets.forEach(input => {
-      console.log(this.bidsInputTargets)
       const previousCell = this.scoreCellTargets.find(target => target.dataset.player === input.dataset.player && target.dataset.roundId === roundId)
       if (previousCell && previousCell.dataset.bids !== undefined) {input.value = previousCell.dataset.bids}
     })
@@ -116,8 +115,6 @@ export default class extends DefaultScoresheetController {
 
 
       this.tricksInputTargets.forEach(input => {
-        console.log(this.scoreCellTargets)
-
         const previousCell = this.scoreCellTargets.find(target => target.dataset.player === input.dataset.player && target.dataset.roundId === roundId)
         const playerBidReminder = this.bidReminderTargets.find(reminder => reminder.dataset.player === input.dataset.player)
         playerBidReminder.innerText = `Bid: ${previousCell.dataset.bids}`

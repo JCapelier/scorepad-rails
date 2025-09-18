@@ -78,7 +78,6 @@ export default class extends DefaultScoresheetController {
     const form = document.getElementById("score-form");
     if (roundId) {
       form.action = `/rounds/${roundId}`;
-      console.log(form.action)
     }
 
     const modalTitle = document.querySelector("#my_modal_3 .modal-box h3");
