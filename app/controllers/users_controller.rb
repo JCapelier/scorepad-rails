@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:confirm, :waiting_confirmation]
 
   def show
     @user = current_user
@@ -28,11 +28,9 @@ class UsersController < ApplicationController
         bypass_sign_in(@user) # Devise: keep user signed in after password change
         flash[:notice] = "Password updated successfully."
         redirect_to settings_user_path(@user)
-        return
       else
         flash.now[:alert] = "Could not update password."
         render :settings, status: :unprocessable_entity
-        return
       end
     end
 
@@ -43,6 +41,21 @@ class UsersController < ApplicationController
     else
       flash.now[:alert] = "Could not update account."
       render :settings, status: :unprocessable_entity
+    end
+  end
+
+  def waiting_confirmation; end
+
+  def confirm
+    user = User.find_by(confirmation_token: params[:token])
+
+    if user && !user.confirmed?
+      user.confirm!
+      session[:confirmed] = true
+      redirect_to new_user_session_path
+    else
+      flash[:alert] = "Invalid or expired confirmation link."
+      redirect_to root_path
     end
   end
 

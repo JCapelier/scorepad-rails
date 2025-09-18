@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; background:#fff; font-family:sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;">
+      <tr>
+        <td style="text-align:center">
+          <table width="480" cellpadding="0" cellspacing="0" style="margin:40px auto; background:#fff; border-radius:8px; box-shadow:0 2px 8px #eee;">
+            <tr>
+              <td style="background:#fde68a; padding:24px 0; border-radius:8px 8px 0 0; text-align:center;">
+                <span style="font-size:2em; font-weight:bold; color:#6d28d9; letter-spacing:1px;">Scorepad</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px 32px 24px 32px; color:#4b006e;">
+                <h2 style="margin-top:0; color:#6d28d9;">Welcome to Scorepad!</h2>
+                <p style="font-size:1.1em; color:#4b006e;">
+                  Please confirm your email address to activate your account.
+                </p>
+                <div style="text-align:center; margin:32px 0;">
+                  <a href="<%= @confirmation_url %>"
+                     style="background:#fde047; color:#6d28d9; text-decoration:none; font-weight:bold; padding:14px 32px; border-radius:6px; font-size:1.1em; display:inline-block; box-shadow:0 1px 4px #eee;">
+                    Confirm my email
+                  </a>
+                </div>
+                <p style="font-size:0.95em; color:#6d28d9;">
+                  If you did not sign up for Scorepad, you can safely ignore this email.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f3f4f6; color:#a78bfa; text-align:center; font-size:0.9em; border-radius:0 0 8px 8px; padding:16px;">
+                &copy; <%= Time.current.year %> Scorepad
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -22,11 +22,11 @@ Game.create!(title: "Scopa", description:"Because sometimes, you wanna feel like
 puts "Created #{Game.count} games"
 
 puts "Creating users"
-User.create(first_name: "Esther", last_name: "Descamps", username: "Tether", email: "esther@mail.com", password: "password")
-User.create(first_name: "Flore", last_name: "Capelier", username: "Florette", email: "flore@mail.com", password: "password")
-User.create(first_name: "Renaud", last_name: "Torrent", username: "Reno", email: "renaud@mail.com", password: "password")
-User.create(first_name: "Anne-Laure", last_name: "Crépel", username: "<3 Doudou <3", email: "anne-laure@mail.com", password: "password")
-User.create(first_name: "Mara", last_name: "Goyet", username: "Môman", email: "mara@mail.com", password: "password")
-User.create(first_name: "Claude", last_name: "Capelier", username: "Pôpa", email: "claude@mail.com", password: "password")
-User.create(first_name: "Jonas", last_name: "Capelier", username: "Joe", email: "jonas@mail.com", password: "password")
+User.create(username: "Tether", email: "esther@mail.com", password: "password")
+User.create(username: "Florette", email: "flore@mail.com", password: "password")
+User.create(username: "Reno", email: "renaud@mail.com", password: "password", admin: true)
+User.create(username: "<3 Doudou <3", email: "anne-laure@mail.com", password: "password")
+User.create(username: "Môman", email: "mara@mail.com", password: "password")
+User.create(username: "Pôpa", email: "claude@mail.com", password: "password")
+User.create(username: "Joe", email: "jonas@mail.com", password: "password")
 puts "Created #{User.count} users"
