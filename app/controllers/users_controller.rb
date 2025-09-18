@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!, except: [:confirm]
+  before_action :authenticate_user!, except: [:confirm, :waiting_confirmation]
 
   def show
     @user = current_user
@@ -44,13 +44,14 @@ class UsersController < ApplicationController
     end
   end
 
+  def waiting_confirmation; end
 
   def confirm
     user = User.find_by(confirmation_token: params[:token])
 
     if user && !user.confirmed?
       user.confirm!
-      flash[:notice] = "Your email has been confirmed! You can now log in."
+      session[:confirmed] = true
       redirect_to new_user_session_path
     else
       flash[:alert] = "Invalid or expired confirmation link."

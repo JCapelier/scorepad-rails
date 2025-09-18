@@ -70,8 +70,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def sign_up(resource_name, resource)
     # Do nothing to prevent auto sign-in
   end
-  
+
   def after_sign_up_path_for(resource)
-    new_user_session_path # Redirect to login page
+      waiting_confirmation_path
   end
 end
