@@ -22,13 +22,10 @@ export default class extends DefaultScoresheetController {
     const roundId = event.currentTarget.dataset.roundId
 
     const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber)
-
+    console.log(roundId)
     this.scoreTargets.forEach(input => {
       const player = input.dataset.player
       const cell = scoreCells.find(cell => cell.dataset.player === player)
-      console.log(player)
-      console.log(cell)
-      console.log(event.currentTarget)
       if (cell) {
         let scoreText = cell.textContent.trim()
         if (scoreText === "-") {

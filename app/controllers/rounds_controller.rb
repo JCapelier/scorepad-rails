@@ -42,16 +42,18 @@ class RoundsController < ApplicationController
 
     round.data.merge!(results[:round_data_updates])
     round.save
-    if params[:phase] == "bidding"
+    game_name = scoresheet.game_session.game.title.underscore
+    if game_name == 'oh_hell' && params[:phase] == 'bidding'
       Move.where(round_id: round.id).destroy_all
+    elsif game_name == 'oh_hell'
+      Move.where(round_id: round.id, move_type: 'tricks').destroy_all
     else
-      Move.where(round_id: round.id, move_type: "tricks").destroy_all
+      Move.where(round_id: round.id).destroy_all
     end
 
     Move.create(results[:move_data]) if results[:move_data].present?
     results[:move_data_list].each { |move_attrs| Move.create(move_attrs) } if results[:move_data_list].present?
 
-    game_name = scoresheet.game_session.game.title.underscore
     respond_to do |format|
       format.json {
         render json: {
