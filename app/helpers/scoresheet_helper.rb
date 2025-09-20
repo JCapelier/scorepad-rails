@@ -87,6 +87,7 @@ module ScoresheetHelper
     case scoresheet.game_session.game.title
     when 'Skyjo'
       {
+        'data-round-id' => round.id,
         'data-first-finisher' => round.data['first_finisher'],
         'data-round-number' => round.round_number,
         'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
@@ -94,6 +95,7 @@ module ScoresheetHelper
       }
     when 'Five Crowns'
       {
+        'data-round-id' => round.id,
         'data-first-finisher' => round.data['first_finisher'],
         'data-round-number' => round.round_number,
         'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
@@ -101,6 +103,7 @@ module ScoresheetHelper
       }
     when 'Mexican Train'
       {
+        'data-round-id' => round.id,
         'data-first-finisher' => round.data['first_finisher'],
         'data-round-number' => round.round_number,
       }

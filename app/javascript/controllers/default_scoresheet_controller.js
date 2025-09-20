@@ -4,10 +4,8 @@ export default class extends Controller {
   static targets = ["firstFinisher", "score", "saveButton", "scoreCell", "errorMsg"]
   connect() {
     this.checkButton()
-    console.log("coucou")
     this.scoreTargets.forEach(input => {
       input.addEventListener('keyup', (e) => {
-        console.log(e.target)
         this.checkButton()
         this.validateScoreInput(e.target)
       })
