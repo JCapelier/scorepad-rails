@@ -20,41 +20,42 @@ export default class extends DefaultScoresheetController {
 
   editRound(event) {
     this.resetScoreForm();
-    this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || "";
-    const roundNumber = event.currentTarget.dataset.roundNumber;
-    const roundId = event.currentTarget.dataset.roundId;
+    this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || ""
+    const roundNumber = event.currentTarget.dataset.roundNumber
+    console.log(event.currentTarget)
+    console.log(roundNumber)
+    const roundId = event.currentTarget.dataset.roundId
+    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber)
 
-    const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.round === roundNumber);
-
-    const endButton = document.getElementById("end-round-btn");
+    const endButton = document.getElementById("end-round-btn")
 
     // Only prefill scores if NOT clicking the end round button
     if (event.currentTarget !== endButton) {
       this.scoreTargets.forEach(input => {
-        const player = input.dataset.player;
+        const player = input.dataset.player
         const cell = scoreCells.find(cell => cell.dataset.player === player);
 
         if (cell) {
-          let scoreText = cell.textContent.trim();
+          let scoreText = cell.textContent.trim()
           if (scoreText === "-") {
-            input.value = "";
+            input.value = ""
           } else {
-            input.value = scoreText;
+            input.value = scoreText
           }
         } else {
-          input.value = "";
+          input.value = ""
         }
 
         if (player === this.firstFinisherTarget.value) {
-          input.style.color = "purple";
-          input.style.fontWeight = "bold";
+          input.style.color = "purple"
+          input.style.fontWeight = "bold"
           if (document.getElementById("early-finish")?.value === "false") {
             input.readOnly = true;
           }
         } else {
-          input.style.color = "";
-          input.style.fontWeight = "";
-          input.readOnly = false;
+          input.style.color = ""
+          input.style.fontWeight = ""
+          input.readOnly = false
         }
       });
     } else {
@@ -73,7 +74,6 @@ export default class extends DefaultScoresheetController {
         }
       });
     }
-
 
     const form = document.getElementById("score-form");
     if (roundId) {
