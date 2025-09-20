@@ -18,6 +18,7 @@ export default class extends DefaultScoresheetController {
     this.resetScoreForm()
     this.firstFinisherTarget.value = event.currentTarget.dataset.firstFinisher || ""
     const roundNumber = event.currentTarget.dataset.roundNumber
+
     const roundId = event.currentTarget.dataset.roundId
 
     const scoreCells = this.scoreCellTargets.filter(cell => cell.dataset.roundNumber === roundNumber)
@@ -25,12 +26,14 @@ export default class extends DefaultScoresheetController {
     this.scoreTargets.forEach(input => {
       const player = input.dataset.player
       const cell = scoreCells.find(cell => cell.dataset.player === player)
-
+      console.log(player)
+      console.log(cell)
+      console.log(event.currentTarget)
       if (cell) {
         let scoreText = cell.textContent.trim()
         if (scoreText === "-") {
           input.value = ""
-        } else if (cell.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value && cell.dataset.childMode === "false") {
+        } else if (event.currentTarget.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value && event.currentTarget.dataset.childMode === "false") {
           input.value = parseInt(scoreText, 10) / 2
         } else {
           input.value = scoreText

@@ -58,7 +58,7 @@ module ScoresheetHelper
       'Fight amongst yourselves!'
     else
       previous_round = scoresheet.rounds.find_by(round_number: round_number - 1)
-      previous_round&.move_for_finisher&.session_player&.display_name
+      previous_round&.move_for_first_finisher&.session_player&.display_name
     end
   end
 
@@ -88,18 +88,21 @@ module ScoresheetHelper
     when 'Skyjo'
       {
         'data-first-finisher' => round.data['first_finisher'],
+        'data-round-number' => round.round_number,
         'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
         'data-child-mode' => scoresheet.data['child_mode']['value']
       }
     when 'Five Crowns'
       {
         'data-first-finisher' => round.data['first_finisher'],
+        'data-round-number' => round.round_number,
         'data-finish-status' => round.move_for_first_finisher&.data&.dig('finish_status'),
         'data-early-finish' => scoresheet.data['early_finish']['value']
       }
     when 'Mexican Train'
       {
-        'data-first-finisher' => round.data['first_finisher']
+        'data-first-finisher' => round.data['first_finisher'],
+        'data-round-number' => round.round_number,
       }
     when 'Oh Hell'
       {
