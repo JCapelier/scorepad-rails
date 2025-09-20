@@ -40,7 +40,7 @@ export default class extends DefaultScoresheetController {
         let scoreText = cell.textContent.trim();
         if (scoreText === "-") {
           input.value = "";
-        } else if (cell.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value) {
+        } else if (event.currentTarget.dataset.finishStatus === "failure" && cell.dataset.player === this.firstFinisherTarget.value) {
           input.value = parseInt(scoreText, 10) / 2;
         } else {
           input.value = scoreText;
