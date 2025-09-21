@@ -2,7 +2,7 @@
 <div class="mt-4">
   <h3 class="font-bold text-lg mb-2 text-purple-700"><%= game.title %> Stats</h3>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    <% stats_titles.each do |key, title| %>
+  <% stats_titles().each do |key, title| %>
       <% value = user_stats_service_for(game, user).stats_hash_for(game)[key] %>
       <% if value.present? %>
         <div class="bg-white border-2 border-purple-300 rounded p-4 shadow">
