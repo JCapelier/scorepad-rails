@@ -132,6 +132,13 @@ GEM
     drb (2.2.3)
     erb (5.0.2)
     erubi (1.13.1)
+    factory_bot (6.5.5)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.1)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
+    faker (3.5.2)
+      i18n (>= 1.8.11, < 2)
     faraday (2.13.3)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -315,6 +322,8 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    shoulda-matchers (6.5.0)
+      activesupport (>= 5.2.0)
     simple_form (5.3.1)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -374,6 +383,8 @@ DEPENDENCIES
   debug
   devise
   dotenv-rails
+  factory_bot_rails
+  faker
   image_processing
   importmap-rails
   jbuilder
@@ -382,6 +393,7 @@ DEPENDENCIES
   pundit
   rails (~> 7.1.5, >= 7.1.5.1)
   selenium-webdriver
+  shoulda-matchers (~> 6.2)
   simple_form
   sprockets-rails
   stimulus-rails
