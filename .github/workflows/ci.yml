@@ -16,7 +16,7 @@ jobs:
           POSTGRES_USER: rails
           POSTGRES_PASSWORD: password
           POSTGRES_DB: app_test
-        # wait for PG to be ready
+
         options: >-
           --health-cmd "pg_isready -U rails"
           --health-interval 10s
@@ -33,15 +33,13 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
-          bundler-cache: true  # caches gems based on Gemfile.lock
+          bundler-cache: false
 
-      # If your tests need libvips (ActiveStorage variants), keep this.
       - name: System deps
         run: sudo apt-get update -qq && sudo apt-get install -y libvips
 
       - name: Prepare DB
         run: bin/rails db:prepare
 
-      # Rails default (Minitest)
       - name: Run tests (Minitest)
         run: bin/rails test
