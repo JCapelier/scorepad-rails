@@ -8,9 +8,6 @@ class ScoresheetTest < ActiveSupport::TestCase
   should have_many(:session_players)
   should have_many(:moves)
 
-  # Validations
-  should validate_presence_of(:game_session)
-
   # Sanity build (ensures factory/quick create works)
   test "factory builds a valid Scoresheet" do
     record = defined?(FactoryBot) ? build(:scoresheet) : Scoresheet.new

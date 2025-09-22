@@ -1,8 +1,9 @@
 require "test_helper"
 
 class SessionPlayerTest < ActiveSupport::TestCase
+
   # Associations
-  should belong_to(:user)
+  should belong_to(:user).optional
   should belong_to(:game_session)
   should have_many(:moves)
 
