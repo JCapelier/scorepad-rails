@@ -38,6 +38,13 @@ jobs:
       - name: System deps
         run: sudo apt-get update -qq && sudo apt-get install -y libvips
 
+      - name: Wait for DB
+        run: |
+          until pg_isready -h postgres -U rails; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+
       - name: Prepare DB
         run: bin/rails db:prepare
 
