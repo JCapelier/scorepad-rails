@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      db:   # 👈 service name
+      db:
         image: postgres:15
         env:
           POSTGRES_USER: rails
@@ -38,8 +38,8 @@ jobs:
 
       - name: Wait for DB
         run: |
-          until pg_isready -h postgres -U rails; do
-            echo "Waiting for postgres..."
+          until pg_isready -h db -U rails; do
+            echo "Waiting for db..."
             sleep 2
           done
 
