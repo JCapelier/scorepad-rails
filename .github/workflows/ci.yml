@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      db:
+      postgres:
         image: postgres:15
         env:
           POSTGRES_USER: rails
@@ -23,7 +23,7 @@ jobs:
 
     env:
       RAILS_ENV: test
-      DATABASE_URL: postgres://rails:password@db:5432/app_test
+      DATABASE_URL: postgres://rails:password@localhost:5432/app_test
 
     steps:
       - uses: actions/checkout@v4
