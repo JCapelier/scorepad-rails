@@ -4,7 +4,6 @@ class GameTest < ActiveSupport::TestCase
   # Associations
   should have_many(:game_sessions)
 
-  # Validations
 
   # Sanity build (ensures factory/quick create works)
   test "factory builds a valid Game" do
