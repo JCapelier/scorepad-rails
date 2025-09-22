@@ -1,7 +1,16 @@
 require "test_helper"
 
 class ScoresheetTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  # Associations
+  should belong_to(:game_session)
+  should have_one(:game)
+  should have_many(:rounds)
+  should have_many(:session_players)
+  should have_many(:moves)
+
+  # Sanity build (ensures factory/quick create works)
+  test "factory builds a valid Scoresheet" do
+    record = defined?(FactoryBot) ? build(:scoresheet) : Scoresheet.new
+    assert record.valid?, record.errors.full_messages.to_sentence
+  end
 end

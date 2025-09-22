@@ -1,7 +1,14 @@
 require "test_helper"
 
 class GameSessionTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  # Associations
+  should belong_to(:game)
+  should have_one(:scoresheet)
+  should have_many(:session_players)
+
+  # Sanity build (ensures factory/quick create works)
+  test "factory builds a valid GameSession" do
+    record = defined?(FactoryBot) ? build(:game_session) : GameSession.new
+    assert record.valid?, record.errors.full_messages.to_sentence
+  end
 end
