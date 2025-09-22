@@ -8,23 +8,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: rails
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: app_test
-
-        options: >-
-          --health-cmd "pg_isready -U rails"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+  services:
+    db: # 👈 service is called "db"
+      image: postgres:15
+      env:
+        POSTGRES_USER: rails
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: app_test
+      options: >-
+        --health-cmd="pg_isready -U rails"
+        --health-interval=10s
+        --health-timeout=5s
+        --health-retries=5
 
     env:
       RAILS_ENV: test
-      DATABASE_URL: postgres://rails:password@postgres:5432/app_test
+      DATABASE_URL: postgres://rails:password@db:5432/app_test # 👈 matches service name
 
     steps:
       - uses: actions/checkout@v4
