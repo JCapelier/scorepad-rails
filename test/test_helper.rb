@@ -4,6 +4,7 @@ require "rails/test_help"
 
 # Add shoulda-matchers for one-liner validations/associations
 require "shoulda/matchers"
+require "shoulda/context"
 
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|

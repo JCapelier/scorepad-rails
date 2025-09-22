@@ -322,6 +322,7 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    shoulda-context (2.0.0)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
     simple_form (5.3.1)
@@ -393,6 +394,7 @@ DEPENDENCIES
   pundit
   rails (~> 7.1.5, >= 7.1.5.1)
   selenium-webdriver
+  shoulda-context (~> 2.0)
   shoulda-matchers (~> 6.2)
   simple_form
   sprockets-rails
