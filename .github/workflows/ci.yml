@@ -15,16 +15,18 @@ jobs:
           POSTGRES_USER: rails
           POSTGRES_PASSWORD: password
           POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U rails"
+          --health-cmd="pg_isready -U rails -d app_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
     env:
       RAILS_ENV: test
-      DATABASE_URL: postgres://rails:password@postgres:5432/app_test
-
+      DATABASE_URL: postgres://rails:password@localhost:5432/app_test
+      
     steps:
       - uses: actions/checkout@v4
 
