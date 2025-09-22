@@ -4,12 +4,12 @@ one:
   game: one
   starts_at: 2025-07-23 14:10:05
   ends_at: 2025-07-23 14:10:05
-  place: MyString
+  location: MyString
   notes: MyString
 
 two:
   game: two
   starts_at: 2025-07-23 14:10:05
   ends_at: 2025-07-23 14:10:05
-  place: MyString
+  location: MyString
   notes: MyString
