@@ -23,7 +23,7 @@ jobs:
 
     env:
       RAILS_ENV: test
-      DATABASE_URL: postgres://rails:password@db:5432/app_test # 👈 matches service name
+      DATABASE_URL: postgres://rails:password@db:5432/app_test
 
     steps:
       - uses: actions/checkout@v4
@@ -35,13 +35,6 @@ jobs:
 
       - name: System deps
         run: sudo apt-get update -qq && sudo apt-get install -y libvips
-
-      - name: Wait for DB
-        run: |
-          until pg_isready -h db -U rails; do
-            echo "Waiting for db..."
-            sleep 2
-          done
 
       - name: Prepare DB
         run: bin/rails db:prepare
