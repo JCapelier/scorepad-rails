@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: scorepad
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: scorepad_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    image: scorepad:dev
+    depends_on:
+      - db
+    environment:
+      RAILS_ENV: development
+      FORCE_SSL: "false"
+      DATABASE_URL: postgres://scorepad:${DATABASE_PASSWORD}@db:5432/scorepad_development
+      RAILS_LOG_TO_STDOUT: "1"
+    ports:
+      - "3000:3000"
+    command: ["bin/rails","server","-b","0.0.0.0","-p","3000"]
+    volumes:
+      - .:/rails
+volumes:
+  pgdata:

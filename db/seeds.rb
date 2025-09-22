@@ -9,16 +9,12 @@ User.destroy_all
 puts "DB deleted"
 
 puts "Creating games"
-Game.create!(title: "Generic score counter", description:"Set your own rules!")
-Game.create!(title: "Generic bet manager", description:"Set your own rules!")
 Game.create!(title: "Skyjo", description:"Don't be the first to reach 100!")
 Game.create!(title: "Five Crowns", description:"11 rounds of combinations!")
 Game.create!(title: "Koi Koi", description:"You filthy weeb!")
 Game.create!(title: "Oh Hell", description:"The power of my hand is over 9000 and I'll prove it!")
 Game.create!(title: "Mexican Train", description:"Because a game should last at least four hours!")
-Game.create!(title: "Azul", description:"The prettiest game!")
-Game.create!(title: "Poker", description:"Gimme your money!")
-Game.create!(title: "Scopa", description:"Because sometimes, you wanna feel like a Godfather!")
+Game.create!(title: "Scopa", description:"COMING SOON")
 puts "Created #{Game.count} games"
 
 puts "Creating users"
