@@ -1,3 +1,6 @@
+<% content_for :title, "Profile | Scorepad" %>
+<% content_for :meta_description, "View your profile, stats, and game history on Scorepad." %>
+
 <div>
   <%= render partial: 'users/user_global_stats', locals: { user: @user, stats: @stats } %>
 

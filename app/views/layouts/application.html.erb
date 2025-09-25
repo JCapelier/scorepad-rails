@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ScorepadRails</title>
+    <title><%= content_for?(:title) ? yield(:title) : "Scorepad | Because every point counts" %></title>
+    <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : 'Scorepad is the easiest way to keep score and stats for your games. Track, share, and enjoy every point.' %>">
+
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
