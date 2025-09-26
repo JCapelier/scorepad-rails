@@ -10,8 +10,6 @@ class UserDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     admin: Field::Boolean,
-    avatar_attachment: Field::HasOne,
-    avatar_blob: Field::HasOne,
     email: Field::String,
     encrypted_password: Field::String,
     first_name: Field::String,
@@ -34,8 +32,6 @@ class UserDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[
     id
     admin
-    avatar_attachment
-    avatar_blob
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -43,8 +39,6 @@ class UserDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     id
     admin
-    avatar_attachment
-    avatar_blob
     email
     encrypted_password
     first_name
@@ -64,8 +58,6 @@ class UserDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     admin
-    avatar_attachment
-    avatar_blob
     email
     encrypted_password
     first_name
